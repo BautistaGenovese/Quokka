@@ -1,26 +1,28 @@
 # Manual de Diseño y Estilo
-## Sistema visual para el portfolio basado en tamalsen.dev
+## Sistema visual de Quokka Studio
 
-**Versión:** 1.0  
-**Referencia visual:** https://tamalsen.dev/  
-**Implementación:** Next.js App Router + React + Tailwind CSS + shadcn/ui  
-**Idioma del contenido:** español para documentación; inglés para copy del portfolio  
-**Tema:** dark-only, editorial, técnico y orientado a portfolio de ingeniería de software
+**Versión:** 2.0  
+**Referencia de implementación:** `Quokka_portfolio_revisado.html`  
+**Implementación actual:** HTML, CSS y JavaScript en un único documento; sistema preparado para trasladarse a componentes si el proyecto evoluciona.  
+**Idioma del contenido:** español. Los nombres de tecnologías y algunas etiquetas técnicas pueden mantenerse en inglés.  
+**Tema:** portfolio colaborativo, cálido y editorial, con identidad inspirada en los quokkas y una base técnica.
 
 ---
 
 ## 1. Propósito
 
-Este documento define el sistema visual, las reglas de composición y los patrones de componentes para construir o extender el portfolio. Debe usarse como fuente de verdad antes de crear una nueva pantalla, sección o componente.
+Este documento registra el sistema visual que debe mantenerse al modificar o ampliar Quokka Studio. Sirve como referencia para colores, tipografías, composición, espaciado, tarjetas, navegación, interacciones y adaptación responsive.
 
-El objetivo es mantener una interfaz:
+La interfaz debe sentirse:
 
-- Oscura, elegante y con alto contraste.
-- Editorial: grandes titulares, mucho espacio negativo y ritmo vertical.
-- Técnica: tipografía monoespaciada, etiquetas de código y navegación con `//`.
-- Personal: acentos violeta, cian y una ilustración abstracta en el hero.
-- Accesible: HTML semántico, foco visible, texto legible y respeto por `prefers-reduced-motion`.
-- Responsive: mobile-first, sin depender de posiciones absolutas para la estructura.
+- **Cercana:** formas amigables, color orgánico y lenguaje directo.
+- **Creativa:** composición editorial, titulares expresivos y detalles visuales reconocibles.
+- **Técnica:** etiquetas monoespaciadas, índices de sección y referencias al desarrollo.
+- **Coherente:** una misma identidad en todas las secciones, aunque cambien sus fondos y acentos.
+- **Legible:** contraste suficiente, descripciones cómodas de leer y jerarquía clara.
+- **Responsive:** composición adaptable a escritorio, tablet y móvil sin depender de posiciones absolutas para organizar el contenido.
+
+El portfolio presenta al equipo, sus capacidades, tecnologías, proyectos de muestra y una representación del sistema que se proyecta desarrollar. Los prototipos o datos ilustrativos no deben presentarse como funcionalidades de producción ya implementadas.
 
 ---
 
@@ -30,101 +32,157 @@ El objetivo es mantener una interfaz:
 
 Las palabras guía son:
 
-- **Preciso:** cada elemento tiene una función.
-- **Experimental:** se permiten formas abstractas y color, pero sin ruido decorativo.
-- **Confiable:** estructura clara, jerarquía tipográfica fuerte y CTA evidentes.
-- **Humano:** testimonios, experiencia y copy directo.
-- **Técnico:** monoespaciada, tags, referencias de código y nomenclatura de ingeniería.
+- **Amable:** el lenguaje visual toma como inspiración la apariencia simpática y curiosa de los quokkas, sin convertir la interfaz en algo infantil.
+- **Editorial:** titulares grandes, frases destacadas, variaciones de escala y generoso espacio negativo.
+- **Orgánica:** verdes apagados, tonos tierra, crema y superficies con calidez.
+- **Técnica:** tipografía monoespaciada en metadatos, índices, etiquetas y detalles relacionados con desarrollo.
+- **Colaborativa:** cada integrante tiene identidad propia, pero las tarjetas comparten la misma estructura y reglas visuales.
+- **Interactiva:** animaciones y microinteracciones que ayudan a entender la interfaz, no que distraen de su contenido.
 
 ### 2.2 Qué evitar
 
-- Fondos claros o gradientes genéricos tipo SaaS.
-- Más de un acento dominante en la misma vista.
-- Sombras pesadas o neumorfismo.
-- Cards con exceso de bordes y decoración.
-- Iconos emoji.
-- Texto centrado cuando el contenido requiere lectura larga.
-- Componentes que dependan de `localStorage` para funcionar.
-- Imágenes externas como placeholders sin `alt`.
-- SVG complejos dibujados manualmente para mapas o visualizaciones.
+- Volver a una estética SaaS genérica con degradados decorativos por todas partes.
+- Usar cuatro o cinco colores dominantes simultáneamente en una misma vista.
+- Repetir caritas, mascotas o ilustraciones de quokkas en todas las tarjetas del equipo.
+- Añadir etiquetas solo para llenar espacio, especialmente si repiten información ya presente en el título.
+- Duplicar el prefijo `//` en los encabezados de sección.
+- Usar monoespaciada para párrafos largos.
+- Utilizar Fraunces como fuente principal de lectura.
+- Añadir bordes gruesos, sombras pesadas o demasiados radios redondeados a todos los componentes.
+- Centrar párrafos largos cuando una alineación a la izquierda mejora la lectura.
+- Ocultar información esencial en móvil o hacer que una acción dependa exclusivamente del hover.
+- Usar emojis como sustituto de iconos funcionales.
+- Presentar prototipos, métricas simuladas o ejemplos como datos reales del sistema.
 
 ---
 
 ## 3. Paleta de colores
 
-Usar tokens CSS, nunca repetir hexadecimales directamente en los componentes salvo para una ilustración o asset aislado.
+La implementación dispone de una paleta clara y una oscura, además de acentos por sección. Los componentes deben usar variables CSS en vez de repetir valores hexadecimales directamente.
 
-### 3.1 Neutros de base
+### 3.1 Neutros y superficies
 
 | Nombre | Hex / valor | Token | Uso |
 |---|---|---|---|
-| Grafito Nocturno | `#1A191D` | `--background` | Fondo principal del body y secciones. No usar negro puro como fondo general. |
-| Superficie | `#17161A` | `--card` | Header, tarjetas y superficies elevadas. |
-| Carbón | `#0F0F0F` | `--surface-deep` | Testimonios, footer y bloques de contraste máximo. |
-| Blanco Puro | `#FFFFFF` | `--foreground` | Titulares, navegación y texto destacado. |
-| Blanco 75% | `rgba(255,255,255,.75)` | `--muted-foreground` | Párrafos, descripciones y texto secundario. |
-| Muted | `#232227` | `--muted` | Fondos sutiles, estados inactivos y controles. |
-| Borde | `rgba(255,255,255,.10)` | `--border` | Divisores y bordes discretos. |
-| Input | `rgba(255,255,255,.15)` | `--input` | Campos de formulario y controles. |
+| Papel cálido | `#F1EEE4` | `--paper` / `--bg` | Fondo principal del tema claro. |
+| Papel secundario | `#E7E3D4` | `--paper-soft` / `--card` | Tarjetas y superficies alternas. |
+| Arena | `#EBE2CF` | `--bg-sand` | Secciones editoriales con contraste suave. |
+| Niebla | `#E2EAEC` | `--bg-mist` | Variación fría y ligera de fondo. |
+| Tinta | `#1B1E21` | `--ink` / `--fg` | Texto principal, bordes y contraste. |
+| Tinta secundaria | `#26323D` | `--ink-soft` | Texto oscuro secundario cuando corresponda. |
+| Línea | `rgba(27,30,33,.18)` | `--line` | Divisores y bordes discretos en tema claro. |
+| Línea fuerte | `rgba(27,30,33,.40)` | `--line-strong` | Contornos de controles que requieren más presencia. |
 
-### 3.2 Violetas de marca
-
-| Nombre | Hex | Token | Uso |
-|---|---|---|---|
-| Violeta Eléctrico | `#9B37FF` | `--primary` | CTA primario, botones “View Project” y estados activos. |
-| Lavanda | `#BB77FF` | `--highlight` | Hover, enlaces, cursor del logo y detalles interactivos. |
-| Orquídea | `#BC60FB` | `--testimonial-1` | Testimonio principal; usar preferentemente con texto grande o oscuro. |
-| Amatista | `#923FE6` | `--testimonial-3` | Testimonio secundario y variación de panel. |
-| Púrpura Profundo | `#490C86` | `--deep` | Barras de experiencia y acentos densos. |
-| Índigo Noche | `#241D41` | `--secondary` | Panels expandidos, overlays y superficies violetas oscuras. |
-
-### 3.3 Acentos
+### 3.2 Color de marca y verdes
 
 | Nombre | Hex | Token | Uso |
 |---|---|---|---|
-| Cian Terminal | `#66D9ED` | `--accent` | Logo `TamalSen.`, referencias de código y acento frío. |
-| Azul Cobalto | `#0067DC` | `--testimonial-2` | Variación de card/testimonio. |
-| Índigo Etiqueta | `#2C3599` | `--tag` | Chips de tecnologías. |
-| Ámbar Orbe | `#F4A261` | `--glow` | Luz cálida de la ilustración 3D del hero. |
-| Destructive | `#FF5C7A` | `--destructive` | Errores y acciones destructivas, solo cuando corresponda. |
+| Eucalipto suave | `#9DB8A3` | `--orange` / `--fl-green` | Rellenos suaves y acentos de marca en tema claro. El nombre histórico del token `--orange` se conserva por compatibilidad con el CSS existente. |
+| Verde eucalipto | `#4F6F5B` | `--accent` / `--ac-green` | Acento principal en el tema claro: enlaces, índices, detalles y elementos activos. |
+| Verde profundo | `#44624D` | `--ac-green-2` | Variación oscura para estados y contraste. |
+| Bosque | `#2F4A3E` | `--hero-bg` | Fondo principal del hero. |
+| Bosque oscuro | `#1F3A2E` | `--hero-paper` | Contraste decorativo dentro del hero. |
+| Verde claro del hero | `#B4CDB9` | `--hero-orange` / `--hero-accent` | Detalles y estados destacados dentro del hero. |
 
-### 3.4 Reglas de color
+### 3.3 Acentos secundarios
 
-1. El fondo base siempre es `#1A191D`.
-2. Usar `--primary` para una acción principal por bloque.
-3. Usar como máximo un acento adicional dominante por vista.
-4. El cian comunica identidad técnica; el violeta comunica acción.
-5. Las tarjetas no deben competir con el CTA principal.
-6. Verificar contraste: texto normal mínimo 4.5:1; texto grande mínimo 3:1.
-7. Para texto sobre `--primary`, usar `--primary-foreground: #FFFFFF`.
-8. Para texto sobre `--highlight` o `--glow`, preferir texto oscuro `#1A191D`.
+| Nombre | Hex | Token | Uso |
+|---|---|---|---|
+| Azul pizarra | `#456A82` | `--ac-blue` | Acento frío alternativo, por ejemplo en elementos del equipo. |
+| Azul niebla | `#A9C1D0` | `--fl-blue` | Relleno suave asociado al acento azul. |
+| Arcilla | `#7F5636` | `--ac-clay` | Acento cálido para manifiesto o secciones editoriales. |
+| Arena arcilla | `#D9C3A0` | `--fl-clay` | Fondo suave asociado al acento arcilla. |
+| Malva | `#6E5A79` | `--ac-mauve` | Acento secundario para tecnología y bloques especializados. |
+| Malva suave | `#CBBDD2` | `--fl-mauve` | Relleno claro asociado al acento malva. |
+| Advertencia | `#9C4A2B` | `--warn` | Advertencias en el tema claro, solo cuando sean necesarias. |
 
-### 3.5 Tokens CSS canónicos
+### 3.4 Tema oscuro
+
+| Nombre | Hex / valor | Token | Uso |
+|---|---|---|---|
+| Tinta nocturna | `#1B1E21` | `--bg` | Fondo principal oscuro. |
+| Texto claro | `#ECE8DE` | `--fg` | Texto principal en modo oscuro. |
+| Tarjeta nocturna | `#25292D` | `--card` | Tarjetas y superficies elevadas. |
+| Superficie profunda | `#15181B` | `--card-dark` | Contraste dentro de paneles oscuros. |
+| Línea oscura | `rgba(236,232,222,.15)` | `--line` | Divisores discretos. |
+| Línea oscura fuerte | `rgba(236,232,222,.35)` | `--line-strong` | Bordes que necesitan mayor visibilidad. |
+| Verde nocturno | `#8DB39A` | `--accent` / `--orange` | Acento principal en modo oscuro. |
+| Azul nocturno | `#86A9BF` | `--ac-blue` | Acento azul en modo oscuro. |
+| Arcilla nocturna | `#D0A57C` | `--ac-clay` | Acento cálido en modo oscuro. |
+| Malva nocturno | `#B39EBB` | `--ac-mauve` | Acento malva en modo oscuro. |
+| Bosque del hero oscuro | `#487661` | `--hero-bg` | Fondo del hero cuando se activa el tema oscuro. |
+| Verde claro del hero oscuro | `#CFE0D2` | `--hero-orange` / `--hero-accent` | Contraste y detalles en el hero oscuro. |
+
+### 3.5 Identidad cromática del equipo
+
+Los colores se usan como acentos para distinguir tarjetas o detalles; no reemplazan la paleta global.
+
+| Integrante | Token | Valor |
+|---|---|---|
+| Bautista | `--c-bautista` | `#B9825B` |
+| Juan | `--c-juan` | `#C9B06A` |
+| Lautaro | `--c-lautaro` | `#8FB59A` |
+| Ignacio | `--c-ignacio` | `#7B9DB3` |
+| Micaías | `--c-micaias` | `#A08AA8` |
+
+### 3.6 Reglas de color
+
+1. El tema claro usa el papel cálido como fondo principal y tinta oscura para texto.
+2. El tema oscuro usa tinta nocturna y texto claro; no usar negro puro como fondo general.
+3. El verde eucalipto es el acento principal en el tema claro.
+4. El hero tiene su propia combinación bosque/crema y debe conservar contraste alto.
+5. Los acentos azul, arcilla y malva son variaciones por sección, no colores que deban competir todos juntos.
+6. Las tarjetas del equipo pueden variar de color, pero deben conservar estructura, tipografía y espaciado comunes.
+7. Los fondos claros deben usar texto oscuro; los fondos oscuros deben usar texto claro.
+8. Verificar contraste de texto normal de al menos 4.5:1 y de texto grande de al menos 3:1.
+9. No aplicar un color de acento a todos los elementos interactivos al mismo tiempo; priorizar el elemento activo o la acción principal.
+10. Mantener los tokens actuales aunque algunos nombres heredados, como `--orange`, no coincidan exactamente con el color representado.
+
+### 3.7 Tokens CSS canónicos
+
+Estos tokens reflejan la implementación existente. Los valores de los temas se sobrescriben mediante `prefers-color-scheme` y `data-theme`.
 
 ```css
 :root {
-  color-scheme: dark;
-  --background: #1a191d;
-  --foreground: #ffffff;
-  --card: #17161a;
-  --card-foreground: #ffffff;
-  --popover: #17161a;
-  --popover-foreground: #ffffff;
-  --primary: #9b37ff;
-  --primary-foreground: #ffffff;
-  --secondary: #241d41;
-  --secondary-foreground: #ffffff;
-  --muted: #232227;
-  --muted-foreground: rgb(255 255 255 / 0.75);
-  --accent: #66d9ed;
-  --accent-foreground: #1a191d;
-  --highlight: #bb77ff;
-  --deep: #490c86;
-  --destructive: #ff5c7a;
-  --border: rgb(255 255 255 / 0.1);
-  --input: rgb(255 255 255 / 0.15);
-  --ring: #bb77ff;
-  --radius: 0.375rem;
+  --orange: #9DB8A3;
+  --accent: #4F6F5B;
+  --ink: #1B1E21;
+  --ink-soft: #26323D;
+  --paper: #F1EEE4;
+  --paper-soft: #E7E3D4;
+  --line: rgba(27, 30, 33, 0.18);
+  --line-strong: rgba(27, 30, 33, 0.4);
+  --card: #E7E3D4;
+  --card-dark: #1C2226;
+  --warn: #9C4A2B;
+  --bg-sand: #EBE2CF;
+  --bg-mist: #E2EAEC;
+
+  --ac-green: #4F6F5B;
+  --ac-green-2: #44624D;
+  --ac-blue: #456A82;
+  --ac-clay: #7F5636;
+  --ac-mauve: #6E5A79;
+
+  --fl-green: #9DB8A3;
+  --fl-blue: #A9C1D0;
+  --fl-clay: #D9C3A0;
+  --fl-mauve: #CBBDD2;
+
+  --bg: var(--paper);
+  --fg: var(--ink);
+
+  --hero-bg: #2F4A3E;
+  --hero-ink: #F1EEE4;
+  --hero-paper: #1F3A2E;
+  --hero-orange: #B4CDB9;
+  --hero-solid-hover: #43705A;
+  --hero-accent: #B4CDB9;
+
+  --font-display: "Gabarito", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-body: "Source Sans 3", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 }
 ```
 
@@ -134,33 +192,45 @@ Usar tokens CSS, nunca repetir hexadecimales directamente en los componentes sal
 
 ### 4.1 Familias
 
-- **Poppins:** titulares, cuerpo, botones, nombres de proyectos y contenido editorial.
-- **Roboto Mono:** navegación, subtítulos técnicos, índices, tags, labels y referencias de código.
+La interfaz usa cuatro familias con responsabilidades diferentes. Aunque se procura mantener pocas voces tipográficas, Fraunces funciona como acento editorial y no como una familia de uso general.
 
-En Next.js, cargar las familias con `next/font/google` y exponerlas como variables `--font-poppins` y `--font-roboto-mono`. El theme de Tailwind debe mapearlas a `font-sans` y `font-mono`.
+- **Gabarito:** logotipo, titulares, nombres de integrantes, encabezados de tarjetas, números grandes y texto de impacto. Aporta formas cálidas y una personalidad cercana.
+- **Source Sans 3:** cuerpo de texto, descripciones, navegación general, botones y contenido que necesita lectura sostenida.
+- **IBM Plex Mono:** índices, etiquetas técnicas, roles, metadatos, nombres de tecnologías y pequeños elementos de interfaz.
+- **Fraunces:** acentos editoriales puntuales, especialmente palabras en cursiva dentro de títulos y frases del manifiesto.
+
+Google Fonts se carga mediante el enlace presente en el HTML. Si el proyecto se migra a Next.js, estas familias deben cargarse de manera centralizada y exponerse como variables CSS equivalentes a `--font-display`, `--font-body`, `--font-mono` y `--font-serif`.
 
 ### 4.2 Escala tipográfica
 
-| Rol | Familia | Especificación | Tailwind aproximado |
+Los tamaños principales deben ser fluidos con `clamp()` para adaptarse al ancho disponible.
+
+| Rol | Familia | Especificación aproximada | Uso |
 |---|---|---|---|
-| Display / H1 | Poppins | 600, 144px, line-height 1.0, tracking +2.2px, uppercase | `text-5xl md:text-7xl lg:text-8xl font-semibold uppercase tracking-wide leading-none` |
-| H2 | Poppins | 600, 75px, line-height 1.4, tracking -1.5px | `text-4xl md:text-6xl font-semibold tracking-tight` |
-| H3 / proyecto | Poppins | 700, 21px, line-height 1.1, tracking -0.2px | `text-xl font-bold tracking-tight` |
-| H4 / etiqueta | Poppins | 500, 22px, line-height 1.0 | `text-xl font-medium tracking-tight` |
-| Subtítulo hero | Roboto Mono | 500, 22px, tracking +3px, uppercase | `text-base md:text-xl font-medium uppercase tracking-widest` |
-| Navegación | Roboto Mono | 500, 17.6px, tracking -1px | `text-lg font-medium tracking-tight` |
-| Cuerpo | Poppins | 400, 16px, line-height 1.65, blanco 75% | `text-base leading-relaxed text-muted-foreground` |
-| Micro / índice | Roboto Mono | 600, 10px | `text-xs font-semibold` |
+| Display / H1 | Gabarito | `clamp(3.6rem, 11.5vw, 9.6rem)`, peso 800, line-height 0.95–1 | Titular principal del hero; mayúsculas y fuerte impacto visual. |
+| H2 de sección | Gabarito | `clamp(2.6rem, 6.8vw, 5.6rem)`, peso 800, tracking cercano a `-0.04em` | Títulos de secciones. |
+| H3 | Gabarito | `clamp(1.6rem, 3.2vw, 2.4rem)`, peso 700 | Títulos de subsección y contenido destacado. |
+| Título de tarjeta | Gabarito | `1.35rem` a `3.4rem`, según componente | Integrantes, servicios, tecnologías y proyectos. |
+| Acento editorial | Fraunces | `1.15em` respecto al título o frase | Palabras puntuales en cursiva, no bloques completos. |
+| Subtítulo técnico | IBM Plex Mono | `0.8rem`–`1rem`, peso 600–700, uppercase | Índices, roles, meta y etiquetas de sección. |
+| Navegación | Source Sans 3 / IBM Plex Mono según componente | `0.9rem`–`1rem`, peso 600–700 | Navegación principal y controles técnicos. |
+| Cuerpo | Source Sans 3 | `1.05rem`, line-height `1.6` | Texto general. |
+| Descripción de sección | Source Sans 3 | `1.15rem`, line-height `1.6`, ancho máximo `55ch` | Resumen de cada sección. |
+| Texto del manifiesto | Source Sans 3 | `clamp(1.35rem, 2.7vw, 2.1rem)`, line-height `1.45` | Declaraciones editoriales de mayor énfasis. |
+| Micro / índice | IBM Plex Mono | `0.75rem`–`0.88rem`, normalmente bold | Numeración, etiquetas cortas y metadatos. |
 
 ### 4.3 Reglas de lectura
 
-- No usar más de dos familias tipográficas.
-- H1 puede romper una línea en desktop, pero debe poder comprimirse en mobile.
-- Los párrafos deben tener un ancho máximo aproximado de `65ch`.
-- Usar `leading-relaxed` en cuerpo de texto.
-- Usar uppercase solamente para labels, subtítulos y el H1.
-- Usar `tracking-tight` en titulares grandes y `tracking-widest` en subtítulos técnicos.
-- No usar texto gris de bajo contraste sobre el fondo oscuro.
+- Gabarito y Source Sans 3 deben sostener la mayor parte de la interfaz.
+- IBM Plex Mono se reserva para textos cortos y señales técnicas; no usarla en párrafos.
+- Fraunces es un acento visual: usarla con moderación y preferentemente en cursiva.
+- El H1 puede ocupar varias líneas en desktop, pero debe ajustarse en mobile sin desbordarse.
+- Los párrafos deben mantener un ancho legible, normalmente entre `45ch` y `65ch`.
+- Usar line-height de `1.5` a `1.65` en descripciones y párrafos.
+- Reservar uppercase para etiquetas, metadatos, roles y titulares que lo requieran.
+- Usar tracking negativo en display y tracking positivo moderado en etiquetas monoespaciadas.
+- No reducir demasiado el cuerpo para hacer entrar contenido: reorganizar el layout antes de disminuir la legibilidad.
+- Los estilos semánticos y de clase, como `.desc` y `.manifiesto-text`, deben conservar la familia tipográfica de su rol; no sobrescribirlos con reglas globales de encabezado o etiquetas.
 
 ---
 
@@ -168,356 +238,367 @@ En Next.js, cargar las familias con `next/font/google` y exponerlas como variabl
 
 ### 5.1 Contenedor
 
-Usar un contenedor central:
+El contenedor central actual usa `.wrap`:
 
-```tsx
-<div className="mx-auto w-full max-w-6xl px-6 md:px-8">
-  {/* contenido */}
-</div>
+```css
+.wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 clamp(1.2rem, 4.5vw, 3.5rem);
+}
 ```
 
-- Mobile: padding horizontal `24px`.
-- Desktop: padding horizontal `32px`.
-- Ancho máximo recomendado: `1152px` / `max-w-6xl`.
-- No fijar anchos absolutos para contenido editorial.
+- Padding horizontal mínimo aproximado: `1.2rem` (19–20px).
+- Padding horizontal fluido en tablet y desktop: `4.5vw`.
+- Padding horizontal máximo: `3.5rem` (56px).
+- Ancho máximo del contenedor: `1380px`.
+- No fijar anchos absolutos para párrafos, títulos o descripciones.
+- Mantener la alineación de los encabezados y del contenido de cada sección.
 
 ### 5.2 Ritmo vertical
 
-- Micro separación: `8px`.
-- Separación de elementos relacionados: `16px`.
-- Separación de bloques: `24px` a `32px`.
-- Separación de secciones: `96px` a `160px`.
-- Hero: entre `160px` y `240px` de altura útil en desktop.
+- Microseparación entre etiqueta y título: `8px`–`12px`.
+- Separación entre elementos relacionados: `16px`.
+- Separación entre grupos de contenido: `24px`–`32px`.
+- Separación de encabezado a contenido: aproximadamente `48px`–`77px`, fluida según viewport.
+- Padding vertical de sección: `clamp(5rem, 9vw, 8rem)` (aproximadamente 80–128px).
+- Padding interno de tarjetas: normalmente `2rem` o más en desktop, reducido en móvil.
+- Hero: altura mínima aproximada de la ventana menos el header; padding vertical fluido.
+- No agregar separadores decorativos adicionales si la sección ya tiene una línea inferior o un cambio de fondo.
 
-### 5.3 Layout method priority
+### 5.3 Prioridad de layout
 
-1. Flexbox para navegación, filas, botones y alineación de contenido.
-2. CSS Grid para proyectos, paletas, comparaciones y estructuras de dos dimensiones.
-3. Posicionamiento absoluto únicamente para decoración, cursor del logo, orbes o overlays que no definan el layout.
-4. Evitar alturas fijas salvo para controles, thumbnails e ilustraciones.
+1. Flexbox para navegación, filas, acciones y alineación de contenido.
+2. CSS Grid para tarjetas, equipo, tecnologías y vistas de varias columnas.
+3. `clamp()` para tipografía, padding y gaps fluidos.
+4. `position: absolute` solo para decoración, ilustraciones, fondos y elementos que no definan la estructura.
+5. `position: sticky` solo en efectos intencionales, como el apilado de las tarjetas del equipo; debe revisarse en móvil para evitar solapamientos incómodos.
+6. Evitar alturas fijas en contenido que puede crecer o cambiar.
 
 ### 5.4 Responsive
 
-Breakpoints sugeridos:
+Breakpoints de referencia presentes o recomendados:
 
-- `sm`: 640px.
-- `md`: 768px.
-- `lg`: 1024px.
-- `xl`: 1280px.
+- `640px`: móvil grande / tablet pequeña.
+- `768px`: tablet.
+- `880px`: ajuste de filas de servicios y componentes similares.
+- `1024px`: tablet horizontal / desktop compacto.
+- `1100px`: navegación horizontal completa cuando haya espacio.
+- `1280px`: desktop amplio.
 
-Comportamiento mobile:
+Comportamiento móvil:
 
-- La navegación debe poder colapsarse o apilarse.
-- Las grids de proyectos pasan de 2 columnas a 1.
-- El hero pasa de composición lado a lado a columna.
-- Los botones pueden ocupar el ancho natural, no necesariamente 100%.
-- Los H1 se reducen con clases responsivas.
-- No ocultar información esencial solo para conservar la composición.
+- El hero pasa a una composición vertical.
+- Los botones se agrupan y envuelven sin chocar entre sí.
+- El texto del hero debe conservar jerarquía sin forzar saltos incómodos.
+- Las grids de tarjetas pasan a una columna cuando dos columnas dejan de ser cómodas.
+- Las tarjetas del equipo priorizan nombre, rol, descripción y acciones; no deben depender de una ilustración repetida.
+- Las etiquetas de servicios se alinean a la izquierda y pueden ocupar varias líneas.
+- La navegación de proyectos debe permitir seleccionar un proyecto con controles grandes y claros, sin depender de hover ni de desplazamientos horizontales difíciles.
+- Los elementos esenciales no deben ocultarse para conservar la composición.
+- Evitar overflow horizontal en el body, títulos, chips y controles.
 
 ---
 
 ## 6. Arquitectura de la página
 
-La página del manual implementada tiene esta secuencia:
+La página de Quokka Studio está organizada en secciones visuales que forman un portfolio y una demostración del proyecto. La estructura puede evolucionar, pero no deben eliminarse secciones existentes sin una decisión explícita del equipo.
 
-1. `SiteHeader`: navegación persistente y marca.
-2. `Cover`: portada del manual, contexto, hero visual y metadatos.
-3. `Principles`: principios visuales y decisiones de diseño.
-4. `ColorPalette`: colores, tokens, usos y contraste.
-5. `Typography`: familias, escala y ejemplos.
-6. `ComponentsShowcase`: botones, tags, cards, navegación y estados.
-7. `GridSpacing`: contenedores, spacing y reglas responsive.
-8. `Prototype`: prototipo visual de baja y alta fidelidad.
-9. Footer con versión del manual.
+Secuencia visual actual:
 
-Cada sección debe ser un componente independiente dentro de `components/manual/`. `app/page.tsx` debe encargarse solamente de la composición de la página, no de contener toda la UI.
+1. **Header y navegación:** marca, acceso a secciones y controles generales.
+2. **Hero:** propuesta de valor, titular, descripción y acciones principales.
+3. **Manifiesto / presentación:** motivación e identidad del equipo.
+4. **Equipo:** tarjetas de integrantes, responsabilidades y datos de perfil.
+5. **Servicios:** capacidades y módulos contemplados por el proyecto.
+6. **Stack técnico:** tecnologías y arquitectura propuesta.
+7. **Proyectos y demos:** tarjetas o vistas de demostración navegables.
+8. **Proceso de trabajo:** etapas o sprints del proyecto.
+9. **Panel de métricas / gestión:** ejemplo visual de la administración del portfolio; los datos de muestra deben identificarse como ilustrativos.
+10. **FAQ y contacto:** preguntas frecuentes y formulario o vías de contacto.
+11. **Footer:** cierre visual, enlaces y créditos mínimos.
+
+La organización interna debe conservar una jerarquía semántica clara. Cada sección tiene un identificador único para la navegación y un encabezado reconocible.
 
 ---
 
 ## 7. Componentes
 
-### 7.1 SectionHeading
+### 7.1 Encabezado de sección
 
-Responsabilidad: renderizar el índice numérico, eyebrow, título y descripción de una sección.
+Responsabilidad: presentar índice, etiqueta técnica, título y descripción.
 
-API sugerida:
+Patrón:
 
-```ts
-type SectionHeadingProps = {
-  index: string
-  eyebrow?: string
-  title: string
-  description?: string
-}
-```
-
-Patrón visual:
-
-- Índice en Roboto Mono, pequeño y cian/violeta.
-- Título en Poppins semibold.
-- Descripción en `text-muted-foreground`.
-- Espaciado inferior consistente antes del contenido.
+- Índice o etiqueta en IBM Plex Mono.
+- Prefijo `//` generado una sola vez, mediante contenido o CSS, nunca ambos.
+- Título en Gabarito, con contraste de tamaño respecto de la descripción.
+- Descripción en Source Sans 3, con ancho máximo legible.
+- Separación inferior consistente antes del contenido.
+- Una sola línea divisoria por encabezado; no duplicar líneas con pseudo-elementos y contenido literal.
 
 ### 7.2 Logo
 
-El logo es textual y técnico:
+- Mantener el nombre **Quokka Studio** como marca principal.
+- Puede usarse un pequeño detalle de puntuación o color para darle identidad.
+- Evitar sumar un descriptor académico largo junto al logo.
+- El logo debe enlazar al inicio cuando se use como parte de la navegación.
+- Cualquier animación del logo debe ser breve y respetar `prefers-reduced-motion`.
 
-```tsx
-<span className="font-mono">
-  TamalSen<span className="text-accent">.</span>
-</span>
-```
+### 7.3 Navegación
 
-Reglas:
-
-- Mantener el punto final como detalle de marca.
-- Usar cian para el punto.
-- Añadir cursor lavanda solo si la animación respeta reduced motion.
-- El logo debe ser un enlace a inicio cuando exista navegación.
-
-### 7.3 SiteHeader
-
-Responsabilidad: navegación principal y acceso rápido a secciones.
-
-Reglas:
-
-- Usar `<header>` y `<nav aria-label="Navegación principal">`.
-- Links con labels técnicos: `// expertise`, `// work`, `// experience`, `// contact`.
-- Estado hover/focus en `--highlight`.
-- Fondo de superficie `--card`, opcionalmente con transparencia y `backdrop-blur`.
-- No usar navegación horizontal que desborde en mobile.
+- Usar un `<header>` y un `<nav aria-label="Navegación principal">`.
+- La navegación debe permitir acceder a las secciones sin desbordarse.
+- Usar estados hover y focus visibles con el color de acento de la vista.
+- El header puede tener superficie translúcida si mantiene contraste y legibilidad.
+- En móvil, mostrar un menú compacto o controles apilados; no forzar todos los enlaces en una fila.
+- La navegación de proyectos es independiente de la navegación global y debe ser más sencilla que un carrusel de controles pequeños.
+- No usar solo color para indicar la selección activa.
 
 ### 7.4 Botones
 
-CTA primario:
+El estilo base es compacto, redondeado y con texto claro. El CSS actual usa botones tipo píldora con borde y una transición de relleno.
 
-```tsx
-<Button className="bg-primary text-primary-foreground hover:bg-highlight">
-  View Project
-</Button>
-```
+CTA primario:
+- Fondo o relleno del acento activo.
+- Texto con contraste alto.
+- Una acción primaria clara por bloque.
 
 CTA secundario:
-
-```tsx
-<Button variant="outline" className="border-border text-foreground hover:border-highlight hover:text-highlight">
-  Learn More
-</Button>
-```
-
-Estados obligatorios:
-
-- Default.
-- Hover.
-- Focus-visible con `ring`.
-- Disabled.
-- Loading si la acción es asíncrona.
-
-No crear botones como `<div>` ni quitar el outline de foco sin reemplazarlo.
-
-### 7.5 Tags / chips
-
-Usar para tecnologías y metadatos, no para párrafos.
-
-```tsx
-<span className="rounded-sm bg-[var(--tag)] px-2 py-1 font-mono text-xs text-white">
-  React
-</span>
-```
-
-- Roboto Mono.
-- Texto blanco.
-- Fondo Índigo Etiqueta.
-- Radio pequeño, cercano a `6px`.
-- Separación horizontal de `8px`.
-
-### 7.6 ProjectCard
-
-Estructura recomendada:
-
-```tsx
-<article className="group overflow-hidden rounded-md border border-border bg-card">
-  <div className="aspect-[16/10] overflow-hidden bg-muted">
-    <Image src={image} alt={description} className="object-cover transition-transform group-hover:scale-[1.02]" />
-  </div>
-  <div className="space-y-4 p-6">
-    <p className="font-mono text-xs uppercase text-accent">Featured Project</p>
-    <h3 className="text-xl font-bold tracking-tight">Flight Local B2B</h3>
-    <p className="text-muted-foreground">Descripción breve y concreta.</p>
-    <div className="flex flex-wrap gap-2">{/* tags */}</div>
-    <Button>View Project</Button>
-  </div>
-</article>
-```
+- Fondo transparente.
+- Borde visible.
+- En hover, cambiar borde, fondo o texto sin perder contraste.
 
 Reglas:
 
-- La imagen debe tener `alt` útil.
-- La tarjeta debe ser navegable con teclado si representa un enlace.
-- No usar más de una acción primaria por card.
-- Mantener el contenido visible sin hover.
+- No colocar demasiados CTA con el mismo peso visual en el hero.
+- Agrupar las acciones relacionadas y mantener un gap consistente.
+- En el inicio, una acción puede llevar a conocer el equipo y otra a explorar proyectos; no añadir más botones redundantes sin una necesidad clara.
+- Todos los botones deben tener estados default, hover, focus-visible y disabled cuando corresponda.
+- Usar `<button>` para acciones y `<a>` para navegación; no convertir un `<div>` en botón.
+- El foco de teclado debe ser claramente visible.
 
-### 7.7 ExperienceAccordion
+### 7.5 Tags / chips
 
-- Trigger semántico `<button>`.
-- `aria-expanded` y `aria-controls`.
-- Barra de experiencia en `--deep` con opacidad aproximada 87%.
-- Panel abierto en `--secondary`.
-- Periodo en Roboto Mono.
-- Tags debajo del detalle.
+Usar para tecnologías, roles breves y metadatos; nunca para párrafos ni para repetir el texto del título.
 
-### 7.8 TestimonialCard
+- Tipografía: IBM Plex Mono o Source Sans 3 según la importancia del dato.
+- Texto con contraste alto.
+- Fondo sutil basado en el acento de la sección.
+- Radio pequeño o medio; evitar mezclar chips rectangulares y píldoras sin un motivo.
+- Separación entre chips de aproximadamente `8px`–`10px`.
+- Los chips deben envolver a una nueva línea en espacios estrechos.
+- En servicios, alinear el grupo a la derecha en desktop si la composición lo permite y a la izquierda en móvil.
+- No añadir tags genéricos como “portfolio colaborativo” en el hero si repiten la finalidad ya explicada en el título o la descripción.
 
-- Usar superficies de la familia violeta/cobalto.
-- Mantener texto grande y corto.
-- Añadir nombre, rol y empresa con jerarquía menor.
-- Comprobar contraste individual para cada variante de fondo.
+### 7.6 Tarjetas de proyectos
 
-### 7.9 Hero visual
+Estructura recomendada:
 
-El hero combina texto editorial con una ilustración abstracta de cubos geométricos.
+1. Imagen, demo o bloque visual con proporción estable.
+2. Metadato breve si ayuda a distinguir el proyecto.
+3. Título claro.
+4. Descripción breve del problema o propósito.
+5. Tecnologías relevantes.
+6. Una acción principal para ver detalles o abrir la demo.
 
-- La ilustración es decorativa, por lo que puede usar `alt=""` si no transmite información.
-- El fondo sigue siendo `--background`.
-- La luz cálida usa `--glow` de forma contenida.
-- Los cubos pueden mezclar violeta eléctrico, azul y cian.
-- No desplazar el texto para acomodar la imagen en mobile.
-- El asset generado se encuentra en `public/images/hero-cubes.png`.
+Reglas:
+
+- Usar bordes discretos y superficies coherentes con la paleta.
+- Evitar decoración innecesaria dentro de cada tarjeta.
+- Mantener todo el contenido importante visible sin hover.
+- Si una demo requiere iniciar sesión en el sistema real, indicarlo con claridad; no fingir que una vista está protegida si es solo una maqueta.
+- Las imágenes informativas necesitan `alt` útil; las decorativas deben usar `alt=""`.
+- Los botones y enlaces deben ser utilizables con teclado.
+- Los metadatos de autores o tecnologías no deben competir con el título.
+- Una tarjeta no debe tener varias acciones primarias.
+
+### 7.7 Tarjetas del equipo
+
+- Usar una estructura común para todos los integrantes.
+- Los colores de identidad pueden variar por persona, dentro de los tokens aprobados.
+- Mostrar nombre, rol o área, descripción y responsabilidades pertinentes.
+- Las iniciales grandes pueden usarse como recurso gráfico; no repetir caritas de quokkas en cada tarjeta.
+- Aprovechar el espacio para el contenido útil en vez de duplicar elementos decorativos.
+- El nombre debe ser el foco principal, el rol el segundo nivel y la biografía el tercero.
+- Las etiquetas técnicas deben ser breves y consistentes.
+- El apilado sticky debe mantener legibilidad y no impedir el acceso a contenido en móvil.
+
+### 7.8 Servicios y microinteracciones
+
+- Las filas de servicios deben tener un título fuerte, descripción concreta e índice.
+- Los tags asociados se presentan como chips con contraste y espaciado consistente.
+- La microinteracción puede desplazar ligeramente la fila o cambiar el fondo, pero no debe dificultar la lectura.
+- Mantener el efecto hover como mejora, no como única forma de descubrir contenido.
+- En dispositivos táctiles, el contenido debe seguir siendo visible sin hover.
+- Evitar bordes, rellenos y animaciones simultáneos demasiado intensos.
+
+### 7.9 Stack técnico y paneles
+
+- Las tarjetas tecnológicas usan el mismo sistema de superficie, borde y padding.
+- Los nombres de tecnologías se escriben de forma consistente.
+- Los paneles de métricas deben diferenciar claramente títulos, números, leyendas y datos de muestra.
+- No representar valores ilustrativos como estadísticas reales.
+- La tipografía monoespaciada puede usarse en indicadores, tablas, leyendas y etiquetas cortas.
+- Los gráficos deben tener leyendas legibles y no depender exclusivamente del color.
+
+### 7.10 Hero visual
+
+El hero combina un fondo bosque profundo, tipografía de gran escala, una cuadrícula sutil y elementos decorativos flotantes.
+
+- El fondo usa `--hero-bg`.
+- El texto usa `--hero-ink`.
+- La cuadrícula debe tener baja opacidad y no competir con el titular.
+- La ilustración o mascota de marca se usa como un elemento protagonista puntual, no como decoración repetida en toda la página.
+- Los botones deben agruparse en una zona clara y no quedar dispersos entre el título y la ilustración.
+- El texto debe conservar prioridad visual.
+- En móvil, la composición se apila y las acciones permanecen cerca del texto que las explica.
+- Cualquier animación flotante debe respetar `prefers-reduced-motion`.
 
 ---
 
 ## 8. Prototipado visual
 
-El prototipo debe mostrar dos niveles complementarios.
+El prototipo debe ayudar a validar estructura y jerarquía, además del aspecto final.
 
 ### 8.1 Wireframe
 
-Objetivo: validar estructura antes de validar estilo.
+Objetivo: validar estructura antes de afinar el estilo.
 
 Debe mostrar:
 
 - Header y navegación.
-- Bloque hero dividido en texto e imagen.
-- Secciones de expertise, work, experience y contact.
-- Rectángulos neutros para imágenes.
-- Jerarquía de tamaños, no detalles decorativos.
+- Hero con titular, descripción y acciones principales.
+- Presentación / manifiesto.
+- Equipo y responsabilidades.
+- Servicios y tecnologías.
+- Proyectos y demos.
+- Proceso de trabajo, paneles y contacto.
+- Bloques neutros para imágenes o ilustraciones.
+- Jerarquía de tamaños y agrupación de contenido.
 
-El wireframe no debe usar color para resolver problemas de estructura.
+El wireframe no debe depender del color para resolver problemas de estructura. Los botones y selectores deben representarse en ubicaciones reales para evaluar si son cómodos de usar.
 
-### 8.2 Hi-fi
+### 8.2 Alta fidelidad
 
-Objetivo: validar la experiencia final.
+Objetivo: validar la experiencia visual que seguirá el sitio.
 
 Debe mostrar:
 
-- Fondo grafito.
-- H1 grande.
-- Tipografías finales.
-- Cards reales con color y bordes.
-- Tags tecnológicos.
-- CTA violeta.
-- Acentos cian y lavanda.
-- Ilustración del hero.
+- Papel cálido o tinta nocturna según el tema.
+- Titulares Gabarito con escala fluida.
+- Source Sans 3 para lectura.
+- IBM Plex Mono para señales técnicas.
+- Fraunces solo en acentos editoriales.
+- Tarjetas reales con la paleta aprobada.
+- CTA claros y con contraste.
+- Acentos eucalipto, azul, arcilla o malva usados con moderación.
+- Estados hover, focus y activo.
+- Hero con composición editorial y detalle gráfico.
+- Versiones desktop y mobile.
 
-### 8.3 Toggle de prototipos
+### 8.3 Estados y variantes
 
-El componente `Prototype` debe permitir alternar entre wireframe y alta fidelidad. Los controles deben ser botones accesibles y reflejar el estado activo visualmente.
+Si se muestran variantes del mismo componente, el control debe indicar claramente cuál está activo.
 
-También puede incluir un estado `Móvil` para enseñar cómo se refluye el layout.
-
-Reglas de interacción:
-
-- No depender de navegación de página para alternar vistas.
+- Usar botones accesibles con `aria-pressed` cuando corresponda.
 - Mantener el foco en el control activado.
-- Usar `aria-pressed` en toggles.
+- No depender de navegación de página para alternar estados locales.
+- Probar la interacción con teclado y dispositivos táctiles.
 - Respetar `prefers-reduced-motion`.
+- Los controles de tema deben conservar contraste en ambos temas.
 
 ---
 
 ## 9. Accesibilidad
 
-Checklist obligatorio para cada componente:
+Checklist obligatorio para cada sección y componente:
 
-- HTML semántico: `header`, `nav`, `main`, `section`, `article`, `footer`.
+- HTML semántico: `header`, `nav`, `main`, `section`, `article`, `form` y `footer` cuando corresponda.
 - Un solo H1 por página.
-- Jerarquía de headings sin saltos arbitrarios.
-- `alt` para imágenes informativas; `alt=""` para decorativas.
-- Focus-visible visible en links, botones, tabs y controles.
-- No comunicar estado solo mediante color.
-- Labels visibles o accesibles en formularios.
-- Contraste mínimo WCAG AA.
-- `aria-expanded`, `aria-controls` y `aria-pressed` donde corresponda.
-- Animaciones desactivadas o reducidas con `prefers-reduced-motion`.
+- Jerarquía de encabezados coherente.
+- `alt` útil para imágenes informativas; `alt=""` para elementos decorativos.
+- Focus-visible visible en enlaces, botones, tabs y controles.
+- No comunicar selección, estado o error solo mediante color.
+- Labels visibles o accesibles para todos los campos de formulario.
+- Contraste mínimo WCAG AA: 4.5:1 para texto normal y 3:1 para texto grande.
+- Estados `aria-expanded`, `aria-controls` y `aria-pressed` cuando correspondan.
+- Animaciones reducidas o desactivadas mediante `prefers-reduced-motion`.
 - No usar caracteres decorativos como sustitutos de iconos funcionales.
+- Controles táctiles suficientemente grandes y separados.
+- Ninguna acción esencial debe requerir hover.
+- El contenido no debe desbordarse ni quedar oculto por tarjetas sticky.
 
 ---
 
-## 10. Reglas de implementación para el LLM
+## 10. Reglas de implementación
 
-Antes de escribir código:
+Antes de modificar la web:
 
-1. Inspeccionar archivos existentes y reutilizar componentes.
-2. Confirmar si el proyecto usa App Router y Tailwind actual.
-3. Revisar `components.json` antes de regenerar componentes shadcn.
-4. Usar tokens semánticos en lugar de hexadecimales repetidos.
-5. Separar la página en componentes pequeños y nombrados.
-6. Instalar dependencias antes de importarlas.
-7. No usar `localStorage` como persistencia por defecto.
-8. No hacer fetch dentro de `useEffect`; usar Server Components o SWR cuando corresponda.
-9. No crear archivos de documentación adicionales salvo que se soliciten.
-10. No modificar archivos no relacionados.
+1. Inspeccionar el HTML, CSS y JavaScript existentes.
+2. Reutilizar las variables de color y tipografía antes de crear otras nuevas.
+3. Preservar todas las secciones existentes salvo que se solicite explícitamente eliminarlas.
+4. Actualizar el contenido sin inventar funcionalidades implementadas.
+5. Mantener separados los datos de ejemplo y los datos reales.
+6. Revisar los estilos específicos de clases como `.desc`, `.manifiesto-text`, `.tag-col` y los componentes del equipo antes de añadir reglas globales.
+7. Evitar reglas generales que sobrescriban tipografías específicas de componentes.
+8. No duplicar `//` si ya lo agrega un pseudo-elemento CSS.
+9. No agregar etiquetas decorativas que repitan el propósito de la sección.
+10. Mantener nombres de clases y tokens existentes cuando una sustitución amplia pueda romper componentes.
+11. No añadir dependencias ni cambiar de stack sin una razón explícita.
+12. No introducir persistencia de navegador como requisito para que la interfaz funcione.
 
-Después de escribir código:
+Después de modificar la web:
 
-1. Verificar la compilación y los errores del navegador.
-2. Revisar la página en desktop y mobile.
-3. Confirmar que los toggles, links y accordions reaccionen.
-4. Revisar contraste y foco de teclado.
-5. Tomar una captura si el cambio afecta el layout.
-6. Eliminar cualquier `console.log('[v0] ...')` temporal.
+1. Comprobar que el HTML y JavaScript no tengan errores de sintaxis.
+2. Revisar el diseño en desktop y mobile.
+3. Probar navegación global y navegación entre proyectos.
+4. Comprobar el cambio de tema y los estados interactivos.
+5. Revisar los botones del hero y las tarjetas.
+6. Confirmar que no se hayan perdido secciones o contenido útil.
+7. Verificar contraste, foco de teclado y reducción de movimiento.
+8. Comprobar que no haya overflow horizontal.
+9. Confirmar que las familias tipográficas específicas sigan aplicándose a las descripciones y al manifiesto.
+10. Comparar visualmente el resultado con la versión anterior para detectar regresiones.
 
 ---
 
 ## 11. Convenciones de código
 
-### Imports
+### CSS y variables
 
-Usar alias `@/`:
+- Usar `--bg`, `--fg`, `--paper`, `--ink`, `--accent`, `--line` y los tokens de sección.
+- Evitar duplicar hexadecimales en múltiples reglas.
+- Mantener los nombres de tokens existentes para no romper componentes dependientes.
+- Los tokens heredados pueden tener nombres históricos poco literales; documentarlos antes de renombrarlos.
+- Mantener las reglas responsive junto al componente o en una sección claramente identificada.
+- Preferir `clamp()` para tamaños fluidos.
+- Evitar `!important` salvo que exista una razón documentada.
 
-```tsx
-import { SectionHeading } from '@/components/manual/section-heading'
-```
+### Componentes y estructura
 
-### Componentes
+- Preferir funciones pequeñas y nombres descriptivos.
+- Mantener el contenido repetible en estructuras de datos cuando la implementación lo permita.
+- Separar estilo, contenido y comportamiento cuando el proyecto migre a componentes.
+- No convertir una actualización visual en una reescritura completa de arquitectura.
+- Mantener las secciones y los IDs de navegación estables.
 
-- Preferir componentes funcionales.
-- Tipar props explícitamente.
-- Mantener los datos repetibles en arrays fuera del JSX.
-- Evitar páginas monolíticas.
-- Usar nombres descriptivos en inglés para código y copy del portfolio; documentación en español.
+### JavaScript e interacciones
 
-### Client Components
+- Añadir comportamiento solo cuando exista una acción clara para el usuario.
+- No hacer que el contenido dependa de animaciones para ser visible.
+- Comprobar estados activos y desactivados.
+- Respetar `prefers-reduced-motion`.
+- Evitar interacciones que funcionen solo con mouse.
+- Identificar los prototipos y simulaciones como tales.
 
-Añadir `'use client'` solo cuando el componente necesita estado, eventos de usuario o APIs del navegador. El resto debe permanecer como Server Component.
+### Imágenes y recursos
 
-### Imágenes
-
-- Preferir assets locales o generados.
-- Usar `next/image`.
-- Definir `alt`.
-- Mantener ratio de aspecto explícito.
-- No usar una URL externa como placeholder permanente.
-
-### Datos
-
-Los datos del manual viven en `lib/manual-data.ts`, incluyendo:
-
-- `colorGroups` para paleta.
-- `typeScale` para tipografía.
-- `navItems` para navegación.
-- `experience` para trayectoria profesional.
-
-Añadir nuevas colecciones de datos allí antes de llenar un componente con arrays inline.
+- Preferir assets locales o generados que encajen con la identidad visual.
+- Definir ratio de aspecto para evitar saltos de layout.
+- Proporcionar `alt` según el propósito de cada imagen.
+- Evitar placeholders externos permanentes.
+- Usar la mascota de marca con moderación para que mantenga valor visual.
 
 ---
 
@@ -525,89 +606,107 @@ Añadir nuevas colecciones de datos allí antes de llenar un componente con arra
 
 ### Voz
 
-- Directa, segura y técnica.
-- Frases cortas.
-- Verbos de acción.
-- Sin claims inflados.
-- Explicar impacto y tecnología.
+- Cercana, directa y segura.
+- Frases breves, con información concreta.
+- Explicar qué es cada módulo y qué aporta.
+- Evitar claims exagerados o lenguaje corporativo vacío.
+- No repetir el nombre de la materia en todos los encabezados.
+- Usar etiquetas técnicas cuando ayudan a orientarse, no como decoración.
+- Mantener una distinción explícita entre funcionalidades previstas, demos ilustrativas y funcionalidades ya desarrolladas.
 
-### Ejemplos de labels
+### Ejemplos de etiquetas
 
-- `// expertise`
-- `// work`
-- `// experience`
-- `// contact`
-- `Featured Project`
-- `View Project`
-- `Learn More`
-- `Software Engineer, Front End & App Developer.`
+- `// manifiesto`
+- `// equipo`
+- `// servicios`
+- `// stack técnico`
+- `// proyectos`
+- `// proceso`
+- `// contacto`
+- `Tecnologías`
+- `Explorar proyectos`
+- `Conocer al equipo`
 
 ### Regla para proyectos
 
 Cada proyecto debe comunicar en este orden:
 
 1. Qué es.
-2. Qué problema resuelve.
-3. Qué hizo la persona.
-4. Qué tecnologías se usaron.
-5. Qué acción puede realizar el visitante.
+2. Qué problema o necesidad aborda.
+3. Qué parte desarrolló o propone el equipo.
+4. Qué tecnologías están previstas o se utilizaron realmente.
+5. Qué puede hacer el visitante a continuación.
+
+No afirmar que una demo está conectada a una API, base de datos o sistema de autenticación si solo es una representación visual.
 
 ---
 
 ## 13. Checklist de aceptación
 
-Una nueva sección cumple el sistema cuando:
+Una nueva sección o actualización cumple el sistema cuando:
 
-- Usa el fondo y los tokens correctos.
-- Respeta Poppins + Roboto Mono.
-- Tiene un heading y una jerarquía clara.
-- Usa `max-w-6xl` y padding consistente.
+- Usa la paleta de tema claro/oscuro existente.
+- Respeta los roles tipográficos de Gabarito, Source Sans 3, IBM Plex Mono y Fraunces.
+- Tiene jerarquía clara entre etiqueta, título, descripción y contenido.
+- Respeta el contenedor `.wrap` y su padding fluido.
+- Mantiene un ritmo vertical generoso sin huecos accidentales.
 - Funciona en mobile sin overflow horizontal.
-- Tiene estados hover y focus.
-- Tiene HTML semántico y ARIA apropiado.
+- Tiene estados hover, focus y activo.
+- Tiene HTML semántico y atributos accesibles apropiados.
 - No introduce colores fuera de la paleta sin justificación.
-- No crea una segunda estética incompatible.
-- Mantiene la densidad visual editorial del portfolio.
+- No repite etiquetas, iconografía o decoración innecesaria.
+- Mantiene el prefijo `//` una sola vez por encabezado.
+- Conserva las secciones existentes.
+- Mantiene la identidad de Quokka Studio sin volverse infantil.
+- Distingue prototipos de funcionalidades reales.
+- No introduce una estética incompatible con el resto de la página.
+- Conserva el contenido de `.desc`, `.manifiesto-text` y otros componentes con sus estilos tipográficos específicos.
 
 ---
 
 ## 14. Estructura actual de archivos
 
+La implementación actual es un HTML autocontenido con CSS y JavaScript incluidos. La estructura visual se organiza mediante secciones e identificadores dentro del documento.
+
+Al migrar a una aplicación por componentes, una estructura orientativa podría ser:
+
 ```text
 app/
-  globals.css
   layout.tsx
   page.tsx
+  globals.css
 components/
-  manual/
-    color-palette.tsx
-    components-showcase.tsx
-    cover.tsx
-    grid-spacing.tsx
-    logo.tsx
-    principles.tsx
-    prototype-hifi.tsx
-    prototype-wireframe.tsx
-    prototype.tsx
-    section-heading.tsx
-    site-header.tsx
+  site-header.tsx
+  hero.tsx
+  manifesto.tsx
+  team.tsx
+  services.tsx
+  tech-stack.tsx
+  projects.tsx
+  workflow.tsx
+  dashboard-preview.tsx
+  faq.tsx
+  contact.tsx
+  site-footer.tsx
 lib/
-  manual-data.ts
+  design-tokens.ts
+  portfolio-data.ts
 public/
   images/
-    hero-cubes.png
 ```
+
+Esta estructura es una propuesta de organización futura, no una descripción de archivos que ya existan en el HTML actual.
 
 ---
 
 ## 15. Resumen operativo
 
-Cuando el LLM deba crear un componente nuevo, debe pensar así:
+Al crear o modificar cualquier componente de Quokka Studio:
 
-> Fondo grafito, una jerarquía editorial fuerte, Poppins para contenido humano, Roboto Mono para señales técnicas, violeta para acciones, cian para identidad, espacio negativo generoso, composición con flex/grid, estados accesibles y responsive desde mobile.
+> Fondo papel cálido o tinta nocturna; Gabarito para titulares; Source Sans 3 para lectura; IBM Plex Mono para metadatos técnicos; Fraunces como acento editorial; verde eucalipto como acento principal; azul, arcilla y malva como variaciones controladas; espacio negativo generoso; botones claros; tarjetas coherentes; navegación cómoda en desktop y mobile; accesibilidad y microinteracciones moderadas.
 
-Este manual es la referencia principal para extender el portfolio sin perder coherencia visual ni técnica.
+Este manual reemplaza la dirección visual anterior basada en una estética oscura violeta/cian. La referencia visual actual es el sistema implementado en `Quokka_portfolio_revisado.html`.
 
 ---
 
-**Fin del Manual de Diseño y Estilo — v1.0**
+**Fin del Manual de Diseño y Estilo — v2.0**
