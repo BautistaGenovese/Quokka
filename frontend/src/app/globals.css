@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --background: #1a191d;
+    --foreground: #ffffff;
+    --card: #17161a;
+    --card-foreground: #ffffff;
+    --popover: #17161a;
+    --popover-foreground: #ffffff;
+    --primary: #9b37ff;
+    --primary-foreground: #ffffff;
+    --secondary: #241d41;
+    --secondary-foreground: #ffffff;
+    --muted: #232227;
+    --muted-foreground: rgb(255 255 255 / 0.75);
+    --accent: #66d9ed;
+    --accent-foreground: #1a191d;
+    --highlight: #bb77ff;
+    --deep: #490c86;
+    --destructive: #ff5c7a;
+    --border: rgb(255 255 255 / 0.1);
+    --input: rgb(255 255 255 / 0.15);
+    --ring: #bb77ff;
+    --radius: 0.375rem;
+
+    /* DESIGN.md §3.7 / §4.1 — canonical typography tokens mapped to the
+       next/font CSS variables applied on <html> in src/app/layout.tsx.
+       Fallback stacks mirror DESIGN.md §3.7. */
+    --font-display: var(--font-gabarito, "Gabarito"), system-ui, sans-serif;
+    --font-serif: var(--font-fraunces, "Fraunces"), Georgia, serif;
+    --font-body: var(--font-source-sans-3, "Source Sans 3"), system-ui,
+      -apple-system, sans-serif;
+    --font-mono: var(--font-ibm-plex-mono, "IBM Plex Mono"), monospace;
+  }
+}
+
+/* DESIGN.md §5.1 — central container (max-width 1380px, fluid horizontal padding). */
+.wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 clamp(1.2rem, 4.5vw, 3.5rem);
+}
+
+/* DESIGN.md §4.1 — Gabarito display utility (Tailwind ships no built-in
+   font-display class; --font-serif/--font-mono already come from Tailwind). */
+@utility font-display {
+  font-family: var(--font-display);
+}
