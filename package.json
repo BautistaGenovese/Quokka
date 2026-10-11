@@ -1,0 +1,27 @@
+{
+  "name": "quokka",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BautistaGenovese/Quokka.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/BautistaGenovese/Quokka/issues"
+  },
+  "homepage": "https://github.com/BautistaGenovese/Quokka#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
