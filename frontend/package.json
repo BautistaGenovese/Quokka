@@ -9,10 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.53.0",
     "next": "16.4.0",
+    "postcss": "^8.5.29",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -23,6 +25,6 @@
     "@tailwindcss/turbopack": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4.3.3"
   }
 }
