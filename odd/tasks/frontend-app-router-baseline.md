@@ -34,7 +34,7 @@ OUT:
 - [x] T2 — Design token alignment: extend `src/app/globals.css` with DESIGN.md canonical tokens (keep existing shadcn vars, add `--font-*` bindings from next/font variables, `.wrap` container utility).
 - [x] T3 — Route pages: create the 5 `page.tsx` files with Spanish `Metadata` + `<h1>`, English identifiers/comments.
 - [x] T4 — Verification: `npm run build` passes, `npm run lint` clean; Spanish UI text spot-check; English identifier spot-check.
-- [ ] T5 — Work-unit commit (conventional commit, no AI attribution).
+- [x] T5 — Work-unit commit: `42b74ab` on `feat/frontend-app-router-baseline` (conventional commit, no AI attribution).
 
 ## Acceptance Criteria
 - `cd frontend && npm run build` succeeds.
@@ -49,7 +49,9 @@ OUT:
 
 ## Progress
 - [x] Exploration done (2026-10-10): existing JS scaffold, Tailwind 4, DESIGN.md reviewed (§3.7, §4, §5, §10).
-- [x] T1–T4 implemented + verified (2026-10-10): `npm run build` ✅, `npm run lint` ✅. Pending: T5 commit.
+- [x] T1–T4 implemented + verified (2026-10-10): `npm run build` ✅, `npm run lint` ✅.
+- [x] T5 committed: `42b74ab` on `feat/frontend-app-router-baseline`.
+- [ ] Native review (RDD on): lineage `review-db5991acc0fe42df` started, consent granted, but the `review-reliability` lens sub-agent is unavailable in this runtime ("OpenCode's free tier can only be used from within OpenCode") — blocked at collect; no receipt burned. Re-run review from a compatible runtime or decline via `gentle-ai review start ... --consent declined`.
 
 ## Route table (authoritative)
 | Route | File | H1 (ES) | Metadata title (ES) | Visibility |
