@@ -36,6 +36,28 @@
   }
 }
 
+/* Tailwind 4 theme bridge — the canonical tokens above live in `:root`, but
+   Tailwind only emits utility classes (bg-background, text-muted-foreground,
+   border-border, text-accent, ring-ring, …) for variables declared in the
+   `--color-*` theme namespace. Without this mapping those classes compile
+   to nothing (verified against .next/static/chunks/*.css). `inline` keeps the
+   resolved value as var(--token) so themes can still switch at :root. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
 /* DESIGN.md §5.1 — central container (max-width 1380px, fluid horizontal padding). */
 .wrap {
   max-width: 1380px;
@@ -47,4 +69,10 @@
    font-display class; --font-serif/--font-mono already come from Tailwind). */
 @utility font-display {
   font-family: var(--font-display);
+}
+
+/* DESIGN.md §4.1 — Source Sans 3 body utility (Tailwind ships no built-in
+   font-body class; same pattern as font-display above). */
+@utility font-body {
+  font-family: var(--font-body);
 }

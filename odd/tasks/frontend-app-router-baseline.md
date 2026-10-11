@@ -35,6 +35,10 @@ OUT:
 - [x] T3 — Route pages: create the 5 `page.tsx` files with Spanish `Metadata` + `<h1>`, English identifiers/comments.
 - [x] T4 — Verification: `npm run build` passes, `npm run lint` clean; Spanish UI text spot-check; English identifier spot-check.
 - [x] T5 — Work-unit commit: `42b74ab` on `feat/frontend-app-router-baseline` (conventional commit, no AI attribution).
+- [ ] T6 — Site header: `src/components/site-header.tsx` (DESIGN.md §7.2/§7.3/§14): `<header>` + `<nav aria-label="Navegación principal">`, logo "Quokka Studio" linking to `/`, links to the 5 routes (Inicio, Servicios, Contáctame, Panel), hover/focus-visible states, no color-only active indication, wraps on small screens.
+- [ ] T7 — Site footer: `src/components/site-footer.tsx` (DESIGN.md §6.11/§14): minimal `<footer>` with brand + short Spanish credit line.
+- [ ] T8 — Layout wiring: mount header/footer in `src/app/layout.tsx` with `<main>` around children (flex-col body already exists); verify build + lint.
+- [ ] T9 — Work-unit commit for T6–T8.
 
 ## Acceptance Criteria
 - `cd frontend && npm run build` succeeds.

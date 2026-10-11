@@ -5,6 +5,8 @@ import {
   IBM_Plex_Mono,
   Source_Sans_3,
 } from "next/font/google";
+import SiteFooter from "@/components/site-footer";
+import SiteHeader from "@/components/site-header";
 import "./globals.css";
 
 // DESIGN.md §4.1 — each family is loaded centrally via next/font/google and
@@ -54,7 +56,13 @@ export default function RootLayout({
       lang="es"
       className={`${gabarito.variable} ${sourceSans3.variable} ${ibmPlexMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/* DESIGN.md §6 — global header/footer frame; `main` stretches via the
+          body flex column so the footer stays pinned to the viewport bottom. */}
+      <body className="min-h-full flex flex-col">
+        <SiteHeader />
+        <main className="flex-1">{children}</main>
+        <SiteFooter />
+      </body>
     </html>
   );
 }
