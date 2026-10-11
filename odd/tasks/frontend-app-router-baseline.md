@@ -35,10 +35,10 @@ OUT:
 - [x] T3 — Route pages: create the 5 `page.tsx` files with Spanish `Metadata` + `<h1>`, English identifiers/comments.
 - [x] T4 — Verification: `npm run build` passes, `npm run lint` clean; Spanish UI text spot-check; English identifier spot-check.
 - [x] T5 — Work-unit commit: `42b74ab` on `feat/frontend-app-router-baseline` (conventional commit, no AI attribution).
-- [ ] T6 — Site header: `src/components/site-header.tsx` (DESIGN.md §7.2/§7.3/§14): `<header>` + `<nav aria-label="Navegación principal">`, logo "Quokka Studio" linking to `/`, links to the 5 routes (Inicio, Servicios, Contáctame, Panel), hover/focus-visible states, no color-only active indication, wraps on small screens.
-- [ ] T7 — Site footer: `src/components/site-footer.tsx` (DESIGN.md §6.11/§14): minimal `<footer>` with brand + short Spanish credit line.
-- [ ] T8 — Layout wiring: mount header/footer in `src/app/layout.tsx` with `<main>` around children (flex-col body already exists); verify build + lint.
-- [ ] T9 — Work-unit commit for T6–T8.
+- [x] T6 — Site header: `src/components/site-header.tsx` (DESIGN.md §7.2/§7.3/§14): `<header>` + `<nav aria-label="Navegación principal">`, brand links to `/`, 4 Spanish nav links, hover/focus-visible, wraps on small screens. Active-route styling omitted (would need `usePathname` → client component).
+- [x] T7 — Site footer: `src/components/site-footer.tsx`: semantic `<footer>`, brand + Spanish credit + mono copyright.
+- [x] T8 — Layout wiring: header/main/footer frame in `src/app/layout.tsx`. **Bug found & fixed:** DESIGN.md tokens lived only in `:root`, so Tailwind 4 emitted 0 rules for `text-muted-foreground`/`bg-background`/`border-border` (verified in built CSS). Added `@theme inline` bridge + `@utility font-body` in `globals.css`. Verified: build ✅, lint ✅, emitted CSS now contains the rules.
+- [x] T9 — Work-unit commit: `006e52c`. RDD assess: medium / `under_budget` → no review due yet (candidate stays in slice).
 
 ## Acceptance Criteria
 - `cd frontend && npm run build` succeeds.
