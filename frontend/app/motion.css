@@ -1,0 +1,14 @@
+/* Equivalentes CSS del vocabulario de lib/gsap.js. Solo CSS los consume:
+   no aplicar transiciones de transform a nodos que controla GSAP. */
+:root {
+  --motion-response: .24s;
+  --motion-change: .36s;
+  --motion-enter: .55s;
+  --motion-exit: .18s;
+  --motion-ease-out: cubic-bezier(.22, 1, .36, 1);
+  --motion-ease-change: cubic-bezier(.65, 0, .35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-response: 0s; --motion-change: 0s; --motion-enter: 0s; --motion-exit: 0s; }
+}

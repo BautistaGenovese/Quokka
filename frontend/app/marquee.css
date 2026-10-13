@@ -1,0 +1,38 @@
+/* El contexto cromático viene de Section. Solo la ventana recorta el rail,
+   para conservar visibles los controles y su foco. */
+/* Cada tamaño coordina tipografía, aire y separación. La velocidad se elige
+   aparte: cambiar el tamaño no altera el comportamiento del movimiento. */
+.quokka-marquee {
+  --marquee-text-size: clamp(2rem, 4vw, 4rem);
+  --marquee-space: clamp(1rem, 3vw, 2.5rem);
+  --marquee-padding: 1rem;
+  min-width: 0;
+  position: relative;
+  padding-block: var(--marquee-padding);
+}
+.quokka-marquee[data-size="sm"] {
+  --marquee-text-size: clamp(1.5rem, 2.5vw, 2.5rem);
+  --marquee-space: clamp(.75rem, 2vw, 1.5rem);
+  --marquee-padding: .75rem;
+}
+.quokka-marquee[data-size="lg"] {
+  --marquee-text-size: clamp(2.5rem, 6vw, 6.5rem);
+  --marquee-space: clamp(1.5rem, 4vw, 4rem);
+  --marquee-padding: 1.25rem;
+}
+.quokka-marquee-controls { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-inline: var(--spacing-gutter, 1.5rem); }
+/* Sin panel visual por defecto; el control sigue accesible con teclado y
+   lectores de pantalla. Solo se revela mientras tiene foco de teclado. */
+.quokka-marquee-controls-hidden:not(:focus-within) { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+.quokka-marquee-controls-hidden:focus-within { position: absolute; inset: 0 0 auto auto; z-index: 1; background: var(--s-bg); }
+.quokka-marquee-viewport { overflow: hidden; padding-block: var(--marquee-padding) calc(var(--marquee-padding) / 2); }
+.quokka-marquee-track { display: flex; width: max-content; }
+.quokka-marquee[data-running="true"] .quokka-marquee-track { will-change: transform; }
+.quokka-marquee-group { display: flex; flex: 0 0 auto; }
+.quokka-marquee-item { display: inline-flex; flex-shrink: 0; align-items: center; gap: var(--marquee-space); padding-inline: calc(var(--marquee-space) / 2); white-space: nowrap; font-size: var(--marquee-text-size); line-height: 1.25; letter-spacing: -.035em; }
+.quokka-marquee-separator { font-family: var(--font-mono); font-size: .55em; font-weight: 700; color: var(--s-action); }
+.quokka-marquee-summary { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .quokka-marquee-viewport, .quokka-marquee-controls { display: none; }
+  .quokka-marquee-summary { position: static; width: auto; height: auto; padding: var(--marquee-padding) var(--spacing-gutter, 1.5rem); margin: 0; overflow: visible; clip-path: none; white-space: normal; font-family: var(--font-body); font-size: var(--marquee-text-size); font-weight: 800; line-height: 1.3; }
+}

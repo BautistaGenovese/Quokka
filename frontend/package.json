@@ -6,12 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:motion": "node --test tests/button-motion.test.cjs",
+    "test:components": "node --test tests/component-contracts.test.cjs"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@tailwindcss/postcss": "^4.3.3",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.53.0",
     "next": "16.4.0",
     "postcss": "^8.5.29",
@@ -23,8 +27,10 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/react": "^19.3.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
   }
 }
