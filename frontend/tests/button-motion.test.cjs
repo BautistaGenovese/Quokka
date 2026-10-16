@@ -66,7 +66,7 @@ test("magnetismo, interrupciones, foco, presión, movimiento reducido y limpieza
       inactive: false, magnetic: true, strength: 0.28, maxRotation: 7,
     });
     const event = { pointerType: "mouse", button: 0, clientX: 205, clientY: 145, target: el };
-    win.emit("pointermove", event); advance(0.4);
+    el.emit("pointermove", event); advance(0.4);
     assert.ok(el.x > 5 && content.x > 1, "el cuerpo y el contenido se atraen");
     const before = el.x;
     el.emit("focus");
@@ -74,19 +74,19 @@ test("magnetismo, interrupciones, foco, presión, movimiento reducido y limpieza
     el.emit("pointerdown", event); advance(0.1);
     assert.ok(el.scale < 0.97, "presión del clic");
     hit = outside;
-    win.emit("pointermove", { ...event, clientX: 600, clientY: 600 });
+    el.emit("pointerleave");
     assert.equal(el.dataset.pressed, undefined, "salir cancela presión antes de pointerup");
     advance(0.2);
     assert.ok(el.x < 0, "el retorno elástico sobrepasa el centro");
     advance(0.6);
     assert.ok(Math.abs(el.x) < 0.01, "el retorno se asienta");
     hit = el;
-    win.emit("pointermove", event); advance(0.4);
+    el.emit("pointermove", event); advance(0.4);
     assert.ok(el.x > 5, "reentrar retoma magnetismo");
     el.focusVisible = true; el.emit("focus");
     assert.equal(el.x, 0); assert.equal(content.x, 0);
     el.focusVisible = false;
-    win.emit("pointermove", event); advance(0.4);
+    el.emit("pointermove", event); advance(0.4);
     assert.ok(el.x > 5, "quickTo retoma después del foco de teclado");
     reduced = true; media.forEach(item => item.emit("change"));
     assert.equal(el.x, 0);
@@ -116,17 +116,17 @@ test("magnetismo, interrupciones, foco, presión, movimiento reducido y limpieza
     assert.equal(el.x, 0); assert.equal(el.y, 0); assert.equal(el.rotation, 0);
     assert.equal(el.scale, 1); assert.equal(content.x, 0); assert.equal(content.y, 0);
     hit = el;
-    win.emit("pointermove", event); advance(0.4);
+    el.emit("pointermove", event); advance(0.4);
     assert.ok(el.x > 5, "el magnetismo sigue funcionando después del resultado");
     const expressiveX = el.x;
     context.revert();
     useButtonMotion({ current: el }, { current: content }, {
       inactive: false, magnetic: true, motion: "subtle", ...base.BUTTON_MOTION.subtle,
     });
-    win.emit("pointermove", event); advance(0.4);
+    el.emit("pointermove", event); advance(0.4);
     assert.ok(el.x > 0 && el.x < expressiveX, "el preset discreto conserva atracción con menor amplitud");
     hit = outside;
-    win.emit("pointermove", { ...event, clientX: 600, clientY: 600 }); advance(0.6);
+    el.emit("pointerleave"); advance(0.6);
     assert.ok(Math.abs(el.x) < 0.01 && Math.abs(content.x) < 0.01, "el preset discreto también vuelve al origen");
     assert.deepEqual(warnings, [], "GSAP no advierte conflictos de propiedades");
   } finally {

@@ -10,7 +10,7 @@ export const TEAM = [
 export const SITE_LINKS = [
   { href: "#inicio", label: "Inicio" }, { href: "#manifiesto", label: "Filosofía" },
   { href: "#equipo", label: "Equipo" }, { href: "#servicios", label: "Servicios" },
-  { href: "#stack-tech", label: "Tecnologías" }, { href: "#proyectos", label: "Proyectos y demos" },
+  { href: "#proyectos", label: "Proyectos y demos" }, { href: "#stack-tech", label: "Tecnologías" },
   { href: "#contacto", label: "Contacto" },
 ];
 export const SERVICES = [
@@ -19,13 +19,13 @@ export const SERVICES = [
   { title: "Motion Design", description: "Transiciones y microinteracciones que acompañan la navegación, respetando teclado y movimiento reducido.", tags: ["GSAP", "SVG", "Accesibilidad"] },
 ];
 export const TECHNOLOGIES = [
-  { title: "React y Next.js", description: "La base del frontend: vistas y componentes que el grupo puede compartir y mantener.", tags: ["JavaScript", "Componentes"] },
-  { title: "Tailwind CSS", description: "Estilos responsivos y tokens compartidos para conservar la identidad en cada sección.", tags: ["Diseño", "Responsive"] },
-  { title: "GSAP", description: "Un vocabulario común para animaciones de interacción, navegación y scroll.", tags: ["Motion", "SVG"] },
-  { title: "Node.js y Express", description: "Servidor y rutas de la API para los módulos de la aplicación.", tags: ["Backend", "API REST"] },
-  { title: "PostgreSQL", description: "Base de datos relacional elegida en el entorno actual del backend.", tags: ["SQL", "Datos"] },
+  { title: "React y Next.js" },
+  { title: "Tailwind CSS" },
+  { title: "GSAP" },
+  { title: "Node.js y Express" },
+  { title: "PostgreSQL" },
 ];
-// Propuestas del prototipo; todavía no representan demos publicadas.
+// Propuestas del portfolio; todavía no representan demos publicadas.
 // Sin demoHref: no se fabrican rutas a aplicaciones que aún no existen.
 export const PROJECTS = [
   { id: "turnos", title: "Gestor de Turnos & Agenda Web", description: "Propuesta de reserva horaria con prevención de solapamientos y panel de administración.", preview: "/previews/turnos.svg" },

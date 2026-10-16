@@ -1,0 +1,95 @@
+.site-menu-dialog {
+  position: fixed; inset: var(--navbar-height, 82px) 0 0; margin: 0; width: 100%; max-width: none; z-index: 2;
+  height: calc(100dvh - var(--navbar-height, 82px)); max-height: none; padding: .75rem;
+  border: 0; background: transparent; overflow-x: hidden; overflow-y: auto;
+  pointer-events: none;
+}
+.site-menu-dialog[data-exiting="true"] { overflow: hidden; }
+.site-menu-panels {
+  display: flex; flex-direction: column; min-height: 0;
+  width: min(42rem, 55vw); margin-left: auto; gap: 1rem;
+  /* Sin recorte local: la caída solo se recorta al salir del viewport. */
+  overflow: visible;
+}
+.site-menu-main { pointer-events: auto; border: 1px solid var(--s-border);
+  font-family: var(--font-body);
+}
+.site-menu-main {
+  min-height:min(22rem, calc(100dvh - var(--navbar-height, 82px) - 1.5rem)); max-height:calc(100dvh - var(--navbar-height, 82px) - 1.5rem); display: flex; flex-direction: column;
+}
+.site-menu-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.site-menu-title { letter-spacing: .08em; text-transform: uppercase; }
+.site-menu-main nav { display: flex; }
+.site-menu-links { display: flex; flex-direction: column; width: 100%; list-style: none; padding: 0; margin: 0; }
+.site-menu-links a {
+  position: relative; display: flex; align-items: center; gap: 1rem; color: var(--s-fg);
+}
+.site-menu-link-content { display: block; flex: 1; min-width: 0; transition: transform .25s ease; }
+.site-menu-link-label { font-family: var(--font-body); font-weight: 800; font-size: clamp(1.5rem, 2.6vw, 2.2rem); line-height: 1.1; letter-spacing: -.03em; }
+.site-menu-links a:is(:hover, :focus-visible) .site-menu-link-content { transform: translateX(5px); }
+.site-menu-help { font-size: .75rem; line-height: 1.4; padding-top: .75rem; margin-bottom: .75rem; }
+.site-menu-help kbd { font-family: var(--font-mono); font-size: .65rem; margin-right: .25rem; }
+.site-menu-toolbar { display: flex; align-items: center; gap: .65rem; }
+/* Referencia de bloques: misma columna y movimiento, nueva jerarquía visual.
+   Section aporta todos los colores; la captura no fija una paleta nueva. */
+.site-menu-main { border-radius: var(--radius-card); }
+.site-menu-main { padding: 1rem 1.5rem; }
+.site-menu-title { font-family: var(--font-mono); font-size: .8rem; font-weight: 700; }
+.site-menu-heading { margin-bottom: .75rem; }
+.site-menu-main nav { flex:1 1 auto; min-height:0; overflow-y:auto; }
+.site-menu-links { gap: 0; }
+.site-menu-links li { display: flex; }
+.site-menu-link-line { position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--s-line); pointer-events: none; }
+.site-menu-link-line-bottom { top: auto; bottom: 0; display: none; }
+.site-menu-links li:last-child .site-menu-link-line-bottom { display: block; }
+.site-menu-link-content { overflow: hidden; padding-bottom: .15em; }
+.site-menu-link-label { display: block; }
+.site-menu-link-description { max-width: 9rem; font-size: .8rem; line-height: 1.3; text-align: right; opacity: 0; transform: translateX(-8px); transition: opacity .3s, transform .35s; }
+.site-menu-links:has(a:hover) a:not(:hover):not(:focus-visible) { opacity: .4; }
+.site-menu-links a { transition: opacity .25s; }
+.site-menu-links a:is(:hover, :focus-visible) .site-menu-link-description { opacity: .85; transform: none; }
+.site-menu-links a { width: 100%; min-height: 3.3rem; padding: .65rem 0; }
+.site-menu-help kbd { border: 1px solid currentColor; border-radius: .25rem; padding: .05rem .4rem; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) {
+  .site-menu-links a, .site-menu-link-content, .site-menu-link-description { transition: none; }
+  .site-menu-links a:is(:hover, :focus-visible) .site-menu-link-content { transform: none; }
+}
+.menu-destination { scroll-margin-top: 6.5rem; }
+/* Selector de apariencia, en la misma columna lateral que SiteMenu.
+   El dialog permite scroll si hace falta; la tarjeta solo mide su contenido. */
+.palette-panels { min-height: 0; }
+.side-panel { pointer-events: auto; padding: 1.25rem 1.5rem; border: 1px solid var(--s-border); border-radius: var(--radius-card); font-family: var(--font-body); }
+.palette-modes { display: grid; grid-template-columns: 1fr 1fr; position: relative; border: 2px solid var(--s-line); border-radius: 999px; padding: 3px; margin: 0 0 1rem; }
+.palette-modes::before { content: ""; position: absolute; inset: 3px auto 3px 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--s-fg); transition: transform .45s var(--ease-spring); }
+.palette-modes[data-dark="true"]::before { transform: translateX(100%); }
+.palette-modes button { position: relative; cursor: pointer; padding: .55rem 0; border-radius: 999px; font-family: var(--font-display); font-size: .8rem; font-weight: 700; }
+.palette-modes button[aria-pressed="true"] { color: var(--s-bg); }
+.palette-choices { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1.2rem; }
+.palette-choices button { display: flex; align-items: center; gap: .55rem; padding: .55rem .7rem; border: 2px solid var(--s-line); border-radius: .875rem; font-size: .9rem; font-weight: 600; text-align: left; cursor: pointer; transition: transform .25s, border-color .2s, background-color .2s; }
+.palette-choices button:hover { transform: translateY(-2px); border-color: var(--s-fg); }
+.palette-choices button[aria-pressed="true"] { border-color: var(--s-fg); background: var(--s-panel); }
+.palette-preview { display: flex; flex-shrink: 0; }
+.palette-preview i { width: .85rem; height: .85rem; border-radius: 50%; margin-left: -.3rem; border: 1.5px solid var(--s-bg); }
+.palette-preview i:first-child { margin-left: 0; }
+.palette-description h3 { font-size: clamp(2rem, 3vw, 2.7rem); font-weight: 800; line-height: .95; letter-spacing: -.03em; }
+.palette-tag { font-family: var(--font-mono); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: .55rem 0 .8rem; }
+.palette-story { font-size: .96rem; line-height: 1.55; margin-bottom: 1.1rem; }
+.palette-story > span { margin-inline-end: .25em; }
+.palette-strip button[aria-pressed="true"] { outline: 2px solid var(--s-focus); outline-offset: 3px; position: relative; z-index: 1; }
+.palette-story > span { display: inline-block; animation: palette-word .6s var(--ease-expo) both; animation-delay: calc(var(--i) * 22ms); }
+@keyframes palette-word { from { opacity: 0; transform: translateY(.7em); } to { opacity: 1; transform: none; } }
+.palette-strip { display: flex; padding: 0; margin: 0; list-style: none; border: 1px solid var(--s-line); border-radius: .75rem; }
+.palette-strip li { flex: 1; min-width: 0; }
+.palette-strip button { display: block; width: 100%; height: 44px; cursor: pointer; }
+.palette-strip li:first-child button { border-radius: .7rem 0 0 .7rem; }
+.palette-strip li:last-child button { border-radius: 0 .7rem .7rem 0; }
+.palette-color-name { min-height: 1.5em; margin: .6rem 0; font-size: .9rem; }
+.palette-note { font-size: .8rem; line-height: 1.4; }
+@media (max-width: 420px) { .side-panel { padding: 1rem; } .palette-choices button { padding: .5rem; font-size: .8rem; gap: .35rem; } }
+@media (prefers-reduced-motion: reduce) {
+  .palette-modes::before, .palette-choices button { transition: none; }
+  .palette-story > span { animation: none; }
+}
+/* Morphing coordinado con el cierre. Navbar queda encima y ResizeObserver
+   mide su borde inferior. Ambas capas usan la colección activa. */
+.site-menu-login { align-self:flex-start; flex-shrink:0; margin-top:auto; }

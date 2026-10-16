@@ -57,6 +57,7 @@ export default function useButtonMotion(ref, contentRef, { inactive, href, magne
       }
     });
     const leave = contextSafe(() => {
+      releasePress();
       if (!hovering) return;
       hovering = false;
       rotation = 0;
@@ -69,7 +70,7 @@ export default function useButtonMotion(ref, contentRef, { inactive, href, magne
         .to(content, { x: 0, y: 0, ...profile.release, overwrite: "auto" }, 0);
     });
     const onMove = contextSafe((event) => {
-      const inside = el.contains(document.elementFromPoint(event.clientX, event.clientY));
+      const inside = el.contains(event.target);
       if (!inside && el.dataset.pressSource !== "keyboard") releasePress();
       if (!inside || event.pointerType !== "mouse" || !fine.matches || reduced.matches || !magnetic) {
         leave();
@@ -120,7 +121,8 @@ export default function useButtonMotion(ref, contentRef, { inactive, href, magne
     el.addEventListener("keydown", press);
     el.addEventListener("focus", onFocus);
     el.addEventListener("blur", releasePress);
-    window.addEventListener("pointermove", onMove, { passive: true });
+    el.addEventListener("pointermove", onMove, { passive: true });
+    el.addEventListener("pointerleave", leave);
     window.addEventListener("pointerup", releasePress);
     window.addEventListener("pointercancel", reset);
     window.addEventListener("keyup", onKeyUp);
@@ -135,7 +137,8 @@ export default function useButtonMotion(ref, contentRef, { inactive, href, magne
       el.removeEventListener("keydown", press);
       el.removeEventListener("focus", onFocus);
       el.removeEventListener("blur", releasePress);
-      window.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", leave);
       window.removeEventListener("pointerup", releasePress);
       window.removeEventListener("pointercancel", reset);
       window.removeEventListener("keyup", onKeyUp);

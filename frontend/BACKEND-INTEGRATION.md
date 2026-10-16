@@ -1,77 +1,38 @@
-# Integración con backend y GitHub
+# Integración del frontend con el servidor
 
-Esta versión permite probar el portfolio en `/` (también `/experiencia`) y los
-componentes en `/componentes`. Usa contenido local en `lib/site-content.js`.
-El botón de registro del portfolio simula una sesión; los accesos del menú son
-plantillas y el formulario sin callback valida sin enviar datos.
+El frontend público está en /; el acceso preparado está en /iniciar-sesion. El equipo y las propuestas vienen de lib/site-content.js. No hay sesión simulada, registro ficticio, página de laboratorio ni shader de previews.
 
-## Separación de responsabilidades
+## Responsabilidades
 
-El backend consulta GitHub y resuelve autenticación, permisos y caché. La página
-recibe sus datos y los adapta a las props de los componentes. Las cards no deben
-consultar endpoints ni recibir tokens de GitHub.
+El servidor debe resolver autenticación, permisos, consultas a GitHub, envío de contacto y caché. Las cards son presentación y no reciben tokens ni consultan endpoints. El contenido privado debe filtrarse antes de entregarlo al cliente: DemoCard locked no es un control de acceso.
 
-## Formato propuesto para acordar entre módulos
+## Contacto
 
-Estos nombres son una propuesta, no endpoints implementados ni un contrato ya
-confirmado con el backend:
+ContactForm recibe onSubmitMessage, una función asíncrona con { name, email, type, message }. La capa que integre el módulo debe mapear esos valores al contrato real del backend, validar también en servidor, lanzar un error si falla y resolver solo cuando el envío haya sido confirmado. Sin adaptador la UI únicamente valida y comunica que el envío no está habilitado.
 
-```js
-// Integrante: rol y descripción del proyecto pueden diferir de su bio pública.
-{
-  id: "identificador-estable",
-  username: "usuario-github",
-  name: "Nombre visible",
-  role: "Responsabilidad en Quokka",
-  description: "Presentación del integrante",
-  avatarUrl: null,
-  profileUrl: "https://github.com/usuario-github"
-}
+El consumidor cliente puede importar ContactForm y suministrar su callback; no pasar funciones desde una página Server Component. El formulario administra carga y mensajes; el adaptador administra red y credenciales.
 
-// Proyecto autorizado para la persona que realiza la consulta.
-{
-  id: "identificador-estable",
-  name: "Nombre del repositorio",
-  description: "Descripción del proyecto",
-  languages: ["JavaScript", "CSS"],
-  members: [], // Integrantes con el formato anterior.
-  repositoryUrl: null,
-  demoUrl: null,
-  previewUrl: null
-}
+## Inicio de sesión
 
-// Sesión: null significa visitante; no reemplazarla por la simulación local.
-{ user: null }
-// Con sesión: { user: { id, name, avatarUrl } }
-```
+LoginForm recibe onSignIn({ email, password }). La capa de integración debe crear la sesión real, resolver errores, aplicar el método de transporte acordado y actualizar el contexto de usuario. El componente no persiste la contraseña ni la envía si falta el callback. La validación local exige un email válido y una contraseña no vacía; las reglas definitivas pertenecen al backend.
 
-## Adaptación a los componentes actuales
+No hay endpoints inventados, autenticación conectada ni cookies de sesión creadas por esta entrega. AppearanceProvider contiene solo preferencias visuales, no identidad o permisos. El menú ya incluye un enlace funcional a /iniciar-sesion al pie del panel.
 
-- `TeamCard`: name, role, description y profileHref. La foto se pasa como JSX
-  mediante portrait; sin foto muestra iniciales. Normalizar name con username
-  si GitHub no devuelve nombre. No pasar directamente respuestas sin validar.
-- `ProjectCard`: name → title, languages → technologies, repositoryUrl → codeHref,
-  demoUrl → demoHref; preview acepta JSX. Todavía falta la vista de participantes.
-- `DemoCard`: name → title, description, demoHref y preview. Su diseño mínimo
-  no muestra lenguajes ni participantes. locked omite el contenido protegido.
-- `DemoPreview`: recibe src y alt. Las imágenes remotas requieren configurar
-  los hosts permitidos en Next; comprobar CORS para el shader y disponer de
-  una alternativa cuando la imagen o WebGL no estén disponibles.
+## Datos de presentación
 
-## Decisiones pendientes antes de conectar
+TeamGallery recibe members con name, role, description, portrait opcional (ruta local o imagen configurada) y profileHref opcional. Sin portrait genera iniciales. Si se usa GitHub, distinguir el equipo asignado de los contribuidores calculados por commits.
 
-- Definir si members representa el equipo asignado o los contribuidores de
-  GitHub: los contribuidores se calculan a partir de commits y no equivalen
-  necesariamente al equipo completo.
-- Acordar una ruta de imagen de portada dentro de cada repo o una previewUrl
-  mantenida por el backend. La metadata del repositorio no incluye una captura
-  automática de la aplicación.
-- Resolver carga, errores, listas vacías, descripciones nulas y fotos fallidas
-  en la capa que obtiene los datos, conservando las cards como presentación.
-- Construir la presentación del usuario autenticado en el menú usando la sesión
-  real. La foto de GitHub requiere identificar o vincular esa cuenta.
-- El backend debe impedir la entrega de datos protegidos a visitantes. locked
-  es una presentación visual, no un control de acceso ni un mecanismo de seguridad.
+ProjectGallery usa las propuestas de site-content. Una integración futura puede adaptar repositorios a DemoCard o ProjectCard: title, description, preview, technologies, demoHref y codeHref según la variante. Omitir enlaces que no existan; no construir URLs de demos a partir de suposiciones. DemoPreview solo recibe src, alt y sizes; configurar hosts de next/image si se suministran imágenes remotas.
 
-Se puede compartir esta rama y desarrollar los módulos en paralelo; este
-documento registra lo preparado y lo pendiente sin simular una integración real.
+La API de repositorios no incluye automáticamente una captura de la aplicación. Acordar una previewUrl o archivo de portada, y cómo tratar descripciones nulas, estados de carga, listas vacías e imágenes fallidas.
+
+## Límites entre módulos
+
+- components/ui: primitivas y movimiento, sin dependencia de rutas ni fetch.
+- components/cards: composiciones de presentación.
+- components/forms: validación y puntos de integración asíncronos.
+- components/portfolio: composición y adaptación de contenido.
+- components/navigation: rutas, menú, paleta y transición.
+- lib/site-content.js: datos locales sustituibles por una capa de carga.
+
+Los estados de error/carga no deben producir un éxito ficticio ni ocultar información necesaria para recuperarse. Actualizar README y DESIGN cuando se conecten estas funciones o cambien sus contratos.

@@ -30,8 +30,6 @@ export const MOTION = {
     rotations: [9, -12, 7], clearance: 40,
   },
   card: { duration: 0.35, ease: "power3.out", subtle: 4, expressive: 8 },
-  slider: { duration: 0.55, ease: "power3.out" },
-  shader: { duration: 0.65, ease: "sine.out", velocityScale: 1600 },
   text: { duration: 0.9, ease: "none", dotInterval: 0.5 },
   field: { duration: 0.36, ease: "power2.inOut", pulseDuration: 1.2 },
   options: {
