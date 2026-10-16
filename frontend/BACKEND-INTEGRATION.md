@@ -8,7 +8,7 @@ El servidor debe resolver autenticación, permisos, consultas a GitHub, envío d
 
 ## Contacto
 
-ContactForm recibe onSubmitMessage, una función asíncrona con { name, email, type, message }. La capa que integre el módulo debe mapear esos valores al contrato real del backend, validar también en servidor, lanzar un error si falla y resolver solo cuando el envío haya sido confirmado. Sin adaptador la UI únicamente valida y comunica que el envío no está habilitado.
+ContactForm recibe onSubmitMessage, una función asíncrona con { name, email, type, message }. En la portada (`PortfolioPage`), el formulario se conecta mediante `submitContactRequest` (`lib/contact-api.js`) al endpoint `POST /api/contact` del backend, que valida y sanitiza en servidor, aplica límite de solicitudes por IP (rate limiting), persiste la consulta en PostgreSQL y envía la notificación por correo con Nodemailer. Sin adaptador, la UI únicamente valida y comunica que el envío no está habilitado.
 
 El consumidor cliente puede importar ContactForm y suministrar su callback; no pasar funciones desde una página Server Component. El formulario administra carga y mensajes; el adaptador administra red y credenciales.
 

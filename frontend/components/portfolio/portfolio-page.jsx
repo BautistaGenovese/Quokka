@@ -13,6 +13,7 @@ import Marquee from "@/components/ui/marquee";
 import ContactForm from "@/components/forms/contact-form";
 import Footer from "@/components/layout/footer";
 import useAppearance from "@/hooks/use-appearance";
+import { submitContactRequest } from "@/lib/contact-api";
 import { TEAM, SITE_LINKS, SERVICES, TECHNOLOGIES } from "@/lib/site-content";
 
 export default function PortfolioPage() {
@@ -43,7 +44,7 @@ export default function PortfolioPage() {
       </Section>
       <Section as="div" surface="primary" className="studio-marquee"><Marquee size="sm" speed={22} items={["Curiosidad", "Código compartido", "Diseño con intención", "Ideas en movimiento"]} label="El pulso de Quokka" /></Section>
       <Section id="contacto" tabIndex={-1} surface="card" className="menu-destination studio-section footer-predecessor">
-        <div className="studio-shell studio-contact-layout"><div><p className="studio-eyebrow"><span>06</span> Empecemos por una idea</p><AnimatedHeading as="h2">Contanos<br /><span className="word-wave">qué te mueve.</span></AnimatedHeading><p className="studio-contact-copy">Una idea en una servilleta. Un desafío técnico. Algo que todavía no sabés cómo nombrar. Nos interesa escucharlo.</p></div><Section as="div" surface="page" className="studio-contact-form"><ContactForm /></Section></div>
+        <div className="studio-shell studio-contact-layout"><div><p className="studio-eyebrow"><span>06</span> Empecemos por una idea</p><AnimatedHeading as="h2">Contanos<br /><span className="word-wave">qué te mueve.</span></AnimatedHeading><p className="studio-contact-copy">Una idea en una servilleta. Un desafío técnico. Algo que todavía no sabés cómo nombrar. Nos interesa escucharlo.</p></div><Section as="div" surface="page" className="studio-contact-form"><ContactForm onSubmitMessage={submitContactRequest} /></Section></div>
       </Section>
     </main>
     <Footer links={SITE_LINKS} homeHref="#inicio" teamHref="#equipo" />

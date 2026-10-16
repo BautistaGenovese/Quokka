@@ -10,7 +10,7 @@ Quokka es un estudio digital colaborativo, editorial, cálido y juguetón. Las s
 
 La página principal es /. Presenta inicio, manifiesto, equipo, servicios, proyectos, tecnologías y contacto. /iniciar-sesion es el acceso preparado para conectar autenticación. No hay rutas públicas de laboratorio o experiencia. Los componentes reutilizables viven en frontend/components; no son páginas ni dependen de una ruta.
 
-El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. La validación de contacto y login funciona en el cliente; envío y autenticación requieren sus adaptadores, y la interfaz no afirma que existan sesiones o envíos mientras no estén conectados.
+El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. La validación de contacto y login funciona en el cliente; el formulario de contacto en la portada se conecta al backend mediante su adaptador (`submitContactRequest`), mientras que login requiere su adaptador de autenticación y la interfaz no afirma que existan sesiones o envíos cuando el adaptador no está conectado.
 
 ## 2. Tipografía y énfasis
 

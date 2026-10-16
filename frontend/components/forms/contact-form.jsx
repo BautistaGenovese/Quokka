@@ -35,8 +35,18 @@ export default function ContactForm({ onSubmitMessage }) {
     }
     if (!onSubmitMessage) { setStatus("success"); setMessage("Consulta validada. El envío todavía no está habilitado."); return; }
     setStatus("loading");
-    try { await onSubmitMessage(values); setStatus("success"); setMessage("Tu mensaje fue enviado."); }
-    catch { setStatus("error"); setMessage("No se pudo enviar el mensaje. Probá de nuevo."); }
+    try {
+      const result = await onSubmitMessage(values);
+      setStatus("success");
+      setMessage(result?.message || "Tu mensaje fue enviado.");
+      form.reset();
+    } catch (error) {
+      if (error?.fields && typeof error.fields === "object") {
+        setErrors(error.fields);
+      }
+      setStatus("error");
+      setMessage(error?.message || "No se pudo enviar el mensaje. Probá de nuevo.");
+    }
   }
   return <form ref={formRef} noValidate onSubmit={submit} className="space-y-6">
     {/* fieldset tiene un mínimo intrínseco nativo: permitir que se comprima
@@ -45,7 +55,7 @@ export default function ContactForm({ onSubmitMessage }) {
     <div className="grid gap-6 sm:grid-cols-2">
       <Input name="name" label="Nombre completo" autoComplete="name" icon="person" required minLength={3} error={errors.name} onChange={() => edit("name")} />
       <Input name="email" label="Correo electrónico" type="email" autoComplete="email" required error={errors.email} onChange={() => edit("email")}
-        labelAccessory={<Tooltip label="Ayuda sobre el correo" content="Usá un correo con formato nombre@dominio.com. El envío se conectará al backend del proyecto." />} />
+        labelAccessory={<Tooltip label="Ayuda sobre el correo" content={onSubmitMessage ? "Usá un correo con formato nombre@dominio.com para que podamos responderte." : "Usá un correo con formato nombre@dominio.com. El envío se conectará al backend del proyecto."} />} />
     </div>
     <Select name="type" label="Tipo de consulta" defaultValue="" required error={errors.type} onValueChange={() => edit("type")}>
       <option value="" disabled>Seleccioná una categoría</option>

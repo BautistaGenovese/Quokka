@@ -86,6 +86,7 @@ test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjet
 test("el portfolio usa el equipo real, destinos existentes y propuestas sin enlaces inventados", () => {
   const { TEAM, SITE_LINKS, PROJECTS } = load("lib/site-content.js");
   const Page = load("components/portfolio/portfolio-page.jsx").default;
+  const ContactForm = load("components/forms/contact-form.jsx").default;
   const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Page)));
   for (const member of TEAM) assert.ok(html.includes(member.name));
   assert.equal(TEAM.length, 5);
@@ -93,7 +94,11 @@ test("el portfolio usa el equipo real, destinos existentes y propuestas sin enla
   for (const item of SITE_LINKS) assert.ok(html.includes(`id="${item.href.slice(1)}"`), item.href);
   assert.ok(PROJECTS.every(project => !project.demoHref));
   assert.match(html, /Mensaje detallado/);
-  assert.match(html, /envío de consultas estará disponible/);
+  assert.match(html, /Enviar mensaje/);
+  assert.match(html, /Los campos con \* son obligatorios\./);
+  const standaloneForm = renderToStaticMarkup(h(ContactForm));
+  assert.match(standaloneForm, /Validar mensaje/);
+  assert.match(standaloneForm, /envío de consultas estará disponible/);
   assert.equal([...html.matchAll(/class="section-fold-heading/g)].length, 7);
   assert.doesNotMatch(html, /<h3[^>]*section-fold-heading/);
   assert.match(html, /class="halftone-reveal"/);

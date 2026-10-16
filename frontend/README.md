@@ -83,7 +83,7 @@ Select admite children option/optgroup, value/defaultValue, onValueChange, name,
 
 Checkbox comparte ChoiceField. RadioGroup recibe label, name, options, value/defaultValue, onValueChange, description y error. Las opciones admiten value, label, disabled y description. Los grupos sin name usan uno propio. Tooltip recibe label, content, open/onOpenChange o defaultOpen; no crear un segundo botón dentro de su contenido.
 
-ContactForm, desde @/components/forms/contact-form, valida nombre de al menos tres caracteres, email válido, categoría y mensaje de al menos quince caracteres. onSubmitMessage({ name, email, type, message }) debe devolver una promesa. Sin callback solo valida y comunica que el envío aún no está disponible. No muestra éxito de envío ficticio.
+ContactForm, desde @/components/forms/contact-form, valida nombre de al menos tres caracteres, email válido, categoría y mensaje de al menos quince caracteres. onSubmitMessage({ name, email, type, message }) debe devolver una promesa; en la portada se conecta con `submitContactRequest` (`@/lib/contact-api`) hacia `POST /api/contact`. Sin callback solo valida y comunica que el envío aún no está disponible. No muestra éxito de envío ficticio.
 
 LoginForm, desde @/components/forms/login-form, valida email y contraseña no vacía. onSignIn({ email, password }) debe devolver una promesa y resolver la sesión real en la capa de integración. Sin callback no crea sesiones, no guarda credenciales ni hace peticiones. Mantiene autoComplete apropiado y estados de carga/error.
 
@@ -146,7 +146,7 @@ ArrowLink, desde components/ui/arrow-link, reemplaza los enlaces subrayados stud
 
 Los cinco integrantes tienen profileHref. TeamGallery muestra el GitHub de la tarjeta activa debajo del carrusel, en una pestaña nueva con noopener noreferrer.
 
-La portada y sus interacciones son públicas. Contacto y login tienen validación y contratos de callback, pero no integraciones de envío/autenticación. Los proyectos son propuestas locales, no demos desplegadas ni repositorios sincronizados automáticamente. Estas limitaciones son parte explícita de la entrega de frontend.
+La portada y sus interacciones son públicas. El formulario de contacto está conectado a `POST /api/contact` mediante `submitContactRequest`; el inicio de sesión mantiene su validación y contrato de callback pendiente de autenticación en servidor. Los proyectos son propuestas locales, no demos desplegadas ni repositorios sincronizados automáticamente. Estas limitaciones son parte explícita de la entrega actual.
 
 ## CI del pull request
 
