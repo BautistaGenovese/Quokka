@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750">
+  <defs>
+    <radialGradient id="glow"><stop stop-color="#aaa"/><stop offset="1" stop-color="#111"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="45"/></filter>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0H0V80" fill="none" stroke="#fff" stroke-opacity=".08"/></pattern>
+  </defs>
+  <rect width="1200" height="750" fill="#111"/>
+  <g filter="url(#soft)" opacity=".65">
+    <ellipse cx="200" cy="170" rx="400" ry="300" fill="url(#glow)"/>
+    <ellipse cx="1050" cy="620" rx="500" ry="350" fill="url(#glow)"/>
+  </g>
+  <rect width="1200" height="750" fill="url(#grid)"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2">
+    <path d="M-100 530C180 80 620 850 1300 140"/>
+    <path d="M-100 560C180 110 620 880 1300 170"/>
+    <path d="M-100 590C180 140 620 910 1300 200"/>
+  </g>
+</svg>

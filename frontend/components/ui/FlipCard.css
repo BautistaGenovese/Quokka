@@ -1,0 +1,13 @@
+.flip-card { position: relative; display: block; width: var(--fc-w); max-width: 100%; height: var(--fc-h); border-radius: var(--fc-radius); cursor: pointer; touch-action: pan-y; }
+.flip-card__rotor { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.flip-card[aria-pressed="true"] .flip-card__rotor { transform: rotateY(180deg); }
+.flip-card[data-axis="x"][aria-pressed="true"] .flip-card__rotor { transform: rotateX(180deg); }
+.flip-card__face { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; background: var(--fc-bg); color: var(--fc-ink); backface-visibility: hidden; }
+.flip-card__face--back { transform: rotateY(180deg); }
+.flip-card[data-axis="x"] .flip-card__face--back { transform: rotateX(180deg); }
+.flip-card[aria-disabled="true"] { cursor: default; opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .flip-card__rotor { transition: none; } }
+
+.flip-card__tilt { position:absolute; inset:0; border-radius:inherit; transform-style:preserve-3d; transform:rotateX(var(--fc-rx,0deg)) rotateY(var(--fc-ry,0deg)); transition:transform .18s cubic-bezier(.22,1,.36,1); }
+.flip-card__rotor { border-radius:inherit; transition-duration:.65s; transition-timing-function:cubic-bezier(.34,1.32,.64,1); }
+@media(prefers-reduced-motion:reduce) { .flip-card__tilt { transform:none; transition:none; } .flip-card__rotor { transition:none; } }

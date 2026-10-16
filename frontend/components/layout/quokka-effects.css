@@ -1,0 +1,5 @@
+.quokka-rain { position:fixed; inset:0; z-index:1450; overflow:hidden; pointer-events:none; contain:layout paint; --quokka-fur:#C98B5B; --quokka-muzzle:#F2D2B0; }
+.quokka-rain-sprite { position:absolute; top:0; left:0; visibility:hidden; pointer-events:auto; cursor:grab; touch-action:none; user-select:none; }
+.quokka-rain-sprite:active { cursor:grabbing; }
+.quokka-rain-sprite .site-navbar-mascot { display:block; width:100%; height:100%; }
+@media(prefers-reduced-motion:reduce) { .quokka-rain { display:none; } }

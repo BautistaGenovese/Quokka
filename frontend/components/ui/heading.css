@@ -1,0 +1,13 @@
+.heading-word { display: inline-block; white-space: nowrap; perspective: 700px; }
+.heading-letter { display: inline-block; transform-origin: center bottom; backface-visibility: hidden; }
+.section-fold-heading[data-ready="true"] .heading-letter { opacity: 0; transform: rotateX(92deg); }
+.section-fold-heading[data-entered="true"] .heading-letter {
+  opacity: 1; transform: rotateX(0); transition: transform .55s var(--motion-ease-out), opacity .4s var(--motion-ease-out);
+  transition-delay: var(--heading-delay);
+}
+@media (hover: hover) and (pointer: fine) {
+  .section-fold-heading[data-entered="true"] .heading-word:hover .heading-letter { transform: rotateX(22deg); transition-duration: .18s; transition-delay: 0s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-fold-heading .heading-letter { opacity: 1 !important; transform: none !important; transition: none !important; }
+}

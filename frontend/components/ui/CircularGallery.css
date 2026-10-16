@@ -1,0 +1,2 @@
+.circular-gallery { position: relative; width: 100%; max-width: 1440px; margin-inline: auto; height: 100%; overflow: hidden; touch-action: pan-y; user-select: none; cursor: grab; }
+.circular-gallery[data-dragging] { cursor: grabbing; }
