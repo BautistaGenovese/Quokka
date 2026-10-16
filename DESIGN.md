@@ -103,6 +103,10 @@ La composición pública vive en components/portfolio y sus estilos en styles/po
 
 ## 5. Navbar, menú y navegación
 
+Los enlaces secundarios de acción usan ArrowLink: flecha dentro de un círculo de 44 px junto al texto, con desplazamiento al hover/foco y alternativa sin movimiento. Se eliminan las flechas tipográficas decorativas y los enlaces redundantes hacia la sección inmediatamente siguiente. Cada persona dispone de acceso a su GitHub debajo del carrusel al activar su tarjeta.
+
+El menú recorta únicamente el desborde horizontal del hover y conserva scroll vertical cuando hace falta. El relleno del seguidor se dibuja a tamaño real para evitar pixelar el círculo al ampliarlo sobre botones.
+
 El navbar es sticky y transparente. Usa una sola capa de backdrop blur con máscara, sin aclarar las secciones coloreadas. Su tinta sigue la superficie visible mediante posiciones cacheadas; el scroll actualiza progreso y movimiento del símbolo en un único requestAnimationFrame.
 
 Los accesos de menú y paleta son iconos que se transforman en cierre. El relleno al hover usa el mismo seguidor radial que Button, sin magnetismo. No hay una segunda X en los paneles.

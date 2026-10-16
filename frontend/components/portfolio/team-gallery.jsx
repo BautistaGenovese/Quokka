@@ -47,19 +47,19 @@ export default function TeamGallery({ members }) {
               <span className="team-monogram" aria-hidden="true">{item.text.split(/\s+/).slice(0, 2).map(word => word[0]).join("")}</span>
               <span className="team-monogram-rings" aria-hidden="true" />
             </>}
-            <div className="team-flip-caption"><h3>{item.text}</h3><p>Tocá para conocerme ↻</p></div>
+            <div className="team-flip-caption"><h3>{item.text}</h3><p>Tocá para conocerme</p></div>
           </div>}
           back={<Section as="div" surface="card" className="team-flip-back">
             <p className="team-flip-eyebrow">El colectivo · {String(i + 1).padStart(2, "0")}</p>
             <h3>{members[i].name}</h3>
             <p className="team-flip-role">{members[i].role}</p>
             <p className="team-flip-description">{members[i].description}</p>
-            <p className="team-flip-return">Tocá para volver ↻</p>
+            <p className="team-flip-return">Tocá para volver</p>
           </Section>} />}
       />
     </div>
     {members.length > 1 && <CarouselMobileControls label="Personas" controls={stageId} onPrevious={() => gallery.current?.prev()} onNext={() => gallery.current?.next()} />}
     <p className="sr-only" aria-live="polite" aria-atomic="true">{index + 1} / {members.length} · {member.name}</p>
-    <div className="team-gallery-profile">{member.profileHref && <Button href={member.profileHref} magnetic={false} variant="ghost" size="sm">Ver perfil de {member.name} ↗</Button>}</div>
+    <div className="team-gallery-profile">{member.profileHref && <Button href={member.profileHref} magnetic={false} variant="secondary" size="sm" target="_blank" rel="noopener noreferrer">GitHub de {member.name}</Button>}</div>
   </div>;
 }

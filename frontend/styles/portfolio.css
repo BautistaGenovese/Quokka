@@ -34,14 +34,11 @@
 
 .studio-manifesto-copy { max-width: 30rem; font-family: var(--font-body); font-size: 1.15rem; line-height: 1.6; }
 .studio-manifesto-copy p + p { margin-top: 1.25rem; }
-.studio-manifesto-mark { display: block; margin-bottom: 1rem; font-family: var(--font-display); font-size: 3.5rem; line-height: 1; color: var(--s-action); }
-.studio-text-link { display: inline-flex; gap: 1.5rem; align-items: center; min-height: 44px; margin-top: 1.5rem; border-bottom: 1px solid var(--s-action); color: var(--s-action); font-family: var(--font-body); font-size: 1rem; font-weight: 600; }
 .studio-services { border-top: 1px solid var(--s-line); }
-.studio-service-row { display: grid; grid-template-columns: 3rem 1fr 1fr 2rem; gap: 2rem; align-items: start; padding-block: 2.5rem; border-bottom: 1px solid var(--s-line); }
+.studio-service-row { display: grid; grid-template-columns: 3rem 1fr 1fr; gap: 2rem; align-items: start; padding-block: 2.5rem; border-bottom: 1px solid var(--s-line); }
 .studio-service-number { padding-top: .5rem; font-family: var(--font-pill); font-size: .75rem; }
 .studio-service-row h3 { max-width: 12ch; font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 500; line-height: 1.1; letter-spacing: -.035em; }
 .studio-service-row p { font-family: var(--font-body); font-size: 1.1rem; line-height: 1.55; }
-.studio-service-mark { font-family: var(--font-display); font-size: 1.8rem; color: var(--s-action); }
 .studio-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; font-family: var(--font-pill); font-size: .65rem; }
 .studio-tags li { padding: .35rem .6rem; border: 1px solid var(--s-line); border-radius: .25rem; }
 .studio-projects .quokka-card-swap-viewport { height: 540px; }
@@ -60,7 +57,6 @@
 .studio-contact-layout { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(2rem, 6vw, 7rem); align-items: start; }
 .studio-contact-layout h2 { margin-top: 2rem; }
 .studio-contact-copy { max-width: 24rem; margin-top: 1.5rem; font-family: var(--font-body); font-size: 1.1rem; line-height: 1.6; }
-.studio-contact-arrow { display: block; margin-top: 1.5rem; font-family: var(--font-display); font-size: 6rem; line-height: 1; color: var(--s-action); }
 .studio-contact-form { min-width: 0; padding: clamp(1.25rem, 3vw, 2.5rem); border-radius: 1rem; }
 .studio-contact-form .button-press { font-size: 1rem; }
 .quokka-portfolio :is(a, button):focus-visible { outline: 2px solid var(--s-focus); outline-offset: 5px; }
@@ -71,7 +67,7 @@
   .studio-specimen img { height: 19rem; }
   .studio-specimen-top { top: 7rem; }
   .studio-stack-layout { gap: 2.5rem; }
-  .studio-service-row { gap: 1.2rem; grid-template-columns: 2rem 1fr 1.2fr 1rem; }
+  .studio-service-row { gap: 1.2rem; grid-template-columns: 2rem 1fr 1.2fr; }
 }
 @media (max-width: 700px) {
   .studio-hero-grid { grid-template-columns: 1fr; gap: 2.5rem; padding-block: 2.5rem; }
@@ -87,12 +83,10 @@
   .studio-section-heading { gap: 1.5rem; }
   .studio-manifesto-grid { margin-top: 2rem; }
   .studio-manifesto-copy { margin-top: .5rem; }
-  .studio-service-row { grid-template-columns: 1.5rem 1fr 1rem; gap: 1rem; padding-block: 2rem; }
+  .studio-service-row { grid-template-columns: 1.5rem 1fr; gap: 1rem; padding-block: 2rem; }
   .studio-service-row > div { grid-column: 2; }
-  .studio-service-mark { grid-column: 3; grid-row: 1; }
   .studio-service-row h3 { max-width: none; }
   .studio-stack-layout .studio-section-heading { margin-bottom: 1rem; }
-  .studio-contact-arrow { display: none; }
   .studio-projects .quokka-card-swap-viewport { height: clamp(300px, 90vw, 500px); }
 }
 

@@ -25,7 +25,7 @@ export default function PortfolioPage() {
       <Section id="manifiesto" tabIndex={-1} surface="deep" className="menu-destination studio-section studio-manifesto">
         <div className="studio-shell">
           <p className="studio-eyebrow"><span>01</span> Nuestra manera de hacer</p>
-          <div className="studio-manifesto-grid"><AnimatedHeading as="h2">La técnica<br />también tiene<br /><span className="word-wave">un lado salvaje.</span></AnimatedHeading><div className="studio-manifesto-copy"><span className="studio-manifesto-mark" aria-hidden="true">↳</span><p>Creemos en el encuentro entre la ingeniería y el pulso artístico. En las interfaces que se entienden, el código que tiene estructura y el movimiento que acompaña.</p><p>Somos cinco integrantes construyendo una misma experiencia. Cada uno aporta su mirada; el cuidado por los detalles es compartido.</p><a href="#equipo" className="studio-text-link">Conocé al colectivo <span aria-hidden="true">↗</span></a></div></div>
+          <div className="studio-manifesto-grid"><AnimatedHeading as="h2">La técnica<br />también tiene<br /><span className="word-wave">un lado salvaje.</span></AnimatedHeading><div className="studio-manifesto-copy"><p>Creemos en el encuentro entre la ingeniería y el pulso artístico. En las interfaces que se entienden, el código que tiene estructura y el movimiento que acompaña.</p><p>Somos cinco integrantes construyendo una misma experiencia. Cada uno aporta su mirada; el cuidado por los detalles es compartido.</p></div></div>
         </div>
       </Section>
       <Section id="equipo" tabIndex={-1} surface="page" className="menu-destination studio-section studio-team">
@@ -34,7 +34,7 @@ export default function PortfolioPage() {
       </Section>
       <Section id="servicios" tabIndex={-1} surface="card" className="menu-destination studio-section">
         <div className="studio-shell"><SectionHeading number="03" label="Lo que hacemos" description="Del primer boceto a la lógica que lo hace posible. Pensamos cada parte como un mismo sistema.">Damos forma<br /><span className="word-wave">a lo que imaginás.</span></SectionHeading>
-          <div className="studio-services">{SERVICES.map((service, index) => <article className="studio-service-row" key={service.title}><span className="studio-service-number">0{index + 1}</span><h3>{service.title}</h3><div><p>{service.description}</p><ul className="studio-tags" aria-label={`Especialidades de ${service.title}`}>{service.tags.map(tag => <li key={tag}>{tag}</li>)}</ul></div><span className="studio-service-mark" aria-hidden="true">↗</span></article>)}</div>
+          <div className="studio-services">{SERVICES.map((service, index) => <article className="studio-service-row" key={service.title}><span className="studio-service-number">0{index + 1}</span><h3>{service.title}</h3><div><p>{service.description}</p><ul className="studio-tags" aria-label={`Especialidades de ${service.title}`}>{service.tags.map(tag => <li key={tag}>{tag}</li>)}</ul></div></article>)}</div>
         </div>
       </Section>
       <ProjectGallery />
@@ -43,7 +43,7 @@ export default function PortfolioPage() {
       </Section>
       <Section as="div" surface="primary" className="studio-marquee"><Marquee size="sm" speed={22} items={["Curiosidad", "Código compartido", "Diseño con intención", "Ideas en movimiento"]} label="El pulso de Quokka" /></Section>
       <Section id="contacto" tabIndex={-1} surface="card" className="menu-destination studio-section footer-predecessor">
-        <div className="studio-shell studio-contact-layout"><div><p className="studio-eyebrow"><span>06</span> Empecemos por una idea</p><AnimatedHeading as="h2">Contanos<br /><span className="word-wave">qué te mueve.</span></AnimatedHeading><p className="studio-contact-copy">Una idea en una servilleta. Un desafío técnico. Algo que todavía no sabés cómo nombrar. Nos interesa escucharlo.</p><span className="studio-contact-arrow" aria-hidden="true">↘</span></div><Section as="div" surface="page" className="studio-contact-form"><ContactForm /></Section></div>
+        <div className="studio-shell studio-contact-layout"><div><p className="studio-eyebrow"><span>06</span> Empecemos por una idea</p><AnimatedHeading as="h2">Contanos<br /><span className="word-wave">qué te mueve.</span></AnimatedHeading><p className="studio-contact-copy">Una idea en una servilleta. Un desafío técnico. Algo que todavía no sabés cómo nombrar. Nos interesa escucharlo.</p></div><Section as="div" surface="page" className="studio-contact-form"><ContactForm /></Section></div>
       </Section>
     </main>
     <Footer links={SITE_LINKS} homeHref="#inicio" teamHref="#equipo" />

@@ -1,0 +1,9 @@
+.arrow-link { display:inline-flex; align-items:center; gap:.75rem; min-height:44px; max-width:100%; color:var(--s-action); font-family:var(--font-body); font-weight:600; text-decoration:none; }
+.arrow-link-icon { display:grid; place-items:center; width:44px; height:44px; flex-shrink:0; border:1.5px solid currentColor; border-radius:50%; overflow:hidden; transition:background-color .2s,color .2s; }
+.arrow-link:is(:hover,:focus-visible) .arrow-link-icon { background:var(--s-action); color:var(--s-on-action); }
+.arrow-link:is(:hover,:focus-visible) svg { animation:arrow-link-travel .45s ease both; }
+.arrow-link[data-direction="left"] { --arrow-travel:-1; }
+.arrow-link[data-direction="right"] { --arrow-travel:1; }
+.arrow-link:focus-visible { outline:2px solid var(--s-focus); outline-offset:5px; border-radius:24px; }
+@keyframes arrow-link-travel { 40% { transform:translateX(calc(var(--arrow-travel) * 30px)); } 41% { opacity:0; transform:translateX(calc(var(--arrow-travel) * -30px)); } 42% { opacity:1; } 100% { transform:translateX(0); } }
+@media(prefers-reduced-motion:reduce) { .arrow-link:is(:hover,:focus-visible) svg { animation:none; } .arrow-link-icon { transition:none; } }

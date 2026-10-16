@@ -106,7 +106,11 @@ export default function CursorFollower() {
       } else {
         el.style.removeProperty("background-color");
       }
-      setCircle({ x: x - MOTION.follower.radius, y: y - MOTION.follower.radius, scale: target ? current.radius / MOTION.follower.radius : 1 });
+      // Dibujar al tamaño real evita ampliar una textura de solo 18px:
+      // sus bordes se pixelaban al rellenar botones anchos.
+      const paintedRadius = target ? current.radius : MOTION.follower.radius;
+      setCircle({ x: x - paintedRadius, y: y - paintedRadius,
+        width: paintedRadius * 2, height: paintedRadius * 2 });
       const outsideTarget = target && !target.contains(document.elementFromPoint(current.x, current.y));
       tip.dataset.visible = visible && leaving && outsideTarget ? "true" : "false";
       setTip({ x: current.x - MOTION.follower.radius, y: current.y - MOTION.follower.radius });

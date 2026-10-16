@@ -36,7 +36,7 @@
 .site-menu-main { padding: 1rem 1.5rem; }
 .site-menu-title { font-family: var(--font-mono); font-size: .8rem; font-weight: 700; }
 .site-menu-heading { margin-bottom: .75rem; }
-.site-menu-main nav { flex:1 1 auto; min-height:0; overflow-y:auto; }
+.site-menu-main nav { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; }
 .site-menu-links { gap: 0; }
 .site-menu-links li { display: flex; }
 .site-menu-link-line { position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--s-line); pointer-events: none; }
@@ -48,7 +48,7 @@
 .site-menu-links:has(a:hover) a:not(:hover):not(:focus-visible) { opacity: .4; }
 .site-menu-links a { transition: opacity .25s; }
 .site-menu-links a:is(:hover, :focus-visible) .site-menu-link-description { opacity: .85; transform: none; }
-.site-menu-links a { width: 100%; min-height: 3.3rem; padding: .65rem 0; }
+.site-menu-links a { width: 100%; min-width:0; min-height: 3.3rem; padding: .65rem 5px .65rem 0; }
 .site-menu-help kbd { border: 1px solid currentColor; border-radius: .25rem; padding: .05rem .4rem; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) {
   .site-menu-links a, .site-menu-link-content, .site-menu-link-description { transition: none; }

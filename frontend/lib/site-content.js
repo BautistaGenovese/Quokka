@@ -2,10 +2,10 @@
 // tomados de Bitacora de Leng IV.pdf (Sprint 2); no son perfiles ficticios.
 export const TEAM = [
   { name: "Bautista Genovese", role: "Componentes reutilizables y UX/UI", description: "Maquetación de botones, formularios, tarjetas y carruseles, con adaptación a computadoras y celulares.", profileHref: "https://github.com/BautistaGenovese" },
-  { name: "Juan Girón", role: "Autenticación y gestión de usuarios", description: "Registro e inicio de sesión, validación de campos y control de acceso según los roles de la plataforma." },
-  { name: "Lautaro Jándula", role: "Proyectos y demos", description: "Interfaz de proyectos, acceso condicionado a la sesión y gestión de contenido de las demos." },
-  { name: "Ignacio Giangrieco", role: "Backend y contacto", description: "Arquitectura del servidor, conexión con la base de datos y recepción de consultas y solicitudes." },
-  { name: "Micaías Villa", role: "Animaciones e integraciones", description: "Transiciones de página, animaciones de componentes e integración de APIs externas." },
+  { name: "Juan Girón", role: "Autenticación y gestión de usuarios", description: "Registro e inicio de sesión, validación de campos y control de acceso según los roles de la plataforma.", profileHref: "https://github.com/juangiron06" },
+  { name: "Lautaro Jándula", role: "Proyectos y demos", description: "Interfaz de proyectos, acceso condicionado a la sesión y gestión de contenido de las demos.", profileHref: "https://github.com/codebylauti" },
+  { name: "Ignacio Giangrieco", role: "Backend y contacto", description: "Arquitectura del servidor, conexión con la base de datos y recepción de consultas y solicitudes.", profileHref: "https://github.com/xl5net" },
+  { name: "Micaías Villa", role: "Animaciones e integraciones", description: "Transiciones de página, animaciones de componentes e integración de APIs externas.", profileHref: "https://github.com/micaias05" },
 ];
 export const SITE_LINKS = [
   { href: "#inicio", label: "Inicio" }, { href: "#manifiesto", label: "Filosofía" },

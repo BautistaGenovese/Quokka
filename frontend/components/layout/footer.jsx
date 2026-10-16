@@ -27,7 +27,7 @@ export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamH
             <nav aria-label="Navegar" className="quokka-footer-navigation"><h3>Navegar</h3><div className="quokka-footer-nav-grid">{links.map(({ href, label }) => <a key={href} href={href} className="quokka-footer-link">{label}</a>)}</div></nav>
             <div className="quokka-footer-columns">
               <div><h3>Equipo</h3><TeamAvatars/><a href={teamHref} className="quokka-footer-link">Ver los perfiles</a></div>
-              <nav aria-label="Redes"><h3>Seguinos</h3><a className="quokka-footer-link" href="https://github.com/BautistaGenovese/Quokka" target="_blank" rel="noopener noreferrer">GitHub ↗</a></nav>
+              <nav aria-label="Redes"><h3>Seguinos</h3><a className="quokka-footer-link" href="https://github.com/BautistaGenovese/Quokka" target="_blank" rel="noopener noreferrer">GitHub</a></nav>
             </div>
           </div>
           <div className="quokka-footer-wordmark">

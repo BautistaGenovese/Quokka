@@ -142,6 +142,10 @@ No hay VariableProximity, FoldText externo, GradualBlur de ocho capas, shader de
 
 ## Integración pendiente
 
+ArrowLink, desde components/ui/arrow-link, reemplaza los enlaces subrayados studio-text-link. Recibe href, direction (left o right), children y atributos nativos de enlace. La flecha circular se desplaza y reaparece al hover o foco; respeta movimiento reducido. Toda el área es un único enlace, sin botones anidados. Login lo usa para volver al estudio.
+
+Los cinco integrantes tienen profileHref. TeamGallery muestra el GitHub de la tarjeta activa debajo del carrusel, en una pestaña nueva con noopener noreferrer.
+
 La portada y sus interacciones son públicas. Contacto y login tienen validación y contratos de callback, pero no integraciones de envío/autenticación. Los proyectos son propuestas locales, no demos desplegadas ni repositorios sincronizados automáticamente. Estas limitaciones son parte explícita de la entrega de frontend.
 
 ## CI del pull request

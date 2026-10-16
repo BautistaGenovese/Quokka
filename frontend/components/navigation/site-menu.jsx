@@ -181,7 +181,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
               </ol>
             </nav>
             <p className="site-menu-help"><kbd>Esc</kbd> para cerrar</p>
-            <Button href="/iniciar-sesion" magnetic={false} variant="secondary" className="site-menu-login">Iniciar sesión <span aria-hidden="true">↗</span></Button>
+            <Button href="/iniciar-sesion" magnetic={false} variant="secondary" className="site-menu-login">Iniciar sesión</Button>
           </Section>
 
         </div>

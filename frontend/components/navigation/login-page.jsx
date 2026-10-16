@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import ArrowLink from "@/components/ui/arrow-link";
 import useAppearance from "@/hooks/use-appearance";
 import Section from "@/components/layout/section";
 import Navbar from "./navbar";
@@ -14,7 +14,7 @@ export default function LoginPage() {
     <Navbar items={LINKS} homeHref="/" theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />
     <Section as="main" surface="page" className="min-h-[calc(100dvh-82px)] px-gutter py-section">
       <div className="mx-auto max-w-md space-y-8">
-        <Link href="/" className="studio-text-link">← Volver al estudio</Link>
+        <ArrowLink href="/" direction="left">Volver al estudio</ArrowLink>
         <div className="space-y-3"><p className="studio-eyebrow">Tu espacio en Quokka</p><h1 className="font-display text-5xl font-extrabold tracking-tight">Qué bueno verte.</h1><p>Ingresá con tu correo y contraseña.</p></div>
         <LoginForm />
       </div>
