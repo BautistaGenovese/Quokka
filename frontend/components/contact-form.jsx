@@ -7,8 +7,10 @@ import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import Tooltip from "@/components/ui/tooltip";
 
+import { submitContactRequest } from "@/lib/contact-api";
+
 /** Contenido real de contacto, compuesto con la UI existente. El consumidor
- * podrá conectar onSubmitMessage; sin él solo validamos, sin simular envíos. */
+ * podrá conectar onSubmitMessage; por defecto envía al endpoint /api/contact. */
 export default function ContactForm({ onSubmitMessage }) {
   const formRef = useRef(null);
   const [errors, setErrors] = useState({});
@@ -33,10 +35,20 @@ export default function ContactForm({ onSubmitMessage }) {
       else form.elements[name]?.focus();
       return;
     }
-    if (!onSubmitMessage) { setStatus("success"); setMessage("Mensaje validado. El envío por correo todavía no está conectado."); return; }
+    const handler = onSubmitMessage || submitContactRequest;
     setStatus("loading");
-    try { await onSubmitMessage(values); setStatus("success"); setMessage("Tu mensaje fue enviado."); }
-    catch { setStatus("error"); setMessage("No se pudo enviar el mensaje. Probá de nuevo."); }
+    try {
+      const result = await handler(values);
+      setStatus("success");
+      setMessage(result?.message || "Tu mensaje fue enviado.");
+      form.reset();
+    } catch (error) {
+      if (error?.fields && typeof error.fields === "object") {
+        setErrors(error.fields);
+      }
+      setStatus("error");
+      setMessage(error?.message || "No se pudo enviar el mensaje. Probá de nuevo.");
+    }
   }
   return <form ref={formRef} noValidate onSubmit={submit} className="space-y-6">
     {/* fieldset tiene un mínimo intrínseco nativo: permitir que se comprima
@@ -54,7 +66,7 @@ export default function ContactForm({ onSubmitMessage }) {
       <option value="general">Consulta general</option>
     </Select>
     <Textarea name="message" label="Mensaje detallado" rows={4} required minLength={15} error={errors.message} onChange={() => edit("message")} description="Contanos sobre tu idea y los tiempos estimados. Mínimo 15 caracteres." />
-    <Button type="submit" magnetic={false} status={status} successLabel={onSubmitMessage ? "¡Enviado!" : "Mensaje validado"}>{onSubmitMessage ? "Enviar mensaje" : "Validar mensaje"}</Button>
+    <Button type="submit" magnetic={false} status={status} successLabel="¡Enviado!">Enviar mensaje</Button>
     </fieldset>
     <p role="status" className="min-h-6 font-body text-sm">{message || (!onSubmitMessage ? "Página de pruebas: este formulario valida los campos, pero todavía no envía datos." : "Los campos con * son obligatorios.")}</p>
   </form>;

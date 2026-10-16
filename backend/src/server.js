@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./config/db');
+const initDb = require('./config/initDb');
+const contactRoutes = require('./routes/contact.routes');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -31,8 +33,18 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// Levantar el servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
-  console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
-});
+// Rutas del módulo de contacto y cotizaciones
+app.use('/api/contact', contactRoutes);
+
+// Inicializar esquema de BD y levantar el servidor
+if (require.main === module) {
+  initDb().finally(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
+      console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
+      console.log(`📩 Endpoint de contacto activo en: http://localhost:${PORT}/api/contact`);
+    });
+  });
+}
+
+module.exports = app;
