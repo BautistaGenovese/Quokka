@@ -11,7 +11,7 @@ const LINKS = [{ href: "/", label: "Volver al estudio" }];
 export default function LoginPage() {
   const { theme, mode, setTheme, setMode } = useAppearance();
   return <>
-    <Navbar items={LINKS} theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />
+    <Navbar items={LINKS} homeHref="/" theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />
     <Section as="main" surface="page" className="min-h-[calc(100dvh-82px)] px-gutter py-section">
       <div className="mx-auto max-w-md space-y-8">
         <Link href="/" className="studio-text-link">← Volver al estudio</Link>

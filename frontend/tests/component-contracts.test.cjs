@@ -100,6 +100,13 @@ test("el portfolio usa el equipo real, destinos existentes y propuestas sin enla
   assert.match(html, /alt="Quokka, mascota del equipo"/);
 });
 
+test("la marca del login regresa a la portada y no a una sección inexistente", () => {
+  const Login = load("components/navigation/login-page.jsx").default;
+  const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Login)));
+  assert.match(html, /href="\/" aria-label="Quokka Studio, ir al inicio"/);
+  assert.doesNotMatch(html, /href="#inicio"/);
+});
+
 test("los presets de movimiento se consumen sin filtrarse al DOM", () => {
   const Button = load("components/ui/button.jsx").default;
   const Card = load("components/ui/card.jsx").default;

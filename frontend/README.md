@@ -57,7 +57,7 @@ Section, desde @/components/layout/section, admite surface, as, className, child
 
 ## Navegación y layout
 
-Navbar recibe items, homeHref, theme, mode, onThemeChange y onModeChange. items contiene href, label y description opcional. Coordina el cierre entre SiteMenu y PalettePanel. Las acciones tienen iconos animados, nombres accesibles y relleno radial sin magnetismo.
+Navbar recibe items, homeHref, theme, mode, onThemeChange y onModeChange. homeHref usa #inicio en la portada y / en páginas internas como el login. items contiene href, label y description opcional. Coordina el cierre entre SiteMenu y PalettePanel. Las acciones tienen iconos animados, nombres accesibles y relleno radial sin magnetismo.
 
 SiteMenu expone close() mediante ref. Su altura depende del contenido con un mínimo adaptable; el acceso de login es el último bloque y se mantiene al pie del panel. Los enlaces no bloquean combinaciones nativas como Ctrl+clic. No usar showModal: el panel es no modal y permite interactuar con el fondo.
 
