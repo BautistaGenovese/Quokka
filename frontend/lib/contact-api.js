@@ -5,12 +5,19 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
  * @param {{ name: string, email: string, type: string, message: string }} values
  */
 export async function submitContactRequest(values) {
-  const response = await fetch(`${API_BASE_URL}/api/contact`, {
+  const payload = {
+    nombre: values.nombre ?? values.name,
+    email: values.email,
+    tipo: values.tipo ?? values.type,
+    mensaje: values.mensaje ?? values.message,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/api/contacto`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(values),
+    body: JSON.stringify(payload),
   });
 
   const data = await response.json().catch(() => ({}));

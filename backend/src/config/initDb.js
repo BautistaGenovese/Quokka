@@ -1,27 +1,26 @@
+const fs = require('node:fs');
+const path = require('node:path');
 const db = require('./db');
 
-const CREATE_TABLE_QUERY = `
-  CREATE TABLE IF NOT EXISTS contact_requests (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(120) NOT NULL CHECK (char_length(btrim(name)) >= 3),
-    email VARCHAR(255) NOT NULL CHECK (char_length(btrim(email)) >= 5),
-    type VARCHAR(30) NOT NULL CHECK (type IN ('cotizacion', 'asesoria', 'general')),
-    message TEXT NOT NULL CHECK (char_length(btrim(message)) BETWEEN 15 AND 5000),
-    email_sent BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-  );
-`;
+const INIT_SQL_PATH = path.resolve(__dirname, '../../../database/init.sql');
 
 let initialized = false;
 
+/**
+ * Ejecuta el esquema unificado `database/init.sql` de forma idempotente (`IF NOT EXISTS`).
+ * Garantiza que todas las tablas del diagrama ER en español (`usuarios`, `proyectos`,
+ * `servicios`, `mensajes_contacto`, `visitas`) existan incluso si el volumen de Docker
+ * fue creado antes de montar `init.sql`.
+ */
 async function initDb() {
   if (initialized) return;
   try {
-    await db.query(CREATE_TABLE_QUERY);
+    const sqlScript = fs.readFileSync(INIT_SQL_PATH, 'utf8');
+    await db.query(sqlScript);
     initialized = true;
-    console.log('✅ Tabla contact_requests verificada/creada en PostgreSQL.');
+    console.log('✅ Esquema unificado de PostgreSQL verificado/creado (usuarios, proyectos, servicios, mensajes_contacto, visitas).');
   } catch (error) {
-    console.error('❌ Error al inicializar la tabla contact_requests:', error.message);
+    console.error('❌ Error al inicializar el esquema de la base de datos:', error.message);
     throw error;
   }
 }
