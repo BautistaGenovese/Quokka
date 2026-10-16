@@ -55,6 +55,9 @@ async function getTransporter() {
   return { transporter: cachedTransporter, isTestAccount };
 }
 
+/**
+ * Escapa caracteres HTML para evitar inyecciones XSS en clientes de correo.
+ */
 function escapeHtml(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -65,45 +68,64 @@ function escapeHtml(value) {
 }
 
 /**
- * Envía el correo de notificación al equipo de Quokka con Reply-To configurado al correo del cliente.
+ * Elimina saltos de línea y caracteres de control para prevenir Email Header Injection (CRLF).
+ */
+function sanitizeHeaderValue(value) {
+  return String(value)
+    .replace(/[\r\n\0]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Envía el correo de notificación al equipo de Quokka con Reply-To seguro configurado al correo del cliente.
  */
 async function sendContactNotification({ id, name, email, type, message, createdAt }) {
   const { transporter, isTestAccount: usingEthereal } = await getTransporter();
   const typeLabel = TYPE_LABELS[type] || type;
   const senderAddress = process.env.SMTP_USER && !process.env.SMTP_USER.includes('tu_correo')
-    ? process.env.SMTP_USER
+    ? sanitizeHeaderValue(process.env.SMTP_USER)
     : 'notificaciones@quokka.studio';
   const receiverAddress = process.env.CONTACT_RECEIVER_EMAIL && !process.env.CONTACT_RECEIVER_EMAIL.includes('tu_correo')
-    ? process.env.CONTACT_RECEIVER_EMAIL
+    ? sanitizeHeaderValue(process.env.CONTACT_RECEIVER_EMAIL)
     : senderAddress;
 
-  const safeName = escapeHtml(name);
-  const safeEmail = escapeHtml(email);
-  const safeType = escapeHtml(typeLabel);
-  const safeMessage = escapeHtml(message).replace(/\n/g, '<br />');
+  const cleanHeaderName = sanitizeHeaderValue(name);
+  const cleanHeaderEmail = sanitizeHeaderValue(email);
+  const cleanHeaderType = sanitizeHeaderValue(typeLabel);
+
+  const safeName = escapeHtml(cleanHeaderName);
+  const safeEmail = escapeHtml(cleanHeaderEmail);
+  const safeType = escapeHtml(cleanHeaderType);
+  const safeMessage = escapeHtml(message).replace(/\r?\n/g, '<br />');
 
   const info = await transporter.sendMail({
-    from: `"Quokka Studio Web" <${senderAddress}>`,
+    from: {
+      name: 'Quokka Studio Web',
+      address: senderAddress,
+    },
     to: receiverAddress,
-    replyTo: `"${name}" <${email}>`,
-    subject: `[Quokka] ${typeLabel} - ${name}`,
+    replyTo: {
+      name: cleanHeaderName,
+      address: cleanHeaderEmail,
+    },
+    subject: `[Quokka] ${cleanHeaderType} - ${cleanHeaderName}`,
     text: [
       `Nueva solicitud recibida en Quokka Studio (#${id || 's/n'})`,
       `----------------------------------------`,
-      `Nombre: ${name}`,
-      `Correo del cliente: ${email}`,
-      `Tipo de consulta: ${typeLabel}`,
+      `Nombre: ${cleanHeaderName}`,
+      `Correo del cliente: ${cleanHeaderEmail}`,
+      `Tipo de consulta: ${cleanHeaderType}`,
       `Fecha: ${createdAt ? new Date(createdAt).toLocaleString('es-AR') : new Date().toLocaleString('es-AR')}`,
       ``,
       `Mensaje:`,
       message,
       `----------------------------------------`,
-      `Podés responder directamente a este correo para escribirle a ${email}.`,
+      `Podés responder directamente a este correo para escribirle a ${cleanHeaderEmail}.`,
     ].join('\n'),
     html: `
       <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #f8faf9; border-radius: 12px; color: #1b2420; border: 1px solid #dce5e0;">
         <p style="font-family: monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: #4a6358; margin: 0 0 8px;">
-          Quokka Studio · Solicitud #${id || 'Nueva'}
+          Quokka Studio · Solicitud #${escapeHtml(id || 'Nueva')}
         </p>
         <h2 style="margin: 0 0 16px; font-size: 22px; color: #121815;">
           ${safeType}
@@ -131,11 +153,12 @@ async function sendContactNotification({ id, name, email, type, message, created
 
   return {
     messageId: info.messageId,
-    previewUrl,
   };
 }
 
 module.exports = {
   sendContactNotification,
+  sanitizeHeaderValue,
+  escapeHtml,
   TYPE_LABELS,
 };

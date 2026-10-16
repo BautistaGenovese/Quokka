@@ -1,57 +1,34 @@
 "use client";
+import { useEffect } from "react";
 
-import { gsap, useGSAP, MOTION } from "@/lib/gsap";
-
-/** Un solo observador coordina barra, giro y visibilidad, sin estado React
- * por frame. Animar top evita alterar el contenedor de los dialogs fixed. */
-export default function useNavbarMotion(headerRef, mascotRef, progressRef) {
-  useGSAP((context, contextSafe) => {
-    const header = headerRef.current, mascot = mascotRef.current;
+/** Sticky estable: el scroll actualiza progreso e ink con posiciones cacheadas. */
+export default function useNavbarMotion(headerRef, progressRef) {
+  useEffect(() => {
+    const header = headerRef.current, progress = progressRef.current;
+    const mascot = header.querySelector("[data-scroll-quokka]");
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-    const move = gsap.quickTo(header, "top", MOTION.response);
-    const rotate = gsap.quickTo(mascot, "rotation", { duration: 0.5, ease: "power2.out" });
-    const setProgress = gsap.quickSetter(progressRef.current, "scaleX");
-    let previousY = Math.max(0, scrollY), offset = 0, frame = 0;
-    const update = contextSafe(() => {
+    let frame = 0, sections = [], max = 1, headerHeight = 82;
+    const update = () => {
       frame = 0;
-      const max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
-      const y = Math.max(0, Math.min(max, scrollY)), delta = y - previousY;
-      const progress = max ? y / max : 0, height = header.offsetHeight;
-      const focused = header.contains(document.activeElement) && document.activeElement.matches(":focus-visible");
-      const busy = header.querySelector("dialog[open]") || document.querySelector('.section-transition[data-active="true"]');
-      setProgress(progress);
-      if (reduced.matches) {
-        move.tween.pause(); rotate.tween.pause();
-        gsap.set(header, { top: 0 }); gsap.set(mascot, { rotation: 0 }); offset = 0;
-      } else {
-        rotate(progress * 360);
-        // Subir revela inmediatamente; bajar acumula una retirada gradual.
-        // Un panel abierto o el foco de teclado mantienen accesible la barra.
-        if (busy || focused || y <= height || delta < -1) offset = 0;
-        else if (delta > 0) offset = Math.min(height, offset + delta);
-        move(-offset);
-      }
-      previousY = y;
-    });
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    const reveal = contextSafe(() => { offset = 0; move(0); schedule(); });
-    const panels = new MutationObserver(schedule);
-    // Las cubiertas del menú/footer viven en portals. Solo observar estos
-    // dos atributos evita reaccionar a los estilos que GSAP escribe por frame.
-    panels.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["open", "data-active"] });
-    const size = new ResizeObserver(schedule);
-    size.observe(header); size.observe(document.body);
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    header.addEventListener("focusin", reveal);
-    reduced.addEventListener("change", schedule);
-    update();
-    return () => {
-      cancelAnimationFrame(frame); panels.disconnect(); size.disconnect();
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      header.removeEventListener("focusin", reveal);
-      reduced.removeEventListener("change", schedule);
+      const y = Math.max(0, scrollY);
+      progress.style.transform = 'scaleX(' + Math.min(1, y / max) + ')';
+      if (mascot) mascot.style.transform = reduced.matches ? "none" : `translateY(${Math.sin(y / 95) * 2.5}px) rotate(${Math.sin(y / 150) * 13}deg)`;
+      const section = sections.findLast(item => item.top <= y + headerHeight / 2);
+      if (section && header.dataset.surface !== section.surface) header.dataset.surface = section.surface;
     };
-  }, { scope: headerRef });
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const measure = () => {
+      headerHeight = header.offsetHeight;
+      max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      sections = [...document.querySelectorAll('main > [data-surface], footer[data-surface]')].map(el => ({ top: el.getBoundingClientRect().top + scrollY, surface: el.dataset.surface }));
+      schedule();
+    };
+    const size = new ResizeObserver(measure);
+    size.observe(document.body); size.observe(header);
+    reduced.addEventListener("change", schedule);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", measure);
+    measure();
+    return () => { reduced.removeEventListener("change", schedule); cancelAnimationFrame(frame); size.disconnect(); window.removeEventListener("scroll", schedule); window.removeEventListener("resize", measure); };
+  }, [headerRef, progressRef]);
 }

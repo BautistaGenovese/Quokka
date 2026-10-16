@@ -1,364 +1,155 @@
-# Componentes de Quokka
+# Frontend de Quokka Studio
 
-Guía del contrato actual de React. `../DESIGN.md` describe las decisiones visuales;
-`app/page.js` muestra el portfolio de pruebas; `/componentes` conserva el laboratorio.
-Ninguna de estas páginas es una dependencia de los componentes.
+La aplicación pública vive en / y el acceso en /iniciar-sesion. La página principal ya no es un laboratorio ni una experiencia aparte. Se retiraron las rutas /componentes y /experiencia y el HTML anterior.
 
-Para conectar datos reales, consultar [BACKEND-INTEGRATION.md](./BACKEND-INTEGRATION.md):
-registra el formato propuesto y las piezas pendientes de GitHub y sesión.
+[DESIGN.md](../DESIGN.md) registra las decisiones visuales actuales. [BACKEND-INTEGRATION.md](./BACKEND-INTEGRATION.md) distingue las interfaces preparadas de las funciones de servidor pendientes.
 
-## Preparación y comprobaciones
+## Desarrollo y validación
 
-Desde la raíz del repositorio (la carpeta que contiene los workspaces):
+Desde la raíz del monorepositorio, con Node.js 20.9 o superior:
 
-```sh
+~~~sh
 npm ci
 npm run dev -w frontend
 npm run lint -w frontend
-npm run test:motion -w frontend
-npm run test:components -w frontend
+npm test -w frontend
 npm run build -w frontend
-```
+npm run start -w frontend
+~~~
 
-Requieren `app/globals.css`, las fuentes de `app/layout.js`, el alias `@/` y las
-dependencias del workspace. Son reutilizables entre páginas de Quokka; copiar
-solo un JSX a otra aplicación no incluye automáticamente esas dependencias.
+El servidor de desarrollo usa localhost:3000. Next descarga las fuentes de Google durante la compilación; una instalación o compilación inicial necesita acceso a los proveedores de dependencias y fuentes. No se necesitan secretos para renderizar el frontend local.
 
-## Responsabilidades
+Los tests usan node:test, React SSR y el motor GSAP real donde corresponde. Verifican contratos, IDs, teclado, gestos, captura expirada, navegación, limpieza del footer y límites de la lluvia. La revisión visual de móvil, contraste y movimiento debe completarse en un navegador real; un build exitoso no la reemplaza.
 
-- `components/ui/`: piezas reutilizables, sin datos de personas ni peticiones de red.
-- `components/cards/`: composiciones de Card para proyectos, equipo y habilidades.
-- `components/section.jsx`: contexto de colores, sin estado ni animación.
-- `hooks/use-button-motion.js`: movimiento de Button separado de su presentación.
-- `lib/gsap.js`: registro de plugins y parámetros comunes; no modificar defaults globales.
-- `navbar`, `site-menu`, `palette-panel`: navegación e identidad específicas de Quokka.
-- `contact-form-demo` y `/componentes`: ejemplos; la validación local no es un backend.
-- `portfolio-preview` y `lib/site-content.js`: composición y contenido del portfolio de pruebas.
+## Estructura
 
-Una pieza con hooks, eventos o estado usa `"use client"`. Puede importarse desde una
-página Server Component, pero los callbacks deben crearse en un componente cliente.
-Section y las composiciones de cards pueden formar parte de un árbol servidor;
-tilt y botones se resuelven en sus respectivas piezas cliente.
+- app/: rutas y layout del App Router. page.js compone el portfolio; iniciar-sesion/page.jsx expone el login.
+- components/portfolio/: hero, títulos de sección, equipo, proyectos y composición pública.
+- components/navigation/: navbar, menú, paleta, transiciones y Sling del símbolo.
+- components/layout/: Section, footer, detalles de marca, seguidor y efectos de Quokka.
+- components/forms/: ContactForm y LoginForm, con adaptadores opcionales para servidor.
+- components/cards/: ProjectCard, DemoCard, TeamCard, SkillCard y DemoPreview.
+- components/ui/: primitivas, campos y componentes de movimiento reutilizables.
+- hooks/: controladores de apariencia, movimiento, scroll y ciclo de vida.
+- lib/: contenido local, paletas, parámetros de movimiento, navegación, captura segura y física.
+- styles/: estilos compartidos y del portfolio. El CSS específico de piezas vendorizadas permanece junto a su JSX.
+- public/: ilustración principal y previews locales utilizadas.
+- tests/: regresiones ejecutables con npm test.
 
-## Colores y superficies
+app/componentes era una URL de catálogo, no otra biblioteca. Fue eliminada; components es el único directorio de código de componentes. Las primitivas de biblioteca como Checkbox, RadioGroup y las variantes de cards se mantienen porque tienen contratos reutilizables y tests, aunque no todas se rendericen en la portada.
 
-Una sola capa de aplicación controla `data-pal` y `data-theme` de `<html>`.
-Paletas y nombres están en `lib/palettes.js`; los valores efectivos están en CSS.
-Modo: `light`, `dark` o `system` (para system, retirar `data-theme`). Navbar recibe
-`theme`, `mode`, `onThemeChange` y `onModeChange`; no guarda otra copia ni aplica
-esos atributos por su cuenta. Ejemplo:
+## Apariencia y superficies
 
-```jsx
+AppearanceProvider se monta una sola vez en app/layout.js, envolviendo páginas y efectos globales. useAppearance devuelve theme, mode, setTheme y setMode. Conserva la selección durante navegación interna; no usa almacenamiento persistente. El estado inicial es Sonrisa/claro.
+
+Paletas: sonrisa, lagorosa, ultramar, pitaya y verbena. Sus IDs exactos y muestras están en lib/palettes.js; los selectores CSS y tokens están en app/globals.css. Modo: light, dark o system. system retira data-theme para seguir el sistema operativo.
+
+Section, desde @/components/layout/section, admite surface, as, className, children y atributos/ref nativos. Superficies: page, card, muted, deep, primary, secondary, accent. Una superficie inválida vuelve a page. Cada Section reinicia los roles --s-*; no recibe colores por props ni guarda el tema.
+
+~~~jsx
 <Section surface="deep" className="p-8">
-  <Button>Acción sobre fondo profundo</Button>
-  <Section surface="card" className="mt-6 rounded-card p-8">
+  <Button>Acción sobre profundo</Button>
+  <Section as="article" surface="card" className="mt-6 p-8">
     <Button variant="secondary" magnetic={false}>Acción local</Button>
   </Section>
 </Section>
-```
-
-Superficies: `page`, `card`, `muted`, `deep`, `primary`, `secondary`, `accent`.
-Cada Section reinicia los roles locales. Usar className para distribución y
-espaciado; evitar colores fijos. Los portales heredan del DOM donde se montan:
-deben tener su propio contexto. El rojo de error es independiente de la paleta.
-
-## Footer
-
-Importar `@/components/footer` y montarlo después de `main`. Conserva la marca y
-los créditos de `Quokka.html`, sobre superficie `deep`. Recibe `links` (lista de
-`{ href, label }`) y `homeHref` (`#inicio` por defecto). Los enlaces predeterminados
-corresponden al portfolio; el laboratorio pasa sus propios destinos.
-
-El borde SVG se superpone al espacio inferior de la sección anterior y rebota al
-entrar en pantalla según la velocidad del scroll, inspirado en
-[Footer bounce de GSAP](https://demos.gsap.com/demo/footer-bounce/). No requiere
-MorphSVG: GSAP anima la curvatura numérica. En reposo el borde queda plano;
-con movimiento reducido no anima. Limpia triggers y animaciones al desmontarse.
-
-## Button
-
-Importar `@/components/ui/button`. Variantes `primary`, `secondary`, `accent`,
-`ghost`; tamaños `sm`, `md`, `lg`. Admite atributos nativos, eventos y ref al
-elemento. Con href es enlace; sin href es botón type="button". Usar type="submit"
-explícitamente en formularios.
-
-La aplicación controla status: `idle`, `loading`, `success`, `error`. loading es
-un alias compatible. No hay petición ni reinicio de estado internos.
-loadingLabel/successLabel/errorLabel personalizan el mensaje: textos simples se
-animan y JSX conserva su contenido sin reemplazo animado. disabled, loading y
-aria-disabled bloquean la acción también en enlaces.
-
-```jsx
-<Button type="submit" status={status} magnetic={false}
-  loadingLabel="Cargando..." successLabel="Guardado" errorLabel="Reintentar">
-  Guardar
-</Button>
-```
-
-magnetic={false} conserva los demás efectos. strength y maxRotation ajustan el
-movimiento. iconLeft/iconRight aceptan JSX; iconOnlyOnMobile oculta visualmente
-el texto si hay icono. Si solo hay contenido gráfico, dar aria-label al botón
-y aria-hidden al icono decorativo.
-
-Montar **un solo CursorFollower en el layout**, nunca uno por botón o página.
-Su contrato compartido usa data-cursor-button, data-cursor-fill, data-cursor-ink
-y clases de Button: los consumidores no deben escribir esos atributos.
-Sin seguidor el botón conserva acciones y fallbacks CSS; el relleno radial del
-mouse requiere el seguidor. Táctil y movimiento reducido tienen alternativas.
-
-## Card y composiciones
-
-Card (`@/components/ui/card`) admite surface, tilt (false por defecto), children,
-atributos HTML y ref al article. className afecta al **marco exterior**: usarlo
-para ancho, grid y separación. El panel interior gestiona su transform; no animar
-ese mismo transform desde otro componente.
-
-Contenido propio con relieve: agrupar con card-content y marcar textos con
-data-card-depth. No poner overflow-hidden en el panel 3D; recortar imágenes o
-previews en sus contenedores. Todos los textos tienen la misma profundidad.
-
-- ProjectCard: title, description, technologies, preview, demoHref, codeHref.
-- TeamCard: name (texto obligatorio), role, description, portrait, profileHref.
-- SkillCard: title, description, icon, tags.
-
-Importar desde `@/components/cards/project-card`, `team-card`, `skill-card`.
-Todas reciben las props de Card. Proyecto/equipo activan tilt por defecto;
-habilidad no. Los slots preview/portrait/icon aceptan JSX. Imágenes informativas
-necesitan texto alternativo. Omitir URLs elimina la acción correspondiente.
-El consumidor decide grid y anchos; no hay un tamaño universal fijo.
-
-## CardSlider
-
-Importar `@/components/ui/card-slider`. Recibe children, label y className.
-Dar una key estable y única a cada card basada en su ID de datos.
-
-```jsx
-<CardSlider label="Proyectos del equipo">
-  {projects.map(project => <ProjectCard key={project.id} {...project} />)}
-</CardSlider>
-```
-
-No duplica cards. Lista vacía no muestra carrusel; una card desactiva controles.
-Agregar, quitar o reordenar keys reinicia posición y animaciones; actualizar
-contenido manteniendo keys conserva la posición. El slider mueve el wrapper y
-Card el panel interior. Solo la card activa permite foco. Admite flechas de
-teclado, arrastre, inercia y movimiento reducido.
-Las cards mantienen opacidad; las laterales reducen su escala hasta 0,9 con
-curva suave, la central conserva escala 1. Separación base de 48 px.
-El viewport recorta su salida lateral. Movimiento reducido mantiene escala 1.
-El paso asegura que el salto circular ocurra fuera de pantalla. En el laboratorio
-el slider está fuera del contenedor del encabezado para ocupar todo el ancho.
-
-## Marquee
-
-Importar `@/components/ui/marquee` y colocarlo dentro de Section para definir
-la superficie. No conoce la página, los enlaces del menú ni la paleta activa.
-
-```jsx
-<Section as="div" surface="primary">
-  <Marquee items={["Diseño", "Código", "Movimiento"]} speed={70}
-    direction="left" label="Nuestro proceso" />
-</Section>
-```
-
-`items` es una lista de strings; una lista vacía no renderiza nada. `speed`
-se expresa en píxeles por segundo (70 por defecto). `direction` es left/right
-y define el sentido inicial y al bajar el scroll. `followScroll` (true) invierte
-ese sentido al subir, pasando suavemente por velocidad cero. `pauseOnHover`
-(true) pausa al pasar un mouse por el texto; el tacto no queda bloqueado.
-`label` nombra la región y `className` permite ajustar layout.
-
-`size="sm"` es compacto, `size="md"` es el tamaño habitual (por defecto) y
-`size="lg"` conserva el tamaño grande original para separadores protagonistas.
-Los tres ajustan texto, padding y separación de forma responsive. El tamaño
-no cambia la velocidad ni la animación; no hace falta agregar CSS por instancia.
-
-El botón Pausar/Reanudar es independiente por instancia y mantiene la posición.
-`showControls` es false por defecto: no muestra el panel superior. Usar
-`showControls={true}` para mostrar título y pausa. Sin panel, la pausa sigue
-disponible para lectores de pantalla y se revela al recibir foco con teclado.
-Velocidad 0 deja el texto quieto y deshabilita ese control. ResizeObserver y
-document.fonts.ready recalculan el ancho sin reiniciar el progreso; se repite
-el grupo de frases tantas veces como requiera la ventana, sin estirar grupos
-ni dejar huecos. Solo existe una lectura accesible del contenido.
-El hook `use-marquee-motion` pausa su ticker fuera de pantalla o con la pestaña
-oculta y limpia GSAP, ScrollTrigger, observers y listeners al desmontar.
-Movimiento reducido elimina la tira animada y muestra el texto completo,
-estático y con salto de línea. Estilos en `app/marquee.css`.
-
-## Input, Textarea y Tooltip
-
-Input y Textarea implementan Aire: etiqueta a la izquierda sobre el borde superior,
-foco indicado por el borde e iconos con MorphSVG (reposo → lápiz; error → X, con
-prioridad sobre foco). Campo y label heredan el fondo --s-bg y texto --s-fg de Section.
-El foco usa una onda senoidal suave de 2 px; el error, dientes de 3,5 px.
-Ambos recorren todo el perímetro. El borde SVG cambia de estado en 420 ms
-y regresa al corregirlo. Los dientes son decorativos: no modifican el área nativa
-de escritura. ResizeObserver conserva su tamaño en píxeles al redimensionar.
-Los textarea permiten resize vertical hasta 15rem y scroll interno. Movimiento
-reducido elimina la interpolación y el movimiento continuo; alto contraste conserva borde y foco nativos. El ticker se pausa fuera de pantalla o con la pestaña oculta.
-Los estilos viven en `app/fields.css`, importado por globals.css. No quedan las
-otras propuestas de inputs. ContactFormDemo usa estos componentes definitivos.
-
-Importar `@/components/ui/input`, `textarea`, `tooltip`. Input y Textarea comparten
-FormField; no validar ni manejar peticiones dentro de esa estructura.
-Props: label, description, error, icon, labelAccessory, wrapperClassName, className
-(del control), atributos nativos y ref al input/textarea. IDs automáticos únicos;
-si se pasa id, el consumidor debe garantizar su unicidad.
-
-icon admite `person`, `mail`, `message`, `text` o false para ocultarlo. Por defecto
-se elige mail para email, message para textarea y text para los demás. labelAccessory
-se muestra debajo del campo sin interferir con el label flotante. Los handlers de
-foco y blur del consumidor se conservan. error o aria-invalid=true activan el borde;
-pasar error añade además el mensaje asociado. El consumidor decide cuándo retirarlo.
-
-```jsx
-<Input label="Correo" name="email" type="email" required error={errors.email}
-  labelAccessory={<Tooltip label="Ayuda sobre el correo" content="Usaremos este correo para responderte." />} />
-<Textarea label="Consulta" name="message" rows={5} />
-```
-
-Admiten value + onChange o defaultValue + FormData. No mezclar ambos modos.
-Input está diseñado para text/email/password/search/tel/url/number; checkbox,
-radio, file y select necesitan componentes específicos. El formulario decide
-validación, foco del primer error y anuncio del resultado.
-
-Select (`ui/select`) comparte FormField y el borde Aire; la etiqueta siempre
-flota. Radix Select gestiona teclado, búsqueda por letras, foco, FormData y reset.
-Aporta children con option/optgroup, value/onValueChange o defaultValue, name,
-required, disabled, error y ref al botón trigger. onValueChange recibe el valor,
-no un evento. El menú hereda Section sin portal; evitar ancestros con clipping.
-GSAP anima panel elástico (1 s) y opciones escalonadas desde x=-20; al cerrar
-revierte a 2.5x con easeReverse durante 400 ms. Presence conserva el DOM hasta
-terminar; movimiento reducido salta directamente al estado final.
-El aspecto de edición del selector depende de la lista abierta, no del foco
-que Radix devuelve al trigger al cerrar. Conserva :focus-visible para teclado.
-
-Checkbox (`ui/checkbox`) acepta label, description, error y atributos/ref nativos
-(checked/onChange o defaultChecked, name/value). RadioGroup (`ui/radio-group`)
-recibe label, name, options [{ value, label, description?, disabled? }], required,
-disabled, error, description y value/onValueChange o defaultValue. Su ref apunta
-al fieldset. Los valores de options deben ser únicos. Sin name genera un grupo
-independiente; pasar name para recuperarlo fácilmente desde FormData.
-Las flechas cambian de radio; Espacio marca la casilla. El reset nativo restaura
-valores no controlados; si están controlados, el consumidor reinicia su estado.
-
-Tooltip conserva el nombre del componente, pero usa Popover de Radix porque la
-ayuda se abre por clic/Enter/Espacio/tacto, sin depender del hover. Recibe content,
-label accesible, side, variant, magnetic (true), children como texto/icono del
-activador y open/onOpenChange o defaultOpen. Reutiliza Button: no pasar otro botón
-como children. El mensaje queda anclado a un wrapper quieto. Cierra con el mismo
-botón, la X, Escape o clic fuera; devuelve foco al activador al cerrar con teclado.
-Contenido breve, sin instrucciones esenciales ni controles aportados por el
-consumidor. Sin Portal para heredar colores; evitar ancestros con clipping.
-Activador ? compacto de 32 px mediante CSS local, símbolo de 1.6rem/700 y burbuja sin triángulo. Reutiliza Button sin copiar lógica ni agregar variantes globales. Entrada de 300 ms, salida de 120 ms y animaciones desactivadas con movimiento reducido.
-
-## Navegación del sitio
-
-Navbar coordina exclusión entre menú y paleta. items es una lista de
-`{ href, label, description? }` con href únicos. Anclas locales disparan morphing;
-otras rutas/URLs conservan navegación nativa. Destinos locales deben existir y
-tener tabIndex={-1} para recibir foco.
-
-SiteMenu y PalettePanel pueden abrirse individualmente sin Navbar. Su ref expone
-close(): Promise<void>, que termina al concluir la salida. onRequestOpen(open)
-es opcional y permite que un coordinador cierre el otro panel antes de abrir.
-PalettePanel sigue necesitando valores controlados y sus callbacks.
-
-SectionTransition recibe navbarRef explícito: no busca cabeceras globalmente.
-Sin él cubre desde arriba. Su ref expone play(onCovered) y cancel(). El menú y
-la paleta contienen identidad Quokka y una plantilla de autenticación sin rutas:
-son piezas del sitio, no un sistema genérico de login.
-
-## Normas de extensión y límites
-
-- Mantener datos, red, autenticación y validación en consumidores.
-- Cada animación limpia listeners, observers y tweens al desmontar.
-- Respetar movimiento reducido y alternativas por teclado/táctil.
-- No modificar transforms de otra pieza.
-- Títulos: Source Sans 3 800; texto: Source Sans 3 400; pills: Geist Mono 500–700;
-  acentos editoriales y nombres de demos: Fraunces.
-- Las pruebas de render comprueban composición y estructura accesible; no
-  sustituyen pruebas de interacción y revisión visual en navegador.
-
-## DemoCard
-
-Importar `@/components/cards/demo-card`. Variante visual compuesta sobre Card,
-independiente de CardSlider: recibe `title`, `preview` (slot React),
-`description` (se revela con hover/foco), `demoHref` opcional, `surface` (muted),
-`tilt` (true), `className` y atributos del article. Sin URL no muestra acción.
-La vista previa ocupa una proporción 16:10 y el nombre usa Source Sans 3 600.
-Imagen cover sin bandas; título y acceso sobre un panel deep oscuro y con blur.
-La capa de fondo se extiende 3rem hacia arriba y usa degradado/máscara para
-introducir oscuridad y desenfoque progresivamente, sin un borde superior duro.
-El panel crece hacia arriba para revelar la descripción; en táctil se muestra
-completa. El marco conserva el tilt. No usar enlaces envolviendo toda la imagen:
-el gesto sobre ella pertenece al slider, la acción pertenece a su botón.
-El ancho lo define el layout; demo-showcase amplía únicamente este escaparate.
-Las imágenes de public/previews son capturas reales del laboratorio, estáticas;
-reemplazarlas por capturas de cada sitio cuando estén listas las demos finales.
-`DemoPreview` recibe `src`, `alt`, `sizes` y `shader` (true). Mantiene un img
-accesible, sin arrastre nativo, y un canvas decorativo que aplica ondas y
-separación RGB según la velocidad horizontal. Usa WebGL nativo, sin Three.js.
-El canal PreviewMotionContext vive en cada CardSlider y no renderiza React por
-frame. Fuera del slider o con shader=false, movimiento reducido, o WebGL no
-disponible se conserva la imagen cover. El efecto vuelve a cero en 650 ms,
-no mantiene un ticker en reposo y se cancela fuera de pantalla/pestaña oculta.
-El hook limpia sus observers, suscripción, tween y recursos GL al desmontar.
-No cargamos iframes. Referencia: https://codepen.io/GreenSock/pen/EaVbXeM.
-
-`DemoCard locked={true}` omite por completo el slot preview, título,
-descripción y enlace del proyecto. Muestra contenido genérico y la textura
-`public/previews/locked.svg` mediante DemoPreview, con el mismo shader.
-`locked` lo decide el consumidor; la card no conoce usuarios ni sesiones.
-La página arranca bloqueada y su botón Registrarse (prueba) alterna estilos
-mediante estado local, sin registro real ni persistencia. Al integrar cuentas,
-el servidor deberá validar el acceso y entregar solo los datos autorizados.
-
-
-Tipografía de Button: Source Sans 3, peso 600, letter-spacing 0 y line-height 1.1. Referencia md: 1.5rem; sm: 1.333333rem; lg: 1.666667rem. Los tres tamaños conservan sus paddings y la proporción tipográfica previa entre tamaños. Las previews de DemoCard usan un clip-path redondeado además de overflow para recortar también el shader durante la inclinación 3D.
-
-Button se limita al ancho disponible y permite etiquetas en varias líneas (también durante carga y resultado). Los iconos no se comprimen. En móvil, el padding horizontal se limita a 1rem para priorizar el texto; no reducir la fuente ni truncar la etiqueta para resolver desbordamientos.
-El radio de Button se limita a 2rem: conserva la píldora en una línea y evita recortar texto cuando el contenido crece en alto.
-
-## Movimiento unificado (norma vigente)
-
-Esta sección reemplaza las intensidades por defecto descriptas en iteraciones anteriores. Conservamos el laboratorio en / y evaluamos la convivencia en /experiencia, que es una composición de prueba, no el sitio definitivo ni un sistema de cuentas.
-
-Tres niveles: respuesta funcional (foco, clic, carga, error), interacción expresiva (atracción/profundidad cuando se interactúa) y momentos protagonistas (shader de demos, morphing al navegar desde el menú). Dentro de una interacción hay un efecto principal y los demás acompañan. Evitar acumular loops decorativos visibles. No animar texto mientras debe leerse ni mover un campo mientras se escribe.
-
-Button y Card aceptan motion="subtle" (por defecto) o motion="expressive". En Button, subtle usa strength 0.12 y giro 2 grados con retorno discreto; expressive conserva strength 0.28, giro 7 grados y retorno elástico. strength y maxRotation explícitos prevalecen sobre el preset; magnetic=false conserva clic, foco y relleno pero anula la atracción. Reservar expressive para una acción destacada por bloque. Navbar, cierres, registro, acciones del carrusel y formularios utilitarios no necesitan magnetismo. Tooltip usa subtle y conserva la opción magnetic.
-
-Card sigue opt-in mediante tilt; si está activo usa 4 grados en subtle y 8 en expressive. ProjectCard/TeamCard/DemoCard conservan sus propias proporciones y la profundidad uniforme del texto. El slider mueve su wrapper; la card mueve su panel: no compartir el transform entre ambos. En demos el shader y la inercia protagonizan; el tilt es discreto y se neutraliza al arrastrar. data-cursor-quiet="true" evita la bolita decorativa sobre las previews, conservando el cursor nativo y el relleno de los botones internos.
-
-FieldBorder conserva onda de foco y borde irregular de error. Su fase recorre el borde durante 1.2 segundos al cambiar de estado y luego se estabiliza, manteniendo forma, color y mensaje hasta que cambie el estado. No hay un ticker permanente mientras se escribe. Se detiene fuera de pantalla, con pestaña oculta o movimiento reducido. Los iconos y labels comparten una transición breve; las opciones conservan la entrada escalonada y el cierre reversible con un rebote moderado.
-
-MOTION y BUTTON_MOTION viven en frontend/lib/gsap.js. CSS usa los equivalentes de frontend/app/motion.css para respuestas (240 ms), cambios (360 ms), entradas (550 ms) y salidas (180 ms). No imponer un mismo tiempo a todas las animaciones: paneles, reemplazo de texto y shader conservan presets propios porque cumplen funciones distintas. No introducir defaults globales de GSAP. Las constantes geométricas de un efecto específico permanecen junto a ese efecto.
-
-Menú y paleta comparten preparePanelEntry/enterPanels/dropPanels en frontend/lib/panel-motion.js. Estado, foco, promesas de cierre y navegación siguen en cada componente. Se conservan entrada por derecha, caída con pausa de 80 ms, animaciones de enlaces y exclusión mutua. Morphing sigue exclusivamente al navegar por un enlace del menú, nunca al cerrar ni al scrollear naturalmente.
-
-Reveal es un wrapper opcional para entradas únicas de 18 px; no debe envolver cada palabra ni aplicarse a todos los controles. No ocultar contenido por CSS esperando JavaScript. La vista /experiencia usa una acción expresiva en el inicio, cards discretas, el carrusel como momento protagonista y un único marquee pequeño a 32 px/s. El laboratorio mantiene variantes intensas para comparar; no copiar toda esa concentración al sitio final.
-
-React controla contenido y estados; CSS, superficies/colores; GSAP, transforms y secuencias. useGSAP + contextSafe limpian animaciones creadas en callbacks. Desmontar cancela listeners, observers, timers y tweens del componente. Respetar teclado, táctil y prefers-reduced-motion; los efectos nunca son necesarios para acceder al contenido. Mantener estos contratos al incorporar componentes nuevos.
-
-Navbar (norma vigente): frontend/components/navbar.jsx + app/navbar.css. Cabecera simplificada: marca y únicamente Paleta/Menú. El acceso a cuenta vive en el menú; no hay Ingresar duplicado ni enlaces centrales. Ambos activadores reutilizan Button secondary sin magnetismo, 6.5rem x 2.6rem, Source Sans 3 .9rem/600, espaciado 0, iconos animados de 18px a la derecha. Por debajo de 640px ambos muestran solo el icono en un botón cuadrado con mínimo táctil de 44px, conservando su nombre accesible. items corresponde exclusivamente a los destinos del menú; homeHref define el inicio.
-
-useNavbarMotion coordina una vuelta de la mascota durante todo el documento, el progreso superior y el ocultamiento gradual al bajar. Al subir revela la cabecera; cerca del inicio, con panel abierto o foco de teclado permanece visible. La barra de progreso vive fuera del header y permanece arriba al ocultarse este. Se anima top, nunca transform ni opacity del header: sus dialogs fixed no deben cambiar de containing block ni desaparecer con él. El blur sigue en ::before. La animación de hover del SVG y el giro de scroll usan nodos distintos. Movimiento reducido conserva progreso funcional y cabecera visible, sin giro. El hook limpia observadores, listeners, frame pendiente y contexto GSAP.
-
-La mascota es una ilustración de identidad: --quokka-fur y --quokka-muzzle conservan los colores naturales del dibujo original en ambos modos. Esta excepción de marca evita que un fondo nocturno convierta el hocico en una mancha negra; no agrega colores de uso general para botones, secciones o formularios. La navegación sigue exclusivamente en SiteMenu, con sección activa, morphing, exclusión mutua con Paleta y sus animaciones existentes.
-
-## Página de pruebas del portfolio
-
-La ruta / es ahora la página principal de pruebas con contenido del portfolio. /experiencia conserva acceso al mismo componente, frontend/components/portfolio-preview.jsx. El laboratorio anterior se mantiene en /componentes. Quokka.html sigue como referencia histórica.
-
-El contenido vive en frontend/lib/site-content.js. TEAM contiene Bautista Genovese, Juan Girón, Lautaro Jándula, Ignacio Giangrieco y Micaías Villa, con responsabilidades extraídas de la bitácora del proyecto (Sprint 2). No inventar fotos, experiencia profesional, correos o perfiles de compañeros. TeamCard usa iniciales si no hay retrato. TeamAvatars consume esos mismos datos y permite sustituir members.
-
-Secciones actuales: inicio, manifiesto, equipo, servicios, stack-tech, proyectos y contacto. Se componen con Section, Reveal, TeamCard, SkillCard, DemoCard, DemoPreview, CardSlider, Marquee y la UI de formularios existente. SkillCard admite eyebrow para rotular Servicio/Tecnología sin duplicar componentes. Se omiten timeline, estadísticas, paneles y FAQ hasta contar con sus componentes. La mascota original de Quokka.html vive en public/quokka-hero.webp.
-
-PROJECTS conserva cuatro propuestas del prototipo, identificadas como en desarrollo. Sus imágenes SVG son maquetas ilustrativas, no capturas de aplicaciones publicadas. No agregar demoHref hasta tener un destino verdadero. El control Registrarse (prueba) es solo una comparación local del estado locked; no representa autenticación ni seguridad del servidor.
-
-ContactForm valida nombre, correo, categoría y mensaje; reutiliza Input, Select, Textarea, Tooltip y Button. Sin onSubmitMessage solo valida y lo informa. Cuando el backend esté disponible, el consumidor podrá pasar esa función asíncrona; los campos quedan deshabilitados durante la petición. No mostrar éxito de envío antes de completarla. ContactFormDemo se conserva únicamente en el laboratorio.
-
-Footer y SiteMenu reutilizan SectionTransition y section-navigation.js. Solo los enlaces internos válidos, activados sin modificadores, hacen morphing; correo, URLs externas, nueva pestaña y destinos inexistentes conservan comportamiento nativo. Incluye enlaces de navegación, equipo, marca y CTA de contacto. Navbar expone su nodo mediante ref para compartir la altura real. La cubierta reserva esa altura incluso si el navbar estaba oculto; useNavbarMotion observa data-active para revelarlo durante la transición. El scroll natural nunca activa la cubierta.
-
-El footer no muestra un correo ficticio ni una red sin URL; email es opcional. Para agregar información de contacto o links personales, usar datos confirmados del equipo.
+~~~
+
+## Navegación y layout
+
+Navbar recibe items, homeHref, theme, mode, onThemeChange y onModeChange. homeHref usa #inicio en la portada y / en páginas internas como el login. items contiene href, label y description opcional. Coordina el cierre entre SiteMenu y PalettePanel. Las acciones tienen iconos animados, nombres accesibles y relleno radial sin magnetismo.
+
+SiteMenu expone close() mediante ref. Su altura depende del contenido con un mínimo adaptable; el acceso de login es el último bloque y se mantiene al pie del panel. Los enlaces no bloquean combinaciones nativas como Ctrl+clic. No usar showModal: el panel es no modal y permite interactuar con el fondo.
+
+NavigationTransition está una sola vez en el layout. Captura enlaces internos válidos, cierra menú, cubre, navega y revela cuando cambia la ruta. Omite enlaces externos, descargas, atajos y anclas inexistentes. SectionTransition es su motor SVG; no montar otra instancia en cada footer o menú.
+
+Footer, desde @/components/layout/footer, recibe links, homeHref y teamHref. Tiene navegación en dos columnas, equipo, GitHub, marca y créditos; no incluye una CTA de contacto repetida. useFooterMotion controla curva y entrada del wordmark, con observadores y animaciones locales que limpian al desmontarse.
+
+## Button y CursorFollower
+
+Import: @/components/ui/button. Props principales: variant (primary, secondary, accent, ghost), size (sm, md, lg), href, children, iconLeft, iconRight, fullWidth, magnetic, strength, maxRotation y motion (subtle o expressive). Admite atributos nativos y ref. Sin href usa button type=button; indicar type=submit para enviar formularios.
+
+status puede ser idle, loading, success o error. loading es un alias de compatibilidad. loadingLabel, successLabel y errorLabel personalizan resultados. disabled, loading y aria-disabled impiden ejecutar botones y enlaces. La aplicación decide cuándo el resultado es real; Button no consulta endpoints.
+
+magnetic=false conserva relleno, foco y presión. Para contenido solo gráfico, proporcionar aria-label y ocultar el icono decorativo con aria-hidden. iconOnlyOnMobile oculta texto visualmente cuando existe un icono, manteniendo el nombre accesible.
+
+Montar un único CursorFollower en el layout. Button y useButtonMotion administran data-cursor-button, data-cursor-fill y data-cursor-ink; los consumidores no deben escribirlos. En táctil y movimiento reducido se usan fallbacks de foco/presión. Los listeners de movimiento son locales al botón, no uno global por control.
+
+## Campos y formularios
+
+Input y Textarea, desde components/ui, comparten FormField. Admiten label, description, error, required, icon, labelAccessory, atributos nativos y ref. Cada instancia genera sus IDs propios; error, ayuda y etiqueta apuntan a su control. El consumidor mantiene los valores y la validación.
+
+Select admite children option/optgroup, value/defaultValue, onValueChange, name, required, disabled y las props de campo. Radix conserva teclado, foco y FormData. ref apunta al trigger, no a un select visible. Las opciones con value vacío actúan como placeholder.
+
+Checkbox comparte ChoiceField. RadioGroup recibe label, name, options, value/defaultValue, onValueChange, description y error. Las opciones admiten value, label, disabled y description. Los grupos sin name usan uno propio. Tooltip recibe label, content, open/onOpenChange o defaultOpen; no crear un segundo botón dentro de su contenido.
+
+ContactForm, desde @/components/forms/contact-form, valida nombre de al menos tres caracteres, email válido, categoría y mensaje de al menos quince caracteres. onSubmitMessage({ name, email, type, message }) debe devolver una promesa; en la portada se conecta con `submitContactRequest` (`@/lib/contact-api`) hacia `POST /api/contact`. Sin callback solo valida y comunica que el envío aún no está disponible. No muestra éxito de envío ficticio.
+
+LoginForm, desde @/components/forms/login-form, valida email y contraseña no vacía. onSignIn({ email, password }) debe devolver una promesa y resolver la sesión real en la capa de integración. Sin callback no crea sesiones, no guarda credenciales ni hace peticiones. Mantiene autoComplete apropiado y estados de carga/error.
+
+## Cards
+
+Card, desde @/components/ui/card, recibe surface, tilt (true por defecto), motion, children, className, atributos y ref al article interior. className afecta al marco exterior. El marco mide el mouse; el panel interior inclina. No animar desde otro componente el mismo transform del panel.
+
+- ProjectCard: title, description, technologies, preview, demoHref, codeHref; proyecto editorial.
+- TeamCard: name obligatorio, role, description, portrait y profileHref; sin portrait usa iniciales.
+- SkillCard: title, description, icon, tags, eyebrow; tilt false por defecto para priorizar lectura.
+- DemoCard: title, description, preview, demoHref, locked y props de Card. locked muestra una textura genérica sin montar nombre, descripción, preview o enlace privados. No sustituye autorización del backend.
+- DemoPreview: src, alt y sizes; usa next/image, sin shader de distorsión.
+
+Omitir URLs elimina acciones. Los slots gráficos informativos requieren texto alternativo. Las variantes no conocen las páginas ni consultan APIs.
+
+## Carruseles y FlipCard
+
+CardSlider, desde @/components/ui/card-slider, recibe children, label y className. Cada hijo necesita una key estable. Una colección vacía no monta slider; cambiar keys reinicia el recorrido. Adapta CardSwap vendorizado a las propuestas, captura rueda dentro de su zona y muestra CarouselMobileControls bajo 768px cuando hay más de una tarjeta.
+
+CardSwap ofrece children o items, dimensiones, cardDistance, verticalDistance, depth, skewAmount, visibleCards, delay, autoplay, pauseOnHover, draggable, speed, bounce, parallax, hoverSpread, dim, cardRadius, intro, theme, label, onCardClick y onChange. Card es el wrapper exportado por ese archivo. next()/prev() están disponibles mediante ref. Los items no suministrados no generan tarjetas de ejemplo. La página usa children propios. El temporizador pausa con foco, hover, pestaña oculta, fuera de pantalla y movimiento reducido.
+
+CircularGalleryCards recibe items y renderItem, bend, scrollEase, gap, onActiveChange y atributos del contenedor. Ref expone next, prev y goTo. TeamGallery, desde components/portfolio/team-gallery, adapta los integrantes y restablece el frente al cambiar de persona. Solo el slot central es accesible. El motor no duplica miembros.
+
+FlipCard recibe front, back, flipped/defaultFlipped, onFlipChange, axis, flipOnClick, disabled, ariaLabel, dimensiones, radius, background, color, perspective y tilt. Usa rotación CSS y solo la cara activa es accesible. Clic, Enter y Espacio giran; los enlaces internos conservan su propia acción.
+
+useScrollCarousel normaliza unidades y amortigua trackpads. Captura la rueda solo dentro del componente; deja zoom y campos nativos. capturePointer/releasePointer centralizan la tolerancia a punteros expirados. No llamar directamente a releasePointerCapture en consumidores.
+
+## Texto, ilustración y marquee
+
+AnimatedHeading, desde components/ui/animated-heading, admite as, children, className y atributos de encabezado. Usarlo solo en títulos importantes. Conserva los nodos de énfasis y un nombre accesible sin depender del pliegue. El texto largo sigue siendo un párrafo normal.
+
+HalftoneReveal conserva una imagen accesible y una mejora WebGL. El hero usa fit=contain, mode=color, shape=dot, reverse y la interacción del mouse; no activa wander. Su bucle duerme fuera de pantalla y limita los dibujos a 30 fps. Movimiento reducido o ausencia de WebGL conserva la imagen.
+
+Marquee recibe items, size (sm/md/lg), speed, direction, followScroll, pauseOnHover, label y className. Lista vacía no monta nada. Una sola copia accesible describe el contenido; las otras son decorativas. Espacio, foco y toque controlan la pausa. No agregar botones superpuestos a su track.
+
+## SwipeToast, Sling y lluvia
+
+SwipeToast, desde components/ui/SwipeToast, recibe title, description, icon, open, onClose(reason), actionLabel, onAction, colores, width, radius, slideMs, settleBounce, swipeDistance, duration, fuse, pauseOnHover, closeButton, inline, dismissible y className. Razones de cierre: timeout, swipe, action, close, escape o programmatic. duration=0 desactiva el vencimiento. fuse=none oculta la línea, no el temporizador. Se anuncia con status y puede descartarse hacia abajo. Un gesto cancelado no descarta.
+
+~~~jsx
+<SwipeToast title="Cambios guardados" description="Podés seguir trabajando."
+  duration={4000} closeButton onClose={() => setOpen(false)} />
+~~~
+
+SlingButton, desde components/ui/SlingButton, conserva el resorte de React Bits y añade onTap, separado de onSend. Clic/Enter usa onTap (o onSend como fallback); un arrastre cargado usa onSend. hint personaliza las instrucciones accesibles. Colores, size, strokeWidth, armAt, maxPull, launchSpeed, recoil, flight, particles, spread, axis, tapSends, disabled y ariaLabel configuran el gesto. Cancelar no envía. El elástico es una sola línea punteada.
+
+QuokkaSling compone la mascota en el navbar: clic sube suavemente en la portada, vuelve al estudio bajo cobertura desde login, y el lanzamiento emite quokka:rain. QuokkaEffects escucha ese evento y administra la lluvia y su toast. No montar instancias adicionales en cada página.
+
+La física de lib/quokka-rain.js usa un solo loop, con tope de 16 partículas (10 bajo 640px), actualizaciones limitadas a 60 fps y expiración de ocho segundos. No hay suelo ni colisiones. Se pueden agarrar/lanzar con captura segura; salen de pantalla sin acumularse. Repetir reinicia el pool. Escape, navegación, pestaña oculta y movimiento reducido detienen la lluvia.
+
+## Dependencias y fuentes adaptadas
+
+Dependencias de runtime: React/React DOM, Next.js, Tailwind/PostCSS, GSAP y @gsap/react, Motion, Radix y Lucide. Los componentes React Bits están vendorizados y adaptados en components/ui. No se requiere shadcn CLI ni paquetes Hugeicons: los iconos usan Lucide.
+
+No hay VariableProximity, FoldText externo, GradualBlur de ocho capas, shader de previews, SVGs de plantilla Next ni configuración de registros Pro. El pliegue es CSS local y el navbar tiene una sola capa de blur. No reintroducir listeners globales por letra ni bucles inactivos.
+
+## Integración pendiente
+
+ArrowLink, desde components/ui/arrow-link, reemplaza los enlaces subrayados studio-text-link. Recibe href, direction (left o right), children y atributos nativos de enlace. La flecha circular se desplaza y reaparece al hover o foco; respeta movimiento reducido. Toda el área es un único enlace, sin botones anidados. Login lo usa para volver al estudio.
+
+Los cinco integrantes tienen profileHref. TeamGallery muestra el GitHub de la tarjeta activa debajo del carrusel, en una pestaña nueva con noopener noreferrer.
+
+La portada y sus interacciones son públicas. El formulario de contacto está conectado a `POST /api/contact` mediante `submitContactRequest`; el inicio de sesión mantiene su validación y contrato de callback pendiente de autenticación en servidor. Los proyectos son propuestas locales, no demos desplegadas ni repositorios sincronizados automáticamente. Estas limitaciones son parte explícita de la entrega actual.
+
+## CI del pull request
+
+.github/workflows/frontend.yml ejecuta instalación reproducible del workspace, lint, todos los tests, auditoría de dependencias de producción y build en Node 24. Se activa en PRs a main y pushes a frontend/main; solo tiene permiso de lectura. Las acciones usadas siguen sus guías oficiales: [checkout](https://github.com/actions/checkout) y [setup-node](https://github.com/actions/setup-node). No publica ni mergea cambios.
+
+La configuración de Tailwind usa únicamente postcss.config.mjs, según la guía local de Next; no existe una segunda cadena de loaders de Turbopack.

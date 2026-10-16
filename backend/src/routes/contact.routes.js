@@ -1,15 +1,16 @@
 const express = require('express');
-const {
-  createContactRequest,
-  getContactRequests,
-} = require('../controllers/contact.controller');
+const { createContactRequest } = require('../controllers/contact.controller');
+const { createRateLimiter } = require('../middlewares/rateLimiter');
 
 const router = express.Router();
 
-// POST /api/contact - Recibir solicitud de cotización, asesoría técnica o consulta general
-router.post('/', createContactRequest);
+const contactRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  maxRequests: 5,           // Máximo 5 solicitudes por IP cada 15 minutos
+});
 
-// GET /api/contact - Listar solicitudes almacenadas en PostgreSQL
-router.get('/', getContactRequests);
+// POST /api/contact - Recibir solicitud pública de cotización, asesoría técnica o consulta general
+// Nota de seguridad: No se expone un GET público para proteger los datos personales (PII) almacenados.
+router.post('/', contactRateLimiter, createContactRequest);
 
 module.exports = router;

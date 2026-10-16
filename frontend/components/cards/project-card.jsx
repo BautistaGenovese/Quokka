@@ -12,7 +12,7 @@ export default function ProjectCard({ title, description, technologies = [], pre
       <div className="card-content flex flex-1 flex-col gap-4 p-8 sm:p-10">
         <p data-card-depth="detail" className="font-body text-xs font-extrabold uppercase tracking-widest">Proyecto / demo</p>
         {/* El nombre de la demo es el acento editorial de esta variante. */}
-        <h3 data-card-depth="title" id={titleId} className="font-serif text-2xl font-semibold">{title}</h3>
+        <h3 data-card-depth="title" id={titleId} className="font-display text-2xl font-semibold">{title}</h3>
         <p data-card-depth="body" className="font-body text-lg font-normal">{description}</p>
         <ul data-card-depth="detail" aria-label="Tecnologías" className="flex flex-wrap gap-2">
           {technologies.map(item => <li key={item} className="rounded-pill border border-surface-line px-3 py-1 font-pill text-xs font-semibold">{item}</li>)}

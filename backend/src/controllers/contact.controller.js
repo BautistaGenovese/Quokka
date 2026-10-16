@@ -1,18 +1,38 @@
 const db = require('../config/db');
 const initDb = require('../config/initDb');
-const { sendContactNotification, TYPE_LABELS } = require('../services/mailer.service');
+const {
+  sendContactNotification,
+  sanitizeHeaderValue,
+  TYPE_LABELS,
+} = require('../services/mailer.service');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const VALID_TYPES = Object.keys(TYPE_LABELS);
 
 /**
- * Valida los campos del formulario de contacto y devuelve un objeto `fields` con errores si existen.
+ * Valida y sanitiza los campos del formulario de contacto.
+ * Devuelve un objeto `fields` con errores específicos si existen.
  */
 function validateContactPayload(body = {}) {
-  const name = typeof body.name === 'string' ? body.name.trim() : '';
-  const email = typeof body.email === 'string' ? body.email.trim() : '';
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return {
+      isValid: false,
+      fields: {
+        name: 'Ingresá al menos 3 caracteres.',
+        email: 'Ingresá un correo válido.',
+        type: 'Elegí una categoría.',
+        message: 'Escribí al menos 15 caracteres.',
+      },
+      sanitized: { name: '', email: '', type: '', message: '' },
+    };
+  }
+
+  const name = typeof body.name === 'string' ? sanitizeHeaderValue(body.name) : '';
+  const email = typeof body.email === 'string' ? sanitizeHeaderValue(body.email) : '';
   const type = typeof body.type === 'string' ? body.type.trim() : '';
-  const message = typeof body.message === 'string' ? body.message.trim() : '';
+  const message = typeof body.message === 'string'
+    ? body.message.replace(/\0/g, '').trim()
+    : '';
 
   const fields = {};
 
@@ -46,7 +66,8 @@ function validateContactPayload(body = {}) {
 /**
  * POST /api/contact
  * Recibe una solicitud de cotización, asesoría técnica o consulta general,
- * la almacena en PostgreSQL y dispara el correo de notificación al equipo.
+ * la almacena en PostgreSQL mediante consultas parametrizadas y dispara el correo al equipo.
+ * No expone registros ni metadatos internos en la respuesta pública.
  */
 async function createContactRequest(req, res) {
   const { isValid, fields, sanitized } = validateContactPayload(req.body);
@@ -62,21 +83,19 @@ async function createContactRequest(req, res) {
   const { name, email, type, message } = sanitized;
 
   try {
-    // Aseguramos que la tabla exista antes de insertar
     await initDb();
 
     const insertResult = await db.query(
       `INSERT INTO contact_requests (name, email, type, message)
        VALUES ($1, $2, $3, $4)
-       RETURNING id, name, email, type, message, email_sent, created_at`,
+       RETURNING id, name, email, type, message, created_at`,
       [name, email, type, message]
     );
 
     const record = insertResult.rows[0];
-    let mailInfo = null;
 
     try {
-      mailInfo = await sendContactNotification({
+      await sendContactNotification({
         id: record.id,
         name: record.name,
         email: record.email,
@@ -89,7 +108,6 @@ async function createContactRequest(req, res) {
         'UPDATE contact_requests SET email_sent = TRUE WHERE id = $1',
         [record.id]
       );
-      record.email_sent = true;
     } catch (mailError) {
       console.error('⚠️ Solicitud guardada en BD, pero falló el envío de correo:', mailError.message);
     }
@@ -97,11 +115,9 @@ async function createContactRequest(req, res) {
     return res.status(201).json({
       ok: true,
       message: 'Tu solicitud fue recibida. Te responderemos a la brevedad.',
-      request: record,
-      ...(mailInfo?.previewUrl ? { previewUrl: mailInfo.previewUrl } : {}),
     });
   } catch (error) {
-    console.error('❌ Error al procesar solicitud de contacto:', error);
+    console.error('❌ Error al procesar solicitud de contacto:', error.message);
     return res.status(500).json({
       ok: false,
       error: 'No se pudo procesar la solicitud en este momento. Intentá nuevamente.',
@@ -109,36 +125,7 @@ async function createContactRequest(req, res) {
   }
 }
 
-/**
- * GET /api/contact
- * Lista las solicitudes recibidas ordenadas de la más reciente a la más antigua.
- */
-async function getContactRequests(req, res) {
-  try {
-    await initDb();
-    const result = await db.query(
-      `SELECT id, name, email, type, message, email_sent, created_at
-       FROM contact_requests
-       ORDER BY created_at DESC
-       LIMIT 100`
-    );
-
-    return res.json({
-      ok: true,
-      total: result.rowCount,
-      requests: result.rows,
-    });
-  } catch (error) {
-    console.error('❌ Error al obtener solicitudes de contacto:', error);
-    return res.status(500).json({
-      ok: false,
-      error: 'Error al consultar las solicitudes de contacto.',
-    });
-  }
-}
-
 module.exports = {
   createContactRequest,
-  getContactRequests,
   validateContactPayload,
 };

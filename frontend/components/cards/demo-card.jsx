@@ -2,7 +2,7 @@ import { useId } from "react";
 import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import Card from "@/components/ui/card";
 import Button from "@/components/ui/button";
-import Section from "@/components/section";
+import Section from "@/components/layout/section";
 import DemoPreview from "./demo-preview";
 
 /** Variante visual para explorar demos: la preview ocupa el protagonismo.
@@ -15,7 +15,7 @@ export default function DemoCard({ title, description, preview, demoHref, locked
   const titleId = useId();
   // No difuminar ni tapar la demo real: en este estado NO montamos su slot,
   // nombre, descripción o enlace. La textura es genérica y usa el mismo
-  // DemoPreview/shader; la decisión de acceso viene del consumidor.
+  // DemoPreview; la decisión de acceso viene del consumidor.
   if (locked) return <Card {...rest} surface={surface} tilt={tilt}
     className={`demo-card demo-card-locked ${className}`} aria-labelledby={titleId} data-locked="true">
     <div className="demo-card-preview">

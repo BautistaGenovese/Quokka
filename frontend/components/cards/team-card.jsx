@@ -11,7 +11,7 @@ export default function TeamCard({ name, role, description, portrait, profileHre
       {/* En móvil se apila; desde sm el retrato ocupa la columna izquierda.
           Ninguna altura fija: el texto puede crecer sin recortarse. */}
       <div className="card-content flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:gap-8 sm:p-10">
-        <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-card bg-action font-serif italic text-4xl font-semibold text-on-action sm:h-36 sm:w-36" aria-hidden="true">
+        <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-card bg-action font-display text-4xl font-semibold text-on-action sm:h-36 sm:w-36" aria-hidden="true">
           {portrait || initials}
         </div>
         <div className="card-content flex min-w-0 flex-1 flex-col gap-4">
