@@ -101,7 +101,8 @@ erDiagram
 
 #### 🔌 Qué debe hacer Juan en el Backend:
 
-1. **`backend/src/middleware/auth.js`:** Exportar los middlewares `requireAuth` (verifica el JWT) y `requireRol(...roles)` (verifica que `req.user.rol` esté permitido). **Importante:** Tus compañeros (Ignacio, Lautaro, Bautista y Micaías) importarán estos dos middlewares para proteger sus rutas de Sprint 3 y 4.
+1. **`backend/src/middleware/auth.js`:** Exportar los middlewares `requireAuth` (verifica el JWT) y `requireRol(...roles)` (verifica que `req.user.rol` esté permitido). **Importante:** Tus compañeros (Ignacio, Lautaro, Bautista y Micaías) importarán estos dos middlewares para proteger sus rutas.
+   - **Acción puntual en el módulo de contacto:** En [`backend/src/routes/contact.routes.js`] hay un `TODO (Juan Girón)` dentro de `router.post('/', ...)` para que inyectes `requireAuth` cuando esté listo, ya que el equipo definió que **solo usuarios registrados pueden enviar mensajes de contacto**.
 2. **`backend/src/routes/auth.js`:**
    - `POST /api/auth/registro` → Hashea password con `bcrypt` e inserta en `usuarios`.
    - `POST /api/auth/login` → Compara hash con `bcrypt` y devuelve el token JWT.
@@ -173,31 +174,32 @@ erDiagram
 
 - **Sprints correspondientes:**
   - **Sprint 1:** Arquitectura base del servidor Express, conexión a PostgreSQL en Docker y ruta `/api/status`. _(Completado)_
-  - **Sprint 2:** Formulario público de contacto y endpoint receptor de solicitudes de cotización, asesoría técnica o consulta general. _(Completado y adaptado al español)_
+  - **Sprint 2:** Formulario de contacto y endpoint receptor de solicitudes de cotización, asesoría técnica o consulta general. _(Completado y adaptado al español; preparado para exigir sesión iniciada)_
   - **Sprint 3:** Panel de navegación para el Operador, permitiendo listar los mensajes recibidos y responder por correo electrónico con Nodemailer.
   - **Sprint 4:** Preparación para producción y despliegue en la nube (Render / Vercel).
 
 #### 📊 Tabla asignada: `mensajes_contacto`
 
-| Columna         | Tipo de Dato   |   ¿Acepta `NULL`?   | Restricciones / Default                                      | ¿Por qué está definida así?                                                                                                                                                             |
-| :-------------- | :------------- | :-----------------: | :----------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`            | `SERIAL`       |    **NO** (`PK`)    | `PRIMARY KEY`                                                | Identificador único del mensaje para que el Operador pueda seleccionarlo y responderlo (`/api/operador/contactos/:id/responder`).                                                       |
-| `nombre`        | `VARCHAR(100)` | **NO** (`NOT NULL`) | `CHECK (length >= 2)`                                        | Nombre de la persona o empresa que solicita la cotización o asesoría.                                                                                                                   |
-| `email`         | `VARCHAR(255)` | **NO** (`NOT NULL`) | `CHECK (length >= 5)`                                        | Correo electrónico del visitante al cual Nodemailer enviará la respuesta cuando el Operador conteste en el Sprint 3.                                                                    |
-| `tipo`          | `VARCHAR(20)`  | **NO** (`NOT NULL`) | `CHECK IN ('cotizacion', 'asesoria', 'general', 'consulta')` | Clasifica la solicitud según lo requerido por la cátedra (cotización, asesoría técnica o consulta general).                                                                             |
-| `mensaje`       | `TEXT`         | **NO** (`NOT NULL`) | `CHECK (length BETWEEN 10 AND 5000)`                         | Detalle de la consulta o requerimiento técnico enviado por el visitante.                                                                                                                |
-| `estado`        | `VARCHAR(20)`  | **NO** (`NOT NULL`) | `DEFAULT 'pendiente'` `CHECK IN ('pendiente', 'respondido')` | Permite filtrar en el Panel del Operador qué mensajes faltan responder y cuáles ya fueron atendidos.                                                                                    |
-| `respuesta`     | `TEXT`         |   **SÍ** (`NULL`)   | —                                                            | **Debe aceptar `NULL`** porque cuando el visitante envía el formulario en el Sprint 2 todavía nadie le respondió. Se completa recién en el Sprint 3 cuando el Operador envía el correo. |
-| `creado_en`     | `TIMESTAMPTZ`  | **NO** (`NOT NULL`) | `DEFAULT CURRENT_TIMESTAMP`                                  | Fecha y hora exacta en que ingresó la consulta para ordenar la bandeja del Operador.                                                                                                    |
-| `respondido_en` | `TIMESTAMPTZ`  |   **SÍ** (`NULL`)   | —                                                            | **Debe aceptar `NULL`** mientras el mensaje está `'pendiente'`. Se llena con `NOW()` cuando el Operador envía la respuesta por email.                                                   |
+| Columna         | Tipo de Dato   |   ¿Acepta `NULL`?   | Restricciones / Default                                      | ¿Por qué está definida así?                                                                                                                                                   |
+| :-------------- | :------------- | :-----------------: | :----------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`            | `SERIAL`       |    **NO** (`PK`)    | `PRIMARY KEY`                                                | Identificador único del mensaje para que el Operador pueda seleccionarlo y responderlo (`/api/operador/contactos/:id/responder`).                                             |
+| `nombre`        | `VARCHAR(100)` | **NO** (`NOT NULL`) | `CHECK (length >= 2)`                                        | Nombre de la persona o empresa que solicita la cotización o asesoría.                                                                                                         |
+| `email`         | `VARCHAR(255)` | **NO** (`NOT NULL`) | `CHECK (length >= 5)`                                        | Correo electrónico del usuario al cual Nodemailer enviará la respuesta cuando el Operador conteste en el Sprint 3.                                                            |
+| `tipo`          | `VARCHAR(20)`  | **NO** (`NOT NULL`) | `CHECK IN ('cotizacion', 'asesoria', 'general', 'consulta')` | Clasifica la solicitud según lo requerido por la cátedra (cotización, asesoría técnica o consulta general).                                                                   |
+| `mensaje`       | `TEXT`         | **NO** (`NOT NULL`) | `CHECK (length BETWEEN 10 AND 5000)`                         | Detalle de la consulta o requerimiento técnico enviado por el usuario.                                                                                                        |
+| `estado`        | `VARCHAR(20)`  | **NO** (`NOT NULL`) | `DEFAULT 'pendiente'` `CHECK IN ('pendiente', 'respondido')` | Permite filtrar en el Panel del Operador qué mensajes faltan responder y cuáles ya fueron atendidos.                                                                          |
+| `respuesta`     | `TEXT`         |   **SÍ** (`NULL`)   | —                                                            | **Debe aceptar `NULL`** porque cuando se envía el formulario en el Sprint 2 todavía nadie le respondió. Se completa recién en el Sprint 3 cuando el Operador envía el correo. |
+| `creado_en`     | `TIMESTAMPTZ`  | **NO** (`NOT NULL`) | `DEFAULT CURRENT_TIMESTAMP`                                  | Fecha y hora exacta en que ingresó la consulta para ordenar la bandeja del Operador.                                                                                          |
+| `respondido_en` | `TIMESTAMPTZ`  |   **SÍ** (`NULL`)   | —                                                            | **Debe aceptar `NULL`** mientras el mensaje está `'pendiente'`. Se llena con `NOW()` cuando el Operador envía la respuesta por email.                                         |
 
 #### 🔌 Endpoints implementados y planificados por Ignacio:
 
 - **Sprint 2 (Ya activo):**
   - `POST /api/contacto` (y alias `POST /api/contact` por compatibilidad): Valida y sanitiza los datos (`nombre`, `email`, `tipo`, `mensaje`), los guarda en `mensajes_contacto` con estado `'pendiente'` mediante consultas parametrizadas y notifica por correo con Nodemailer.
+  - **Restricción de acceso (Solo Usuarios Registrados):** Por decisión del equipo, para poder enviar un mensaje/mail desde el formulario de contacto es obligatorio haber iniciado sesión. En [`backend/src/routes/contact.routes.js`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/backend/src/routes/contact.routes.js) ya quedó señalado con un `TODO (Juan Girón)` el lugar exacto dentro de `router.post('/', /* TODO (Juan Girón): requireAuth, */ contactRateLimiter, createContactRequest);` donde Juan debe agregar el middleware `requireAuth` apenas termine el módulo de autenticación.
 - **Sprint 3 (Panel del Operador):**
-  - `GET /api/operador/contactos?estado=pendiente|respondido`: Lista los mensajes de `mensajes_contacto`.
-  - `POST /api/operador/contactos/:id/responder`: Envía el correo al visitante usando Nodemailer y actualiza `estado = 'respondido'`, `respuesta = $2`, `respondido_en = NOW()`.
+  - `GET /api/operador/contactos?estado=pendiente|respondido`: Lista los mensajes de `mensajes_contacto` (requiere rol `'operador'` o `'administrador'`).
+  - `POST /api/operador/contactos/:id/responder`: Envía el correo al usuario usando Nodemailer y actualiza `estado = 'respondido'`, `respuesta = $2`, `respondido_en = NOW()`.
 
 ---
 
@@ -240,3 +242,63 @@ const { rows } = await db.query(
   [id],
 );
 ```
+
+---
+
+## ✅ Checklist General de Avance por Integrante (Sprints 1 a 4)
+
+> **⚠️ INSTRUCCIÓN OBLIGATORIA PARA DESARROLLADORES Y ASISTENTES DE IA (Claude, Cursor, Antigravity, Copilot, etc.):**  
+> Cada vez que una persona o una IA complete e integre una tarea de la lista inferior, **DEBE actualizar este archivo (`BACKEND_CONTRACT.md`) cambiando `[ ]` por `[x]`** en el ítem correspondiente antes de hacer commit. De esta forma, todo el equipo y cualquier asistente que lea el repositorio sabrá en tiempo real qué está terminado y qué falta implementar.
+
+---
+
+### 👤 1. Juan Girón (Autenticación, Usuarios y Seguridad)
+
+- [x] **Sprint 1:** Configurar repositorio central, inicializar entorno React + Tailwind, `docker-compose.yml` y diseño del modelo de datos.
+- [x] **Sprint 2 (Frontend):** Maquetar e implementar interfaz y validación cliente de Login y Registro (`/iniciar-sesion`).
+- [ ] **Sprint 2 (Backend - Auth propio):** Crear `POST /api/auth/registro` y `POST /api/auth/login` con `bcrypt` y emisión de `JWT` sobre la tabla `usuarios`.
+- [ ] **Sprint 2 (Backend - Google OAuth):** Crear `POST /api/auth/google` verificando token con `google-auth-library`.
+- [ ] **Sprint 2/3 (Backend - Middlewares):** Crear `backend/src/middleware/auth.js` exportando `requireAuth` y `requireRol`, y **activar `requireAuth` en `backend/src/routes/contact.routes.js`** (donde está el `TODO (Juan Girón)`).
+- [ ] **Sprint 3 (Panel Admin Usuarios):** Desarrollar vista de Administrador y endpoints (`GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/:id/rol`) para gestionar usuarios registrados.
+- [ ] **Sprint 4 (Seguridad):** Auditar y validar aislamiento estricto de rutas privadas en React y permisos de API (visitantes, registrados, operadores y administradores).
+
+---
+
+### 📁 2. Lautaro Jándula (Estructura, Proyectos y Demos)
+
+- [x] **Sprint 1:** Construir estructura general en React (layouts, navbar, menú, footer) y secciones públicas de presentación, tecnologías y servicios.
+- [x] **Sprint 2 (Frontend):** Desarrollar la interfaz visual de la sección de Proyectos y Demos con estado condicional (`locked`) para exigir sesión iniciada al ver detalles.
+- [ ] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
+- [ ] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
+- [ ] **Sprint 4 (QA):** Ejecutar pruebas de calidad sobre todos los flujos de creación, lectura y actualización de proyectos.
+
+---
+
+### 🛠️ 3. Bautista Genovese (Diseño UX/UI, Componentes y CRUD Servicios)
+
+- [x] **Sprint 1:** Elaborar el Manual de Diseño y Estilo (`DESIGN.md`), paletas de colores, tipografías y prototipado visual.
+- [x] **Sprint 2:** Maquetar componentes reutilizables en Tailwind (`Button`, `Input`, `Select`, `Textarea`, `Card`, carruseles, `SwipeToast`) adaptables a PC y móviles.
+- [ ] **Sprint 3 (Backend - CRUD Servicios):** Crear `backend/src/routes/servicios.js` con `GET /api/servicios` (público) y `POST`, `PUT`, `DELETE /api/admin/servicios` (protegidos para `'administrador'`) sobre la tabla `servicios`.
+- [ ] **Sprint 3 (Frontend - CRUD Servicios):** Construir la interfaz de gestión de Servicios dentro del panel del Administrador y conectar la sección pública de servicios a la API.
+- [ ] **Sprint 4 (Auditoría UX/UI):** Verificar que todas las vistas y paneles desarrollados por el equipo respeten el `DESIGN.md`.
+
+---
+
+### ✉️ 4. Ignacio Giangrieco (Backend Base, Contacto, Panel Operador y Despliegue)
+
+- [x] **Sprint 1:** Levantar arquitectura base del servidor Express (`server.js`, `db.js`), conectar PostgreSQL en Docker, crear `/api/status` y documentar arranque (`backend/README.md`).
+- [x] **Sprint 1/2 (Base de Datos Unificada):** Crear script automático [`database/init.sql`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/database/init.sql) con las 5 tablas en español y redactar este contrato técnico (`BACKEND_CONTRACT.md`).
+- [x] **Sprint 2 (Contacto y Cotizaciones):** Construir formulario de contacto (`contact-form.jsx`), cliente API (`contact-api.js`), endpoint `POST /api/contacto` con validaciones, rate-limiting, inserción en `mensajes_contacto`, servicio Nodemailer (`mailer.service.js`) y tests unitarios (`contact.test.js`). Dejar preparado el `TODO` en `contact.routes.js` para exigir usuario registrado (`requireAuth`).
+- [ ] **Sprint 3 (Backend - Panel Operador):** Crear endpoints `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder` (protegidos con `requireAuth` y `requireRol('operador', 'administrador')`) que envíen la respuesta por correo con Nodemailer y actualicen `estado = 'respondido'`.
+- [ ] **Sprint 3 (Frontend - Panel Operador):** Construir el panel de navegación para el Operador permitiendo listar mensajes recibidos y responderlos desde la interfaz.
+- [ ] **Sprint 4 (Despliegue):** Preparar el código fuente para producción y gestionar el despliegue en la nube (Vercel / Render / Railway).
+
+---
+
+### 📈 5. Micaías Villa (Animaciones, APIs Externas y Métricas)
+
+- [x] **Sprint 1:** Seleccionar y documentar APIs Web externas a integrar y configurar librerías de animación en el entorno.
+- [x] **Sprint 2:** Aplicar animaciones fluidas a transiciones de página (`NavigationTransition`), títulos (`AnimatedHeading`), mascota interactiva (`SlingButton`) y componentes clave.
+- [ ] **Sprint 3 (Cloudinary):** Implementar `backend/src/routes/archivos.js` y middleware `multer` para subida/borrado seguro de imágenes en Cloudinary (`POST` y `DELETE /api/admin/imagenes`).
+- [ ] **Sprint 3 (GitHub REST API):** Implementar `GET /api/github/repos` en el backend y conectar la visualización dinámica en el frontend.
+- [ ] **Sprint 4 (Métricas y Gráficos):** Implementar `POST /api/visitas`, `GET /api/metricas/visitas` con consultas SQL parametrizadas sobre la tabla `visitas`, componente rastreador en frontend y gráficos interactivos (Recharts) en el panel del Administrador.
