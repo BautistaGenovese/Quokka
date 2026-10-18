@@ -6,7 +6,9 @@ const initDb = require('./config/initDb');
 const contactRoutes = require('./routes/contact.routes');
 const { 
   serviciosRouter, 
-  adminServiciosRouter 
+  adminServiciosRouter,
+  tecnologiasRouter,
+  adminTecnologiasRouter
 } = require('./routes/servicios');
 
 // Configuración de variables de entorno
@@ -48,7 +50,14 @@ app.use('/api/servicios', serviciosRouter);
 app.use('/api/services', serviciosRouter);
 
 app.use('/api/admin/servicios', adminServiciosRouter);
-app.use('/api/admin/services/', adminServiciosRouter);
+app.use('/api/admin/services', adminServiciosRouter);
+
+// Rutas al módulo de tecnologias
+app.use('/api/tecnologias', tecnologiasRouter);
+app.use('/api/technologies', tecnologiasRouter);
+
+app.use('/api/admin/tecnologias', adminTecnologiasRouter);
+app.use('/api/admin/technologies', adminTecnologiasRouter);
 
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {

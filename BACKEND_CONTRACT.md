@@ -13,17 +13,21 @@ Este documento establece el **estándar único y obligatorio** para la base de d
 Para evitar confusiones de idioma o diferencias de nombres entre sprints:
 
 1. **Todas las tablas y columnas están íntegramente en español (`snake_case`)**, respetando el diagrama Entidad-Relación (`dbdiagram.io`) y el documento de APIs externas del equipo.
-2. **Nadie tiene que crear sus tablas a mano:** Al levantar el backend (`npm run dev`) o el contenedor de Docker (`docker compose up -d`), el archivo `database/init.sql` crea automáticamente las **5 tablas** del proyecto si no existen.
+2. **Inicialización compartida:** El modelo actualizado contempla **7 tablas**, definidas en `database/init.sql`, incluidas `tecnologias` y `servicios_tecnologias`. El backend ejecuta el script al arrancar; Docker lo ejecuta al inicializar un volumen vacío. `CREATE TABLE IF NOT EXISTS` crea tablas faltantes, pero no modifica las existentes.
 3. Cada integrante tiene detallada aquí **su tabla asignada**, **el tipo y nulabilidad de cada columna (y por qué)**, y **los endpoints exactos que debe programar en su módulo**.
 
 ---
 
-## 🗺️ Diagrama Entidad-Relación Oficial (Implementado en `database/init.sql`)
+## 🗺️ Diagrama Entidad-Relación Oficial
+
+Las tablas `tecnologias` y `servicios_tecnologias` representan la ampliación para los tags de servicios y la sección pública «Las herramientas». Están definidas en `database/init.sql`.
 
 ```mermaid
 erDiagram
     usuarios ||--o{ proyectos : "id_autor"
     usuarios ||--o{ visitas : "usuario_id"
+    servicios ||--o{ servicios_tecnologias : "servicio_id"
+    tecnologias ||--o{ servicios_tecnologias : "tecnologia_id"
 
     usuarios {
         serial id PK
@@ -51,6 +55,16 @@ erDiagram
         serial id PK
         varchar_100 nombre_servicio "NOT NULL"
         text descripcion "NOT NULL"
+    }
+
+    tecnologias {
+        serial id PK
+        varchar_100 nombre_tecnologia "NOT NULL, UNIQUE"
+    }
+
+    servicios_tecnologias {
+        int servicio_id PK, FK "NOT NULL -> servicios(id), ON DELETE CASCADE"
+        int tecnologia_id PK, FK "NOT NULL -> tecnologias(id), ON DELETE CASCADE"
     }
 
     mensajes_contacto {
@@ -160,13 +174,62 @@ erDiagram
 | `nombre_servicio` | `VARCHAR(100)` | **NO** (`NOT NULL`) | `CHECK (length >= 3)`   | Nombre comercial del servicio ofertado por el equipo (ej. _"Desarrollo Web Full-Stack"_). No puede ser nulo.                                |
 | `descripcion`     | `TEXT`         | **NO** (`NOT NULL`) | `CHECK (length >= 10 AND length <= 5000)`  | Explicación detallada del servicio que se muestra en la sección pública y administra el CRUD. No tiene sentido un servicio sin descripción. |
 
+#### Tablas nuevas: `tecnologias` y `servicios_tecnologias`
+
+`tecnologias` es el catálogo compartido: cada herramienta (React, Express, PostgreSQL, etc.) se guarda una sola vez. Se utiliza para los tags de los servicios y para la sección pública «Las herramientas».
+
+- `id`: `SERIAL PRIMARY KEY`, obligatorio y generado automáticamente.
+- `nombre_tecnologia`: `VARCHAR(100) NOT NULL UNIQUE`, entre 1 y 100 caracteres después de aplicar `trim()`. La restricción SQL mínima es `CHECK (char_length(btrim(nombre_tecnologia)) >= 1)`. El listado público y los tags lo devuelven como `nombre`.
+- No se incluyen todavía iconos, descripciones ni orden de aparición; estos campos requieren una definición adicional de la interfaz.
+
+`servicios_tecnologias` representa la relación muchos a muchos: un servicio puede tener cero o más tecnologías y una tecnología puede asociarse con cero o más servicios.
+
+- `servicio_id`: `INTEGER NOT NULL REFERENCES servicios(id) ON DELETE CASCADE`.
+- `tecnologia_id`: `INTEGER NOT NULL REFERENCES tecnologias(id) ON DELETE CASCADE`.
+- Clave primaria compuesta: `PRIMARY KEY (servicio_id, tecnologia_id)`. Impide repetir una asociación y evita necesitar un `id` adicional.
+- Al eliminar un servicio se eliminan sus asociaciones, pero se conserva el catálogo de tecnologías. Al eliminar una tecnología se eliminan sus asociaciones, pero se conservan los servicios.
+
+SQL incluido en el inicializador, después de crear `servicios`:
+
+```sql
+CREATE TABLE IF NOT EXISTS tecnologias (
+  id SERIAL PRIMARY KEY,
+  nombre_tecnologia VARCHAR(100) NOT NULL UNIQUE
+    CHECK (char_length(btrim(nombre_tecnologia)) >= 1)
+);
+
+CREATE TABLE IF NOT EXISTS servicios_tecnologias (
+  servicio_id INTEGER NOT NULL
+    REFERENCES servicios(id) ON DELETE CASCADE,
+  tecnologia_id INTEGER NOT NULL
+    REFERENCES tecnologias(id) ON DELETE CASCADE,
+  PRIMARY KEY (servicio_id, tecnologia_id)
+);
+```
+
+**Alcance:** Esta ampliación no modifica la columna `proyectos.tecnologias`, que continúa siendo `VARCHAR(255)`. Normalizar las tecnologías de proyectos requeriría otro acuerdo y un cambio de esquema propio.
+
 #### 🔌 Qué debe hacer Bautista en el Backend:
 
 1. **`backend/src/routes/servicios.js`:**
-   - `GET /api/servicios` → Público, devuelve todos los servicios de la tabla `servicios` para renderizarlos en la landing page.
-   - `POST /api/admin/servicios` → Crea un servicio (`nombre_servicio`, `descripcion`). Requiere rol `'administrador'`.
-   - `PUT /api/admin/servicios/:id` → Actualiza un servicio existente. Requiere rol `'administrador'`.
+   - `GET /api/servicios` → Público, devuelve todos los servicios con `id`, `nombre_servicio`, `descripcion` y `tecnologias` (arreglo de objetos `{ id, nombre }`). Los servicios sin tecnologías deben incluirse con `tecnologias: []`.
+   - `POST /api/admin/servicios` → Crea un servicio (`nombre_servicio`, `descripcion`, `tecnologia_ids`). Responde `201` con `{ ok: true, servicio }`. Requiere `requireAuth` y `requireRol('administrador')`.
+   - `PUT /api/admin/servicios/:id` → Actualiza nombre, descripción y selección completa de tecnologías. Responde `200` con `{ ok: true, servicio }`, o `404` si no existe. Requiere `requireAuth` y `requireRol('administrador')`.
    - `DELETE /api/admin/servicios/:id` → Elimina un servicio. Requiere rol `'administrador'`.
+
+2. **Catálogo de tecnologías:**
+   - `GET /api/tecnologias` → Devuelve un arreglo de objetos `{ id, nombre }`, ordenado por nombre, para «Las herramientas» y el selector de tecnologías del formulario de servicios. Devuelve `[]` si el catálogo está vacío.
+   - `POST /api/admin/tecnologias` y `PUT /api/admin/tecnologias/:id` reciben `{ nombre_tecnologia }` y responden `{ ok: true, tecnologia }`, con `201` y `200` respectivamente. Los nombres duplicados responden `409`; los campos inválidos, `400`.
+   - `DELETE /api/admin/tecnologias/:id` elimina la tecnología y sus asociaciones mediante `ON DELETE CASCADE`, conservando los servicios. PUT y DELETE responden `404` si el registro no existe.
+   - La protección de las rutas de escritura con `requireAuth` y `requireRol('administrador')` sigue pendiente de integración.
+
+3. **Reglas de asociación:**
+   - En el contrato ampliado, `tecnologia_ids` es un arreglo obligatorio en POST y PUT. Cada elemento debe ser un entero positivo dentro del rango de PostgreSQL `INTEGER`, sin duplicados, y debe corresponder a una tecnología existente. Un arreglo vacío es válido.
+   - En PUT, el arreglo reemplaza todas las asociaciones anteriores; `[]` quita todos los tags. No se crean tecnologías automáticamente a partir de texto libre.
+   - Validar los campos y las referencias antes de guardar; responder `400` ante datos inválidos. Los identificadores de servicio de PUT y DELETE también deben validarse.
+   - Guardar el servicio y sus asociaciones en una única transacción (`BEGIN`, `COMMIT`, `ROLLBACK`). Todas las consultas de esa transacción usan el mismo cliente obtenido con `db.getClient()`, liberado en `finally`. `db.query` se reserva para consultas independientes.
+   - La respuesta `servicio` de POST y PUT utiliza la misma estructura que cada elemento del GET: incluye `tecnologias`, no solo los identificadores enviados.
+   - Los controladores reciben `tecnologia_ids` y devuelven `tecnologias`. La integración de formularios y vistas del frontend permanece pendiente. Las pruebas automatizadas del backend usan conexiones simuladas y cubren rollback, validaciones y fallos de conexión.
 
 ---
 
@@ -280,6 +343,9 @@ const { rows } = await db.query(
 - [x] **Sprint 2:** Maquetar componentes reutilizables en Tailwind (`Button`, `Input`, `Select`, `Textarea`, `Card`, carruseles, `SwipeToast`) adaptables a PC y móviles.
 - [ ] **Sprint 3 (Backend - CRUD Servicios):** Crear `backend/src/routes/servicios.js` con `GET /api/servicios` (público) y `POST`, `PUT`, `DELETE /api/admin/servicios` (protegidos para `'administrador'`) sobre la tabla `servicios`.
 - [ ] **Sprint 3 (Frontend - CRUD Servicios):** Construir la interfaz de gestión de Servicios dentro del panel del Administrador y conectar la sección pública de servicios a la API.
+- [x] **Sprint 3 (Base de Datos - Tecnologías):** Incorporar `tecnologias` y `servicios_tecnologias` a `database/init.sql`, con clave primaria compuesta y claves foráneas con `ON DELETE CASCADE`.
+- [x] **Sprint 3 (Backend - Tags y Herramientas):** Implementar `GET /api/tecnologias`, incluir tecnologías en `GET /api/servicios` y guardar `tecnologia_ids` en POST/PUT mediante transacciones sobre un mismo cliente.
+- [ ] **Sprint 3 (Frontend - Tags y Herramientas):** Incorporar el selector de tecnologías al formulario de servicios y consumir el catálogo en «Las herramientas».
 - [ ] **Sprint 4 (Auditoría UX/UI):** Verificar que todas las vistas y paneles desarrollados por el equipo respeten el `DESIGN.md`.
 
 ---

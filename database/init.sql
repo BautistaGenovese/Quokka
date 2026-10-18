@@ -37,13 +37,27 @@ CREATE TABLE IF NOT EXISTS proyectos (
 );
 
 -- -----------------------------------------------------------------------------
--- 3. TABLA: servicios
+-- 3. TABLA: servicios, tecnologias y su intermedia (servicios_tecnologias)
 -- Responsable: Bautista Genovese (El más pro) (Sprint 3: CRUD de Servicios en Panel Admin)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS servicios (
   id SERIAL PRIMARY KEY,
   nombre_servicio VARCHAR(100) NOT NULL CHECK (char_length(btrim(nombre_servicio)) >= 3),
   descripcion TEXT NOT NULL CHECK (char_length(btrim(descripcion)) >= 10)
+);
+
+CREATE TABLE IF NOT EXISTS tecnologias (
+  id SERIAL PRIMARY KEY,
+  nombre_tecnologia VARCHAR(100) NOT NULL UNIQUE
+    CHECK (char_length(btrim(nombre_tecnologia)) >= 1)
+);
+
+CREATE TABLE IF NOT EXISTS servicios_tecnologias (
+  servicio_id INTEGER NOT NULL
+    REFERENCES servicios(id) ON DELETE CASCADE,
+  tecnologia_id INTEGER NOT NULL
+    REFERENCES tecnologias(id) ON DELETE CASCADE,
+  PRIMARY KEY (servicio_id, tecnologia_id)
 );
 
 -- -----------------------------------------------------------------------------
