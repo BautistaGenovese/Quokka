@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const db = require('./config/db');
 const initDb = require('./config/initDb');
-const contactRoutes = require('./routes/contact.routes');
+const contactoRouter = require('./routes/contacto.routes');
 const { 
   serviciosRouter, 
   adminServiciosRouter,
@@ -42,8 +42,9 @@ app.get('/api/status', async (req, res) => {
 // --- Rutitas ---
 
 // Rutas del módulo de contacto y cotizaciones (en español y alias compatible)
-app.use('/api/contacto', contactRoutes);
-app.use('/api/contact', contactRoutes);
+app.use('/api/contacto', contactoRouter);
+app.use('/api/contact', contactoRouter);
+app.use('/api/operador/contactos', contactoRouter.operadorContactosRouter);
 
 // Rutas del módulo de servicios (en español y alias compatible <- Al re pedo que esté en ingles papito).
 app.use('/api/servicios', serviciosRouter);
@@ -66,6 +67,7 @@ if (require.main === module) {
       console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
       console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
       console.log(`📩 Endpoint de contacto activo en: http://localhost:${PORT}/api/contacto`);
+      console.log(`📥 Bandeja del operador activa en: http://localhost:${PORT}/api/operador/contactos`);
       console.log(`🍆 Endpoint de servicios activo en: http://localhost:${PORT}/api/servicios`);
     });
   });

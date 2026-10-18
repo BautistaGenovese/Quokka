@@ -6,6 +6,8 @@ import Textarea from "@/components/ui/textarea";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import Tooltip from "@/components/ui/tooltip";
+import SwipeToast from "@/components/ui/SwipeToast";
+import { CheckCircle2, AlertCircle } from "lucide-react";
 
 /** Contenido real de contacto, compuesto con la UI existente. El consumidor
  * podrá conectar onSubmitMessage; sin él solo validamos, sin simular envíos. */
@@ -14,6 +16,7 @@ export default function ContactForm({ onSubmitMessage }) {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+  const [toast, setToast] = useState({ open: false, title: "", description: "", type: "success" });
   const edit = name => { setErrors(previous => ({ ...previous, [name]: undefined })); setStatus("idle"); setMessage(""); };
   async function submit(event) {
     event.preventDefault();
@@ -38,34 +41,61 @@ export default function ContactForm({ onSubmitMessage }) {
     try {
       const result = await onSubmitMessage(values);
       setStatus("success");
-      setMessage(result?.message || "Tu mensaje fue enviado.");
+      const msg = result?.message || "Tu mensaje fue enviado.";
+      setMessage(msg);
+      setToast({
+        open: true,
+        title: "Mensaje enviado",
+        description: msg,
+        type: "success",
+      });
       form.reset();
     } catch (error) {
       if (error?.fields && typeof error.fields === "object") {
         setErrors(error.fields);
       }
       setStatus("error");
-      setMessage(error?.message || "No se pudo enviar el mensaje. Probá de nuevo.");
+      const errorMsg = error?.message || "No se pudo enviar el mensaje. Probá de nuevo.";
+      setMessage(errorMsg);
+      setToast({
+        open: true,
+        title: "Error al enviar",
+        description: errorMsg,
+        type: "error",
+      });
     }
   }
-  return <form ref={formRef} noValidate onSubmit={submit} className="space-y-6">
-    {/* fieldset tiene un mínimo intrínseco nativo: permitir que se comprima
-        para que las etiquetas largas no ensanchen la página en celulares. */}
-    <fieldset disabled={status === "loading"} className="min-w-0 space-y-6">
-    <div className="grid gap-6 sm:grid-cols-2">
-      <Input name="name" label="Nombre completo" autoComplete="name" icon="person" required minLength={3} error={errors.name} onChange={() => edit("name")} />
-      <Input name="email" label="Correo electrónico" type="email" autoComplete="email" required error={errors.email} onChange={() => edit("email")}
-        labelAccessory={<Tooltip label="Ayuda sobre el correo" content={onSubmitMessage ? "Usá un correo con formato nombre@dominio.com para que podamos responderte." : "Usá un correo con formato nombre@dominio.com. El envío se conectará al backend del proyecto."} />} />
-    </div>
-    <Select name="type" label="Tipo de consulta" defaultValue="" required error={errors.type} onValueChange={() => edit("type")}>
-      <option value="" disabled>Seleccioná una categoría</option>
-      <option value="cotizacion">Cotización de proyecto integral</option>
-      <option value="asesoria">Asesoría técnica y arquitectura</option>
-      <option value="general">Consulta general</option>
-    </Select>
-    <Textarea name="message" label="Mensaje detallado" rows={4} required minLength={15} error={errors.message} onChange={() => edit("message")} description="Contanos sobre tu idea y los tiempos estimados. Mínimo 15 caracteres." />
-    <Button type="submit" magnetic={false} status={status} successLabel={onSubmitMessage ? "¡Enviado!" : "Mensaje validado"}>{onSubmitMessage ? "Enviar mensaje" : "Validar mensaje"}</Button>
-    </fieldset>
-    <p role="status" className="min-h-6 font-body text-sm">{message || (!onSubmitMessage ? "El envío de consultas estará disponible próximamente." : "Los campos con * son obligatorios.")}</p>
-  </form>;
+  return <>
+    <form ref={formRef} noValidate onSubmit={submit} className="space-y-6">
+      {/* fieldset tiene un mínimo intrínseco nativo: permitir que se comprima
+          para que las etiquetas largas no ensanchen la página en celulares. */}
+      <fieldset disabled={status === "loading"} className="min-w-0 space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <Input name="name" label="Nombre completo" autoComplete="name" icon="person" required minLength={3} error={errors.name} onChange={() => edit("name")} />
+        <Input name="email" label="Correo electrónico" type="email" autoComplete="email" required error={errors.email} onChange={() => edit("email")}
+          labelAccessory={<Tooltip label="Ayuda sobre el correo" content={onSubmitMessage ? "Usá un correo con formato nombre@dominio.com para que podamos responderte." : "Usá un correo con formato nombre@dominio.com. El envío se conectará al backend del proyecto."} />} />
+      </div>
+      <Select name="type" label="Tipo de consulta" defaultValue="" required error={errors.type} onValueChange={() => edit("type")}>
+        <option value="" disabled>Seleccioná una categoría</option>
+        <option value="cotizacion">Cotización de proyecto integral</option>
+        <option value="asesoria">Asesoría técnica y arquitectura</option>
+        <option value="general">Consulta general</option>
+      </Select>
+      <Textarea name="message" label="Mensaje detallado" rows={4} required minLength={15} error={errors.message} onChange={() => edit("message")} description="Contanos sobre tu idea y los tiempos estimados. Mínimo 15 caracteres." />
+      <Button type="submit" magnetic={false} status={status} successLabel={onSubmitMessage ? "¡Enviado!" : "Mensaje validado"}>{onSubmitMessage ? "Enviar mensaje" : "Validar mensaje"}</Button>
+      </fieldset>
+      <p role="status" className="min-h-6 font-body text-sm">{message || (!onSubmitMessage ? "El envío de consultas estará disponible próximamente." : "Los campos con * son obligatorios.")}</p>
+    </form>
+    <SwipeToast
+      open={toast.open}
+      onClose={() => setToast(prev => ({ ...prev, open: false }))}
+      title={toast.title}
+      description={toast.description}
+      closeButton
+      background={toast.type === "success" ? "#1b3a2b" : "#4a1c1c"}
+      fuseColor={toast.type === "success" ? "#48bb78" : "#f56565"}
+      icon={toast.type === "success" ? <CheckCircle2 size={18} color="#48bb78" /> : <AlertCircle size={18} color="#f56565" />}
+    />
+  </>;
 }
+
