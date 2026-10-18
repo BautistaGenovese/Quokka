@@ -290,4 +290,5 @@ const Button = forwardRef(function Button(
   );
 });
 
+export { Button };
 export default Button;

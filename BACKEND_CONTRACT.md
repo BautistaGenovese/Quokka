@@ -318,11 +318,10 @@ const { rows } = await db.query(
 ### 👤 1. Juan Girón (Autenticación, Usuarios y Seguridad)
 
 - [x] **Sprint 1:** Configurar repositorio central, inicializar entorno React + Tailwind, `docker-compose.yml` y diseño del modelo de datos.
-- [x] **Sprint 2 (Frontend):** Maquetar e implementar interfaz y validación cliente de Login y Registro (`/iniciar-sesion`).
-- [ ] **Sprint 2 (Backend - Auth propio):** Crear `POST /api/auth/registro` y `POST /api/auth/login` con `bcrypt` y emisión de `JWT` sobre la tabla `usuarios`.
+- [x] **Sprint 2 (Backend - Auth propio):** Crear `POST /api/auth/registro` y `POST /api/auth/login` con `bcrypt` y emisión de `JWT` sobre la tabla `usuarios`.
 - [ ] **Sprint 2 (Backend - Google OAuth):** Crear `POST /api/auth/google` verificando token con `google-auth-library`.
-- [ ] **Sprint 2/3 (Backend - Middlewares):** Crear `backend/src/middleware/auth.js` exportando `requireAuth` y `requireRol`, y **activar `requireAuth` en `backend/src/routes/contact.routes.js`** (donde está el `TODO (Juan Girón)`).
-- [ ] **Sprint 3 (Panel Admin Usuarios):** Desarrollar vista de Administrador y endpoints (`GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/:id/rol`) para gestionar usuarios registrados.
+- [x] **Sprint 2/3 (Backend - Middlewares):** Crear `backend/src/middleware/auth.js` exportando `requireAuth` y `requireRol`, y **activar `requireAuth` en `backend/src/routes/contact.routes.js`** (donde está el `TODO (Juan Girón)`).
+- [x] **Sprint 3 (Panel Admin Usuarios):** Desarrollar vista de Administrador y endpoints (`GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/:id/rol`) para gestionar usuarios registrados.
 - [ ] **Sprint 4 (Seguridad):** Auditar y validar aislamiento estricto de rutas privadas en React y permisos de API (visitantes, registrados, operadores y administradores).
 
 ---

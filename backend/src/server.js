@@ -10,6 +10,8 @@ const {
   tecnologiasRouter,
   adminTecnologiasRouter
 } = require('./routes/servicios');
+const authRoutes = require('./routes/auth.routes');
+const adminUsuariosRoutes = require('./routes/usuarios.routes');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -59,6 +61,13 @@ app.use('/api/technologies', tecnologiasRouter);
 app.use('/api/admin/tecnologias', adminTecnologiasRouter);
 app.use('/api/admin/technologies', adminTecnologiasRouter);
 
+// Rutas del módulo de autenticación (Sprint 2 - Juan Girón)
+app.use('/api/auth', authRoutes);
+
+// Rutas del panel exclusivo de Administrador para gestión de usuarios (Sprint 3 - Juan Girón)
+app.use('/api/admin/usuarios', adminUsuariosRoutes);
+app.use('/api/admin/users', adminUsuariosRoutes);
+
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {
   initDb().finally(() => {
@@ -67,6 +76,8 @@ if (require.main === module) {
       console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
       console.log(`📩 Endpoint de contacto activo en: http://localhost:${PORT}/api/contacto`);
       console.log(`🍆 Endpoint de servicios activo en: http://localhost:${PORT}/api/servicios`);
+      console.log(`🔐 Autenticación activa en: http://localhost:${PORT}/api/auth`);
+      console.log(`👑 Panel admin de usuarios activo en: http://localhost:${PORT}/api/admin/usuarios`);
     });
   });
 }

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@hookform/resolvers": "^5.9.2",
     "@tailwindcss/postcss": "^4.3.3",
     "gsap": "^3.15.0",
     "lucide-react": "^1.53.0",
@@ -21,7 +22,9 @@
     "postcss": "^8.5.29",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.90.0",
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
