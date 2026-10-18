@@ -41,6 +41,11 @@
   .site-navbar .site-navbar-actions { gap: .5rem; }
   .site-navbar-brand { gap: .5rem; }
 }
+@media (max-width: 380px) {
+  .site-navbar-inner { padding-inline: .65rem; }
+  .site-navbar .site-navbar-actions { gap: .3rem; }
+  .site-navbar-brand { font-size: 1.35rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .site-navbar-icon-control, .nav-menu-line, .nav-swatch { transition: none; }
 }

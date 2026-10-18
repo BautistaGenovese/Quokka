@@ -342,10 +342,10 @@ const { rows } = await db.query(
 - [x] **Sprint 1:** Elaborar el Manual de Diseño y Estilo (`DESIGN.md`), paletas de colores, tipografías y prototipado visual.
 - [x] **Sprint 2:** Maquetar componentes reutilizables en Tailwind (`Button`, `Input`, `Select`, `Textarea`, `Card`, carruseles, `SwipeToast`) adaptables a PC y móviles.
 - [ ] **Sprint 3 (Backend - CRUD Servicios):** Crear `backend/src/routes/servicios.js` con `GET /api/servicios` (público) y `POST`, `PUT`, `DELETE /api/admin/servicios` (protegidos para `'administrador'`) sobre la tabla `servicios`.
-- [ ] **Sprint 3 (Frontend - CRUD Servicios):** Construir la interfaz de gestión de Servicios dentro del panel del Administrador y conectar la sección pública de servicios a la API.
+- [x] **Sprint 3 (Frontend - CRUD Servicios):** Módulo ServiciosAdmin en `/panel#servicios-admin` con creación, edición, confirmación de borrado y conexión de la sección pública a la API. La autenticación se integra por separado con Juan.
 - [x] **Sprint 3 (Base de Datos - Tecnologías):** Incorporar `tecnologias` y `servicios_tecnologias` a `database/init.sql`, con clave primaria compuesta y claves foráneas con `ON DELETE CASCADE`.
 - [x] **Sprint 3 (Backend - Tags y Herramientas):** Implementar `GET /api/tecnologias`, incluir tecnologías en `GET /api/servicios` y guardar `tecnologia_ids` en POST/PUT mediante transacciones sobre un mismo cliente.
-- [ ] **Sprint 3 (Frontend - Tags y Herramientas):** Incorporar el selector de tecnologías al formulario de servicios y consumir el catálogo en «Las herramientas».
+- [x] **Sprint 3 (Frontend - Tags y Herramientas):** Select de opciones con etiquetas removibles en el formulario de servicios, CRUD del catálogo en `/panel#tecnologias-admin` y consumo público en «Las herramientas».
 - [ ] **Sprint 4 (Auditoría UX/UI):** Verificar que todas las vistas y paneles desarrollados por el equipo respeten el `DESIGN.md`.
 
 ---
@@ -356,7 +356,7 @@ const { rows } = await db.query(
 - [x] **Sprint 1/2 (Base de Datos Unificada):** Crear script automático [`database/init.sql`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/database/init.sql) con las 5 tablas en español y redactar este contrato técnico (`BACKEND_CONTRACT.md`).
 - [x] **Sprint 2 (Contacto y Cotizaciones):** Construir formulario de contacto (`contact-form.jsx`), cliente API (`contact-api.js`), endpoint `POST /api/contacto` con validaciones, rate-limiting, inserción en `mensajes_contacto`, servicio Nodemailer (`mailer.service.js`) y tests unitarios (`contact.test.js`). Dejar preparado el `TODO` en `contact.routes.js` para exigir usuario registrado (`requireAuth`).
 - [ ] **Sprint 3 (Backend - Panel Operador):** Crear endpoints `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder` (protegidos con `requireAuth` y `requireRol('operador', 'administrador')`) que envíen la respuesta por correo con Nodemailer y actualicen `estado = 'respondido'`.
-- [ ] **Sprint 3 (Frontend - Panel Operador):** Construir el panel de navegación para el Operador permitiendo listar mensajes recibidos y responderlos desde la interfaz.
+- [ ] **Sprint 3 (Frontend - Panel Operador):** Módulo ConsultasAdmin preparado en `/panel#consultas-admin`, dentro de la única AdminPage, con filtros, lectura, borradores en memoria y formulario de respuesta. Pendiente verificar el flujo real al implementar Ignacio los endpoints de listado y respuesta; el acceso por rol se integra con Juan.
 - [ ] **Sprint 4 (Despliegue):** Preparar el código fuente para producción y gestionar el despliegue en la nube (Vercel / Render / Railway).
 
 ---

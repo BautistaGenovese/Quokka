@@ -23,7 +23,8 @@ Los tests usan node:test, React SSR y el motor GSAP real donde corresponde. Veri
 
 ## Estructura
 
-- app/: rutas y layout del App Router. page.js compone el portfolio; iniciar-sesion/page.jsx expone el login.
+- app/: rutas y layout del App Router. page.js compone el portfolio; iniciar-sesion/page.jsx expone el login. panel/page.jsx expone una sola AdminPage con módulos y anclas.
+- components/panel/: AdminPage, módulos de administración, proveedor del catálogo, CRUD de servicios y tecnologías y bandeja preparada para los endpoints de Ignacio.
 - components/portfolio/: hero, títulos de sección, equipo, proyectos y composición pública.
 - components/navigation/: navbar, menú, paleta, transiciones y Sling del símbolo.
 - components/layout/: Section, footer, detalles de marca, seguidor y efectos de Quokka.
@@ -39,6 +40,12 @@ Los tests usan node:test, React SSR y el motor GSAP real donde corresponde. Veri
 app/componentes era una URL de catálogo, no otra biblioteca. Fue eliminada; components es el único directorio de código de componentes. Las primitivas de biblioteca como Checkbox, RadioGroup y las variantes de cards se mantienen porque tienen contratos reutilizables y tests, aunque no todas se rendericen en la portada.
 
 ## Apariencia y superficies
+
+El panel se abre en `/panel`. Servicios y tecnologías consumen la API en `NEXT_PUBLIC_API_URL` (por defecto `http://localhost:4000`), compartida con el formulario de contacto. La portada consume esos mismos catálogos públicos: ya no depende de las listas estáticas de servicios y herramientas. Requiere backend y PostgreSQL disponibles; un catálogo vacío no se rellena con ejemplos. Después de administrar contenido, al volver al portafolio se vuelven a consultar los datos.
+
+`/panel#consultas-admin` está preparada para `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder`; esos endpoints aún corresponden a la implementación de Ignacio. Mientras no existan, la vista muestra que la bandeja no está conectada. Los filtros distinguen tipo y estado, y una respuesta fallida conserva el texto. No se cambió autenticación ni se simulan roles o sesiones.
+
+AdminPage compone ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin y MetricasAdmin. Proyectos, usuarios y métricas se indican como próximas incorporaciones. El navbar, menú y paleta son los existentes; los módulos se recorren con anclas dentro de `/panel`, sin subpáginas. El navbar público incluye el icono de acceso al panel. El selector de tecnologías reutiliza Select y permite agregar varias opciones y quitar sus etiquetas. Los estilos de composición están en `styles/panel.css`.
 
 AppearanceProvider se monta una sola vez en app/layout.js, envolviendo páginas y efectos globales. useAppearance devuelve theme, mode, setTheme y setMode. Conserva la selección durante navegación interna; no usa almacenamiento persistente. El estado inicial es Sonrisa/claro.
 

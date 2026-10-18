@@ -16,8 +16,9 @@ import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/panel-motion";
  * El morphing comienza junto al cierre y navega bajo cobertura total.
  */
 const EMPTY_ITEMS = [];
+const LOGIN_LINK = { href: "/iniciar-sesion", label: "Iniciar sesión" };
 
-export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, triggerClassName = "" }) {
+export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, triggerClassName = "", footerLink = LOGIN_LINK }) {
   const id = useId();
   const menuId = `${id}-menu`;
   const titleId = `${id}-title`;
@@ -181,7 +182,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
               </ol>
             </nav>
             <p className="site-menu-help"><kbd>Esc</kbd> para cerrar</p>
-            <Button href="/iniciar-sesion" magnetic={false} variant="secondary" className="site-menu-login">Iniciar sesión</Button>
+            <Button href={footerLink.href} magnetic={false} variant="secondary" className="site-menu-login">{footerLink.label}</Button>
           </Section>
 
         </div>

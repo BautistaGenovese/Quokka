@@ -20,6 +20,16 @@ No hay endpoints inventados, autenticación conectada ni cookies de sesión crea
 
 ## Datos de presentación
 
+### Panel y catálogo público
+
+`lib/panel-api.js` centraliza lectura y escritura; `hooks/use-panel-resource.js` cancela lecturas anteriores al desmontar o recargar. `GET /api/servicios` y `GET /api/tecnologias` devuelven arreglos y son usados por el panel y la portada. Servicios incluyen `id`, `nombre_servicio`, `descripcion`, `tecnologias: [{ id, nombre }]`; tecnologías públicas incluyen `id`, `nombre`.
+
+Los formularios envían POST/PUT a `/api/admin/servicios` y `/api/admin/tecnologias`, y DELETE al recurso con su id. El servicio siempre envía la selección completa en `tecnologia_ids`, incluido `[]`. El borrado requiere confirmación en diálogo e informa el efecto sobre asociaciones. Se aceptan respuestas DELETE con JSON o `204` sin cuerpo; los errores `400/409` se conservan sin cerrar el formulario. Después de una escritura se recargan los dos catálogos.
+
+La bandeja solicita `GET /api/operador/contactos`, que puede devolver un arreglo o `{ contactos: [...] }`. Cada registro usa los campos de `mensajes_contacto`: `id`, `nombre`, `email`, `tipo`, `mensaje`, `estado`, `respuesta`, `creado_en`, `respondido_en`. La respuesta se envía a `POST /api/operador/contactos/:id/responder` con `{ respuesta }`. Ignacio debe implementar estos dos endpoints: el frontend distingue `404` de una bandeja vacía y solo anuncia envío después de una respuesta HTTP exitosa. La validación cliente de respuesta exige entre 10 y 5000 caracteres; debe acordarse y validarse también en servidor.
+
+Los módulos viven en una sola AdminPage (`/panel`), con anclas `#servicios-admin`, `#tecnologias-admin` y `#consultas-admin`; no hay subrutas de administración. El selector de servicios agrega tecnologías desde Select y conserva los IDs en etiquetas removibles; no crea tecnologías desde texto libre. Las operaciones de correo reales no se ejecutan durante las verificaciones del panel. Autenticación y permisos no forman parte de este cambio. La integración de Juan se concentra en el acceso a AdminPage y el transporte en el adaptador, además de los controles de backend previstos en el contrato común.
+
 TeamGallery recibe members con name, role, description, portrait opcional (ruta local o imagen configurada) y profileHref opcional. Sin portrait genera iniciales. Si se usa GitHub, distinguir el equipo asignado de los contribuidores calculados por commits.
 
 ProjectGallery usa las propuestas de site-content. Una integración futura puede adaptar repositorios a DemoCard o ProjectCard: title, description, preview, technologies, demoHref y codeHref según la variante. Omitir enlaces que no existan; no construir URLs de demos a partir de suposiciones. DemoPreview solo recibe src, alt y sizes; configurar hosts de next/image si se suministran imágenes remotas.

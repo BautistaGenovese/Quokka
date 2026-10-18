@@ -1,6 +1,6 @@
 # Manual de diseño de Quokka Studio
 
-Versión 4.0 · Actualizado el 16 de octubre de 2026.
+Versión 4.1 · Actualizado el 18 de octubre de 2026.
 
 La implementación vigente es el frontend React/Next.js de este repositorio. Este manual registra su comportamiento actual; no existe una implementación HTML paralela. La guía de componentes y de desarrollo está en [frontend/README.md](frontend/README.md). Los contratos pendientes de servidor están en [frontend/BACKEND-INTEGRATION.md](frontend/BACKEND-INTEGRATION.md).
 
@@ -8,9 +8,9 @@ La implementación vigente es el frontend React/Next.js de este repositorio. Est
 
 Quokka es un estudio digital colaborativo, editorial, cálido y juguetón. Las superficies amplias, titulares expresivos y pequeños gestos de movimiento acompañan la lectura. Los cinco integrantes comparten una identidad visual; no se inventan perfiles ni demos publicadas.
 
-La página principal es /. Presenta inicio, manifiesto, equipo, servicios, proyectos, tecnologías y contacto. /iniciar-sesion es el acceso preparado para conectar autenticación. No hay rutas públicas de laboratorio o experiencia. Los componentes reutilizables viven en frontend/components; no son páginas ni dependen de una ruta.
+La página principal es /. Presenta inicio, manifiesto, equipo, servicios, proyectos, tecnologías y contacto. /iniciar-sesion es el acceso preparado para conectar autenticación. /panel es una única página de gestión compuesta por módulos y navegación por anclas. No hay rutas públicas de laboratorio o experiencia. Los componentes reutilizables viven en frontend/components; no son páginas ni dependen de una ruta.
 
-El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. La validación de contacto y login funciona en el cliente; el formulario de contacto en la portada se conecta al backend mediante su adaptador (`submitContactRequest`), mientras que login requiere su adaptador de autenticación y la interfaz no afirma que existan sesiones o envíos cuando el adaptador no está conectado.
+El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Servicios y tecnologías se leen de la API pública y se administran en el panel; carga, error con reintento y catálogo vacío tienen estados propios. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. La validación de contacto y login funciona en el cliente; el formulario de contacto en la portada se conecta al backend mediante su adaptador (`submitContactRequest`), mientras que login requiere su adaptador de autenticación y la interfaz no afirma que existan sesiones o envíos cuando el adaptador no está conectado.
 
 ## 2. Tipografía y énfasis
 
@@ -154,6 +154,14 @@ El footer concentra navegación en dos columnas, equipo, red social, marca y cr�
 Su curva SVG rebota al entrar en pantalla y vuelve al borde plano en 1.8 segundos. El wordmark y la mascota aparecen una sola vez. Observadores y animaciones son locales, sin contextos GSAP anidados en el footer; desmontar, ocultar la pestaña o activar movimiento reducido cancela los frames y restaura el borde.
 
 ## 10. Mantenimiento y comprobaciones
+
+### Panel de control
+
+AdminPage compone ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin y MetricasAdmin en una sola ruta /panel. Cada módulo tiene un ancla y usa Section. El Navbar, SiteMenu y PalettePanel son los mismos del portafolio: el menú recibe las anclas de administración y un enlace inferior para volver al portafolio. La navegación usa la transición compartida. El navbar de la portada incluye un icono accesible con enlace a /panel.
+
+components/panel contiene la composición, módulos, proveedor del catálogo y formularios. styles/panel.css solo organiza módulos y formularios; no replica navbar, menú, paleta ni estilos de campos. Se reutilizan Button, Input, Textarea y Select. Las tecnologías se agregan con el Select existente y se muestran como etiquetas removibles, sin checkboxes; el desplegable y la selección tienen altura limitada. Los diálogos nativos de creación, edición y borrado tienen foco modal, Escape y confirmación de eliminación; durante una escritura se bloquean cierre y envíos repetidos. Los errores conservan los campos del formulario.
+
+Proyectos, usuarios y métricas tienen módulos identificados como próximas incorporaciones. La bandeja distingue la ausencia del módulo de contacto de un listado vacío. No se implementan autenticación ni permisos en esta entrega; siguen a cargo del módulo asignado a Juan.
 
 El frontend usa JavaScript y CSS plano, Next.js App Router, React, Tailwind, GSAP, Motion, Radix y Lucide. Las fuentes adaptadas de React Bits son CardSwap, CircularGalleryCards, FlipCard, HalftoneReveal, SlingButton y SwipeToast. Sus adaptadores conservan los roles de color y los contratos de accesibilidad de Quokka.
 

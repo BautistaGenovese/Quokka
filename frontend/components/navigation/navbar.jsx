@@ -7,6 +7,8 @@ import SiteMenu from "@/components/navigation/site-menu";
 import PalettePanel from "@/components/navigation/palette-panel";
 import QuokkaSling from "./quokka-sling";
 import useNavbarMotion from "@/hooks/use-navbar-motion";
+import Button from "@/components/ui/button";
+import { LayoutDashboard } from "lucide-react";
 
 /** Cabecera de Quokka: identidad, navegación y acciones independientes.
  * La página aporta tema/modo y sus setters: una única fuente de estado.
@@ -14,7 +16,7 @@ import useNavbarMotion from "@/hooks/use-navbar-motion";
  */
 const EMPTY_ITEMS = [];
 export default function Navbar({ items = EMPTY_ITEMS, homeHref = "#inicio", ref,
-  theme, mode, onThemeChange, onModeChange }) {
+  theme, mode, onThemeChange, onModeChange, panelHref = "/panel", menuFooter }) {
   const menu = useRef(null);
   const palette = useRef(null);
   const request = useRef(0);
@@ -41,10 +43,11 @@ export default function Navbar({ items = EMPTY_ITEMS, homeHref = "#inicio", ref,
       <div className="site-navbar-inner">
       <div className="site-navbar-brand"><QuokkaSling /><a href={homeHref} aria-label="Quokka Studio, ir al inicio">quokka</a></div>
       <div className="site-menu-toolbar site-navbar-actions">
+        {panelHref && <Button href={panelHref} magnetic={false} variant="secondary" className="site-navbar-control site-navbar-icon-control" aria-label="Panel de control" title="Panel de control"><LayoutDashboard size={22} aria-hidden="true" /></Button>}
         <PalettePanel ref={palette} theme={theme} mode={mode} onThemeChange={onThemeChange} onModeChange={onModeChange}
           triggerClassName="site-navbar-control"
           onRequestOpen={open => requestOpen(menu, open)} />
-        <SiteMenu ref={menu} items={items} triggerClassName="site-navbar-control"
+        <SiteMenu ref={menu} items={items} footerLink={menuFooter} triggerClassName="site-navbar-control"
           onRequestOpen={open => requestOpen(palette, open)} />
       </div>
       </div>

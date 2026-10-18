@@ -112,6 +112,26 @@ test("la marca del login regresa a la portada y no a una sección inexistente", 
   assert.doesNotMatch(html, /href="#inicio"/);
 });
 
+test("el panel compone sus módulos en una página y reutiliza navbar, menú, paleta y anclas", () => {
+  const { default: AdminPage, ADMIN_LINKS } = load("components/panel/admin-page.jsx");
+  const Provider = load("hooks/use-appearance.jsx").AppearanceProvider;
+  const html = renderToStaticMarkup(h(Provider, null, h(AdminPage)));
+  assert.equal([...html.matchAll(/<h1\b/g)].length, 1);
+  for (const item of ADMIN_LINKS) {
+    assert.ok(html.includes(`id="${item.href.slice(1)}"`));
+    assert.ok(html.includes(`href="${item.href}"`));
+  }
+  const sectionPositions = ADMIN_LINKS.map(item => html.indexOf(`id="${item.href.slice(1)}"`));
+  assert.deepEqual(sectionPositions, [...sectionPositions].sort((a, b) => a - b), "El menú sigue el orden visual para calcular la sección activa.");
+  assert.match(html, /site-navbar/);
+  assert.match(html, /site-menu-dialog/);
+  assert.match(html, /palette-dialog/);
+  assert.match(html, /Volver al portafolio/);
+  assert.doesNotMatch(html, /href="\/panel\//);
+  const home = renderToStaticMarkup(h(Provider, null, h(load("components/portfolio/portfolio-page.jsx").default)));
+  assert.match(home, /aria-label="Panel de control"[^>]*href="\/panel"/);
+});
+
 test("los presets de movimiento se consumen sin filtrarse al DOM", () => {
   const Button = load("components/ui/button.jsx").default;
   const Card = load("components/ui/card.jsx").default;
@@ -192,7 +212,7 @@ test("dos navbars no duplican IDs y todos sus controles y títulos apuntan al pa
   assert.doesNotMatch(html, /Navegación principal|site-navbar-login|>Ingresar</);
   assert.match(html, /href="\/iniciar-sesion"/);
   assert.doesNotMatch(html, /site-menu-close/);
-  assert.equal([...html.matchAll(/site-navbar-icon-control/g)].length, 4);
+  assert.equal([...html.matchAll(/site-navbar-icon-control/g)].length, 6);
   assert.equal([...html.matchAll(/class="site-reading-progress"/g)].length, 2);
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
   assert.equal(new Set(ids).size, ids.length);

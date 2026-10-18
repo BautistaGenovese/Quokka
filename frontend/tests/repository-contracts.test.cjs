@@ -48,10 +48,10 @@ test("DESIGN, las muestras y CSS comparten las cinco paletas actuales", () => {
 
 test("la portada es pública y no quedan rutas ni dependencias del catálogo antiguo", () => {
   const routes = walk(path.join(root, "app")).filter(file => /[\\/]page\.[jt]sx?$/.test(file)).map(file => path.relative(path.join(root, "app"), file).replaceAll("\\", "/")).sort();
-  assert.deepEqual(routes, ["iniciar-sesion/page.jsx", "page.js"]);
+  assert.deepEqual(routes, ["iniciar-sesion/page.jsx", "page.js", "panel/page.jsx"]);
   const home = fs.readFileSync(path.join(root, "components/portfolio/portfolio-page.jsx"), "utf8");
   assert.match(home, /function PortfolioPage/);
   assert.doesNotMatch(home, /PortfolioPreview|\/componentes|\/experiencia/);
   const menu = fs.readFileSync(path.join(root, "components/navigation/site-menu.jsx"), "utf8");
-  assert.ok(menu.indexOf('className="site-menu-help"') < menu.indexOf('href="/iniciar-sesion"'));
+  assert.ok(menu.indexOf('className="site-menu-help"') < menu.indexOf('href={footerLink.href}'));
 });
