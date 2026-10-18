@@ -4,6 +4,7 @@ const TYPE_LABELS = {
   cotizacion: 'Cotización de proyecto integral',
   asesoria: 'Asesoría técnica y arquitectura',
   general: 'Consulta general',
+  consulta: 'Consulta general',
 };
 
 let cachedTransporter = null;

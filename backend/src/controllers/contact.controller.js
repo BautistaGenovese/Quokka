@@ -11,63 +11,100 @@ const VALID_TYPES = Object.keys(TYPE_LABELS);
 
 /**
  * Valida y sanitiza los campos del formulario de contacto.
- * Devuelve un objeto `fields` con errores específicos si existen.
+ * Acepta tanto nombres de campos en español (`nombre`, `email`, `tipo`, `mensaje`)
+ * como sus alias en inglés (`name`, `email`, `type`, `message`) para total compatibilidad.
  */
 function validateContactPayload(body = {}) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    const defaultErrors = {
+      nombre: 'Ingresá al menos 2 caracteres.',
+      name: 'Ingresá al menos 2 caracteres.',
+      email: 'Ingresá un correo válido.',
+      tipo: 'Elegí una categoría.',
+      type: 'Elegí una categoría.',
+      mensaje: 'Escribí al menos 10 caracteres.',
+      message: 'Escribí al menos 10 caracteres.',
+    };
     return {
       isValid: false,
-      fields: {
-        name: 'Ingresá al menos 3 caracteres.',
-        email: 'Ingresá un correo válido.',
-        type: 'Elegí una categoría.',
-        message: 'Escribí al menos 15 caracteres.',
+      fields: defaultErrors,
+      sanitized: {
+        nombre: '',
+        email: '',
+        tipo: '',
+        mensaje: '',
+        name: '',
+        type: '',
+        message: '',
       },
-      sanitized: { name: '', email: '', type: '', message: '' },
     };
   }
 
-  const name = typeof body.name === 'string' ? sanitizeHeaderValue(body.name) : '';
-  const email = typeof body.email === 'string' ? sanitizeHeaderValue(body.email) : '';
-  const type = typeof body.type === 'string' ? body.type.trim() : '';
-  const message = typeof body.message === 'string'
-    ? body.message.replace(/\0/g, '').trim()
+  const rawNombre = typeof body.nombre === 'string' ? body.nombre : body.name;
+  const rawEmail = body.email;
+  const rawTipo = typeof body.tipo === 'string' ? body.tipo : body.type;
+  const rawMensaje = typeof body.mensaje === 'string' ? body.mensaje : body.message;
+
+  const nombre = typeof rawNombre === 'string' ? sanitizeHeaderValue(rawNombre) : '';
+  const email = typeof rawEmail === 'string' ? sanitizeHeaderValue(rawEmail) : '';
+  const tipo = typeof rawTipo === 'string' ? rawTipo.trim() : '';
+  const mensaje = typeof rawMensaje === 'string'
+    ? rawMensaje.replace(/\0/g, '').trim()
     : '';
 
   const fields = {};
 
-  if (name.length < 3) {
-    fields.name = 'Ingresá al menos 3 caracteres.';
-  } else if (name.length > 120) {
-    fields.name = 'El nombre no puede superar los 120 caracteres.';
+  if (nombre.length < 3) {
+    const msg = 'Ingresá al menos 3 caracteres.';
+    fields.nombre = msg;
+    fields.name = msg;
+  } else if (nombre.length > 100) {
+    const msg = 'El nombre no puede superar los 100 caracteres.';
+    fields.nombre = msg;
+    fields.name = msg;
   }
 
   if (!email || !EMAIL_REGEX.test(email) || email.length > 255) {
     fields.email = 'Ingresá un correo válido.';
   }
 
-  if (!VALID_TYPES.includes(type)) {
-    fields.type = 'Elegí una categoría válida (cotización, asesoría o general).';
+  if (!VALID_TYPES.includes(tipo)) {
+    const msg = 'Elegí una categoría válida (cotización, asesoría o consulta general).';
+    fields.tipo = msg;
+    fields.type = msg;
   }
 
-  if (message.length < 15) {
-    fields.message = 'Escribí al menos 15 caracteres.';
-  } else if (message.length > 5000) {
-    fields.message = 'El mensaje no puede superar los 5000 caracteres.';
+  if (mensaje.length < 15) {
+    const msg = 'Escribí al menos 15 caracteres.';
+    fields.mensaje = msg;
+    fields.message = msg;
+  } else if (mensaje.length > 5000) {
+    const msg = 'El mensaje no puede superar los 5000 caracteres.';
+    fields.mensaje = msg;
+    fields.message = msg;
   }
 
   return {
     isValid: Object.keys(fields).length === 0,
     fields,
-    sanitized: { name, email, type, message },
+    sanitized: {
+      nombre,
+      email,
+      tipo,
+      mensaje,
+      // Alias en inglés para mantener compatibilidad con tests/clientes previos
+      name: nombre,
+      type: tipo,
+      message: mensaje,
+    },
   };
 }
 
 /**
- * POST /api/contact
+ * POST /api/contacto (y alias /api/contact)
  * Recibe una solicitud de cotización, asesoría técnica o consulta general,
- * la almacena en PostgreSQL mediante consultas parametrizadas y dispara el correo al equipo.
- * No expone registros ni metadatos internos en la respuesta pública.
+ * la almacena en la tabla `mensajes_contacto` en español mediante consultas parametrizadas
+ * con estado 'pendiente' y dispara la notificación por correo al equipo.
  */
 async function createContactRequest(req, res) {
   const { isValid, fields, sanitized } = validateContactPayload(req.body);
@@ -80,16 +117,16 @@ async function createContactRequest(req, res) {
     });
   }
 
-  const { name, email, type, message } = sanitized;
+  const { nombre, email, tipo, mensaje } = sanitized;
 
   try {
     await initDb();
 
     const insertResult = await db.query(
-      `INSERT INTO contact_requests (name, email, type, message)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, name, email, type, message, created_at`,
-      [name, email, type, message]
+      `INSERT INTO mensajes_contacto (nombre, email, tipo, mensaje, estado)
+       VALUES ($1, $2, $3, $4, 'pendiente')
+       RETURNING id, nombre, email, tipo, mensaje, estado, creado_en`,
+      [nombre, email, tipo, mensaje]
     );
 
     const record = insertResult.rows[0];
@@ -97,19 +134,14 @@ async function createContactRequest(req, res) {
     try {
       await sendContactNotification({
         id: record.id,
-        name: record.name,
+        name: record.nombre,
         email: record.email,
-        type: record.type,
-        message: record.message,
-        createdAt: record.created_at,
+        type: record.tipo,
+        message: record.mensaje,
+        createdAt: record.creado_en,
       });
-
-      await db.query(
-        'UPDATE contact_requests SET email_sent = TRUE WHERE id = $1',
-        [record.id]
-      );
     } catch (mailError) {
-      console.error('⚠️ Solicitud guardada en BD, pero falló el envío de correo:', mailError.message);
+      console.error('⚠️ Solicitud guardada en mensajes_contacto, pero falló el envío de correo:', mailError.message);
     }
 
     return res.status(201).json({

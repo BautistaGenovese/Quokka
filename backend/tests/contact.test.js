@@ -7,36 +7,47 @@ const contactRoutes = require('../src/routes/contact.routes');
 
 test('validateContactPayload rechaza datos vacíos, malformados o inválidos', () => {
   const result = validateContactPayload({
-    name: 'Ig',
+    nombre: 'Ig',
     email: 'correo-invalido',
-    type: 'inexistente',
-    message: 'Muy corto',
+    tipo: 'inexistente',
+    mensaje: 'Muy corto',
   });
 
   assert.equal(result.isValid, false);
-  assert.ok(result.fields.name);
+  assert.ok(result.fields.nombre);
   assert.ok(result.fields.email);
-  assert.ok(result.fields.type);
-  assert.ok(result.fields.message);
+  assert.ok(result.fields.tipo);
+  assert.ok(result.fields.mensaje);
 
   const nullBody = validateContactPayload(null);
   assert.equal(nullBody.isValid, false);
 });
 
-test('validateContactPayload acepta solicitudes válidas, recorta espacios y limpia saltos de línea en cabeceras', () => {
-  const cotizacion = validateContactPayload({
-    name: '  Ignacio Giangrieco\r\nBcc: attacker@evil.com  ',
+test('validateContactPayload acepta solicitudes válidas en español e inglés, recorta espacios y limpia saltos de línea en cabeceras', () => {
+  const cotizacionEs = validateContactPayload({
+    nombre: '  Ignacio Giangrieco\r\nBcc: attacker@evil.com  ',
     email: '  ignacio@ejemplo.com ',
-    type: 'cotizacion',
-    message: '  Necesitamos cotizar una plataforma web con panel de administración.  ',
+    tipo: 'cotizacion',
+    mensaje: '  Necesitamos cotizar una plataforma web con panel de administración.  ',
   });
 
-  assert.equal(cotizacion.isValid, true);
-  assert.deepEqual(cotizacion.fields, {});
-  assert.equal(cotizacion.sanitized.name, 'Ignacio Giangrieco Bcc: attacker@evil.com');
-  assert.doesNotMatch(cotizacion.sanitized.name, /[\r\n]/);
-  assert.equal(cotizacion.sanitized.email, 'ignacio@ejemplo.com');
-  assert.equal(cotizacion.sanitized.type, 'cotizacion');
+  assert.equal(cotizacionEs.isValid, true);
+  assert.deepEqual(cotizacionEs.fields, {});
+  assert.equal(cotizacionEs.sanitized.nombre, 'Ignacio Giangrieco Bcc: attacker@evil.com');
+  assert.doesNotMatch(cotizacionEs.sanitized.nombre, /[\r\n]/);
+  assert.equal(cotizacionEs.sanitized.email, 'ignacio@ejemplo.com');
+  assert.equal(cotizacionEs.sanitized.tipo, 'cotizacion');
+
+  // También acepta alias en inglés del frontend
+  const cotizacionEn = validateContactPayload({
+    name: 'Ignacio Giangrieco',
+    email: 'ignacio@ejemplo.com',
+    type: 'asesoria',
+    message: 'Consulta de asesoría técnica sobre arquitectura de microservicios.',
+  });
+  assert.equal(cotizacionEn.isValid, true);
+  assert.equal(cotizacionEn.sanitized.nombre, 'Ignacio Giangrieco');
+  assert.equal(cotizacionEn.sanitized.tipo, 'asesoria');
 });
 
 test('sanitizeHeaderValue y escapeHtml previenen inyección de cabeceras CRLF y XSS en el correo', () => {
