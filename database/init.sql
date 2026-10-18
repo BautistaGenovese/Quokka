@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS proyectos (
 
 -- -----------------------------------------------------------------------------
 -- 3. TABLA: servicios
--- Responsable: Bautista Genovese (Sprint 3: CRUD de Servicios en Panel Admin)
+-- Responsable: Bautista Genovese (El más pro) (Sprint 3: CRUD de Servicios en Panel Admin)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS servicios (
   id SERIAL PRIMARY KEY,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS servicios (
 
 -- -----------------------------------------------------------------------------
 -- 4. TABLA: mensajes_contacto
--- Responsable: Ignacio Giangrieco (Sprint 2: Formulario y Endpoint de Contacto
+-- Responsable: Ignacio Giangrieco (Un re noob) (Sprint 2: Formulario y Endpoint de Contacto
 --                                  Sprint 3: Panel del Operador y Respuestas)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS mensajes_contacto (

@@ -4,6 +4,10 @@ const dotenv = require('dotenv');
 const db = require('./config/db');
 const initDb = require('./config/initDb');
 const contactRoutes = require('./routes/contact.routes');
+const { 
+  serviciosRouter, 
+  adminServiciosRouter 
+} = require('./routes/servicios');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -33,9 +37,18 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
+// --- Rutitas ---
+
 // Rutas del módulo de contacto y cotizaciones (en español y alias compatible)
 app.use('/api/contacto', contactRoutes);
 app.use('/api/contact', contactRoutes);
+
+// Rutas del módulo de servicios (en español y alias compatible <- Al re pedo que esté en ingles papito).
+app.use('/api/servicios', serviciosRouter);
+app.use('/api/services', serviciosRouter);
+
+app.use('/api/admin/servicios', adminServiciosRouter);
+app.use('/api/admin/services/', adminServiciosRouter);
 
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {
@@ -44,6 +57,7 @@ if (require.main === module) {
       console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
       console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
       console.log(`📩 Endpoint de contacto activo en: http://localhost:${PORT}/api/contacto`);
+      console.log(`🍆 Endpoint de servicios activo en: http://localhost:${PORT}/api/servicios`);
     });
   });
 }
