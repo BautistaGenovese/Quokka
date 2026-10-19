@@ -11,6 +11,7 @@ import Select from "@/components/ui/select";
 import { usePanelCatalog } from "./catalog-provider";
 import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-shared";
 import { deleteCatalogRecord, saveCatalogRecord } from "@/lib/panel-api";
+import useAuth from "@/hooks/use-auth";
 
 const config = {
   servicios: { title: "Servicios", singular: "servicio", field: "nombre_servicio", description: "Dale forma a lo que ofrece el estudio. Cada cambio se refleja en el portafolio." },
@@ -19,6 +20,7 @@ const config = {
 
 export default function CatalogManager({ kind }) {
   const catalog = usePanelCatalog();
+  const { mounted, isAdmin } = useAuth();
   const resource = catalog[kind];
   const settings = config[kind];
   const isService = kind === "servicios";
@@ -28,8 +30,9 @@ export default function CatalogManager({ kind }) {
   const [feedback, setFeedback] = useState(null);
   const nameOf = record => isService ? record.nombre_servicio : record.nombre;
   const records = resource.data.filter(record => `${nameOf(record)} ${record.descripcion || ""} ${(record.tecnologias || []).map(item => item.nombre).join(" ")}`.toLocaleLowerCase("es").includes(search.trim().toLocaleLowerCase("es")));
-  const canEdit = !resource.loading && !resource.error && (!isService || (!catalog.tecnologias.loading && !catalog.tecnologias.error));
-  const open = (mode, record = null) => { setFeedback(null); setDialog({ mode, record }); };
+  const hasWriteRole = !mounted || isAdmin;
+  const canEdit = hasWriteRole && !resource.loading && !resource.error && (!isService || (!catalog.tecnologias.loading && !catalog.tecnologias.error));
+  const open = (mode, record = null) => { if (!hasWriteRole) return; setFeedback(null); setDialog({ mode, record }); };
   return <>
     <PanelHeading eyebrow="El contenido del estudio" title={settings.title} description={settings.description}><Button size="sm" magnetic={false} iconLeft={<Plus size={18} />} disabled={!canEdit} onClick={() => open("edit")}>Crear {settings.singular}</Button></PanelHeading>
     <Feedback message={feedback} />
@@ -37,7 +40,7 @@ export default function CatalogManager({ kind }) {
     <Section className="panel-sheet" surface={isService ? "page" : "card"} aria-label={`Listado de ${plural}`}>
       <div className="panel-list-toolbar"><div><h3>Tu catálogo</h3><p>{resource.loading ? "Cargando catálogo" : resource.error ? "Sin conexión" : `${resource.data.length} ${resource.data.length === 1 ? settings.singular : plural}`}</p></div><Input wrapperClassName="panel-search" type="search" label={`Buscar ${plural}`} icon={false} value={search} onChange={event => setSearch(event.target.value)} /></div>
       <ResourceState resource={resource} empty={`Todavía no hay ${plural}`}>
-        {!records.length ? <p className="panel-state">No hay resultados para “{search}”.</p> : <ul className="panel-records">{records.map((record, index) => <li key={record.id} className="panel-record"><span className="panel-record-index">{String(index + 1).padStart(2, "0")}</span><div className="panel-record-copy"><h3>{nameOf(record)}</h3>{isService && <><p>{record.descripcion}</p><ul className="panel-tags" aria-label="Tecnologías asociadas">{record.tecnologias?.map(technology => <li key={technology.id}>{technology.nombre}</li>)}</ul></>}{!isService && <p>Disponible en el catálogo de herramientas</p>}</div><div className="panel-record-actions"><Button size="sm" variant="ghost" magnetic={false} className="panel-icon-button" aria-label={`Editar ${nameOf(record)}`} disabled={!canEdit} onClick={() => open("edit", record)}><Pencil size={18} aria-hidden="true" /></Button><Button size="sm" variant="ghost" magnetic={false} className="panel-icon-button" aria-label={`Eliminar ${nameOf(record)}`} onClick={() => open("delete", record)}><Trash2 size={18} aria-hidden="true" /></Button></div></li>)}</ul>}
+        {!records.length ? <p className="panel-state">No hay resultados para “{search}”.</p> : <ul className="panel-records">{records.map((record, index) => <li key={record.id} className="panel-record"><span className="panel-record-index">{String(index + 1).padStart(2, "0")}</span><div className="panel-record-copy"><h3>{nameOf(record)}</h3>{isService && <><p>{record.descripcion}</p><ul className="panel-tags" aria-label="Tecnologías asociadas">{record.tecnologias?.map(technology => <li key={technology.id}>{technology.nombre}</li>)}</ul></>}{!isService && <p>Disponible en el catálogo de herramientas</p>}</div><div className="panel-record-actions"><Button size="sm" variant="ghost" magnetic={false} className="panel-icon-button" aria-label={`Editar ${nameOf(record)}`} disabled={!canEdit} onClick={() => open("edit", record)}><Pencil size={18} aria-hidden="true" /></Button><Button size="sm" variant="ghost" magnetic={false} className="panel-icon-button" aria-label={`Eliminar ${nameOf(record)}`} disabled={!hasWriteRole} onClick={() => open("delete", record)}><Trash2 size={18} aria-hidden="true" /></Button></div></li>)}</ul>}
       </ResourceState>
     </Section>
     <p className="panel-footnote"><ArrowUpRight size={16} aria-hidden="true" /><Link href={isService ? "/#servicios" : "/#stack-tech"}>Ver {plural} en el portafolio</Link></p>

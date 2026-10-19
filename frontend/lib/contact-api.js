@@ -12,10 +12,13 @@ export async function submitContactRequest(values) {
     mensaje: values.mensaje ?? values.message,
   };
 
+  const token = typeof window !== "undefined" ? window.localStorage?.getItem("quokka_token") : null;
+
   const response = await fetch(`${API_BASE_URL}/api/contacto`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(payload),
   });

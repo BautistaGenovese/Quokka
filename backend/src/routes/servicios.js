@@ -9,6 +9,7 @@ const {
     modificarTecnologia,
     borrarTecnologia
 } = require('../controllers/servicios.controller');
+const { requireAuth, requireRol } = require('../middleware/auth');
 
 // Dos routers porque se necesitan permisos de admin
 const serviciosRouter = express.Router();
@@ -24,53 +25,51 @@ serviciosRouter.get('/', listarServicios);
 // El catálogo de tecnologias es público.
 tecnologiasRouter.get('/', listarTecnologias);
 
-// TODO: Sin terminar, falta que Juan termine los middleware requireAuth y requireRol('administrador').
-
 // Creacion de nuevos servicios
 adminServiciosRouter.post(
     '/',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     crearSolicitudServicio
 );
 
 // Modificacion de los datos del servicio
 adminServiciosRouter.put(
     '/:id',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     modificarServicio
 );
 
 // Eliminar servicios
 adminServiciosRouter.delete(
     '/:id',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     borrarServicio
 );
 
 // Creacion de nuevas tecnologías
 adminTecnologiasRouter.post(
     '/',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     crearSolicitudTecnologia
 );
 
 // Modificacion de los datos de las tecnologías
 adminTecnologiasRouter.put(
     '/:id',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     modificarTecnologia
 );
 
 // Eliminar tecnologías
 adminTecnologiasRouter.delete(
     '/:id',
-    // requireAuth,
-    // requireRol('administrador'),
+    requireAuth,
+    requireRol('administrador'),
     borrarTecnologia
 );
 

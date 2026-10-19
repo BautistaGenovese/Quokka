@@ -1,6 +1,7 @@
 import Section from "@/components/layout/section";
 import CatalogManager from "./catalog-manager";
 import ContactsManager from "./contacts-manager";
+import UsersManager from "./users-manager";
 import { PanelHeading } from "./panel-shared";
 
 function AdminSection({ id, surface = "page", children }) {
@@ -20,7 +21,7 @@ export function ConsultasAdmin() {
 }
 
 export function UsuariosAdmin() {
-  return <AdminSection id="usuarios-admin"><PanelHeading eyebrow="Próximamente" title="Usuarios" description="La gestión de usuarios y roles se incorporará en esta sección." /></AdminSection>;
+  return <AdminSection id="usuarios-admin"><UsersManager /></AdminSection>;
 }
 
 export function ProyectosAdmin() {

@@ -292,7 +292,7 @@ test("el footer compacto conserva navegación y el login ofrece campos conectabl
   assert.match(form, /type="password"/);
   assert.match(form, /autoComplete="current-password"/);
   assert.match(form, /Iniciar sesión/);
-  assert.match(form, /inicio de sesión estará disponible/);
+  assert.match(form, /Registrate manualmente/);
 });
 
 test("SwipeToast conserva anuncio y controles; Sling separa mascota del enlace de marca", () => {

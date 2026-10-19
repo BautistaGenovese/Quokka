@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const db = require('./config/db');
 const initDb = require('./config/initDb');
 const contactoRouter = require('./routes/contacto.routes');
+const authRouter = require('./routes/auth');
+const usuariosRouter = require('./routes/usuarios');
 const { 
   serviciosRouter, 
   adminServiciosRouter,
@@ -40,6 +42,12 @@ app.get('/api/status', async (req, res) => {
 });
 
 // --- Rutitas ---
+
+// Rutas del módulo de autenticación (Registro, Login y Google OAuth)
+app.use('/api/auth', authRouter);
+
+// Rutas de gestión de usuarios del Panel de Administrador (Sprint 3)
+app.use('/api/admin/usuarios', usuariosRouter);
 
 // Rutas del módulo de contacto y cotizaciones (en español y alias compatible)
 app.use('/api/contacto', contactoRouter);
