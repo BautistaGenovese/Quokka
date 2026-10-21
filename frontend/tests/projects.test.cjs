@@ -26,7 +26,7 @@ const { isHttpUrl, isCloudinaryUrl, toGalleryCards, validateProjectForm, PROJECT
 test("safeNextPath acepta rutas relativas y rechaza redirecciones externas", () => {
   assert.equal(safeNextPath("/proyectos/3"), "/proyectos/3");
   assert.equal(safeNextPath("/proyectos/3?a=1#x"), "/proyectos/3?a=1#x");
-  for (const bad of ["//evil.com", "/\\evil.com", "https://evil.com", "javascript:alert(1)", "proyectos/3", "/a\r\nb", "/a\tb", null, undefined, 7, ""]) {
+  for (const bad of ["//evil.com", "/\\evil.com", "/.//evil.com", "/a/..//evil.com", "/%2e//evil.com", "https://evil.com", "javascript:alert(1)", "proyectos/3", "/a\r\nb", "/a\tb", null, undefined, 7, ""]) {
     assert.equal(safeNextPath(bad), "/", String(bad));
   }
   assert.equal(safeNextPath(null, "/panel"), "/panel");

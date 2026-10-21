@@ -6,6 +6,8 @@ export function safeNextPath(value, fallback = "/") {
     const base = "https://quokka.invalid";
     const url = new URL(value, base);
     if (url.origin !== base) return fallback;
+    // Los segmentos "." se normalizan después del chequeo inicial: "/.//evil.com" queda como "//evil.com".
+    if (url.pathname.startsWith("//")) return fallback;
     return url.pathname + url.search + url.hash;
   } catch {
     return fallback;
