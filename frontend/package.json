@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test:motion": "node --test tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs",
     "test:components": "node --test tests/component-contracts.test.cjs",
-    "test": "node --test tests/component-contracts.test.cjs tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs tests/repository-contracts.test.cjs tests/panel-api.test.cjs"
+    "test": "node --test tests/component-contracts.test.cjs tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs tests/repository-contracts.test.cjs tests/panel-api.test.cjs tests/projects.test.cjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
