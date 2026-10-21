@@ -123,6 +123,9 @@ test("el panel compone sus módulos en una página y reutiliza navbar, menú, pa
   }
   const sectionPositions = ADMIN_LINKS.map(item => html.indexOf(`id="${item.href.slice(1)}"`));
   assert.deepEqual(sectionPositions, [...sectionPositions].sort((a, b) => a - b), "El menú sigue el orden visual para calcular la sección activa.");
+  const projectsSection = html.slice(html.indexOf('id="proyectos-admin"'), html.indexOf('id="servicios-admin"'));
+  assert.match(projectsSection, /Proyectos y demos/);
+  assert.doesNotMatch(projectsSection, /Próximamente/);
   assert.match(html, /site-navbar/);
   assert.match(html, /site-menu-dialog/);
   assert.match(html, /palette-dialog/);
@@ -235,13 +238,13 @@ test("los encabezados conservan nivel, nombre accesible y énfasis sin depender 
 
 test("la página evita texto por letra, clones del equipo y bloqueos de demos repetidos", () => {
   const Page = load("components/portfolio/portfolio-page.jsx").default;
-  const { PROJECTS } = load("lib/site-content.js");
   const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Page)));
   assert.doesNotMatch(html, /variable-proximity|Las demos te esperan|Explorar vista de prueba/);
   assert.equal([...html.matchAll(/class="circular-gallery-card-slot"/g)].length, 5);
   assert.equal([...html.matchAll(/class="halftone-reveal-canvas"/g)].length, 1);
   assert.doesNotMatch(html, /demo-preview-shader/);
-  for (const project of PROJECTS) assert.ok(html.includes(project.title.replaceAll("&", "&amp;")));
+  // La galería ahora es data-driven: en el servidor solo muestra el estado de carga.
+  assert.match(html, /role="status"[^>]*>Cargando proyectos/);
 });
 
 test("campos repetidos conservan label, ayuda y error propios; el consumidor conserva atributos nativos", () => {
