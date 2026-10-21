@@ -2,6 +2,7 @@ import Section from "@/components/layout/section";
 import CatalogManager from "./catalog-manager";
 import ContactsManager from "./contacts-manager";
 import UsersManager from "./users-manager";
+import ProjectsManager from "./projects-manager";
 import { PanelHeading } from "./panel-shared";
 
 function AdminSection({ id, surface = "page", children }) {
@@ -25,7 +26,7 @@ export function UsuariosAdmin() {
 }
 
 export function ProyectosAdmin() {
-  return <AdminSection id="proyectos-admin" surface="card"><PanelHeading eyebrow="Próximamente" title="Proyectos y demos" description="La administración de proyectos, imágenes y demos se incorporará en esta sección." /></AdminSection>;
+  return <AdminSection id="proyectos-admin" surface="card"><ProjectsManager /></AdminSection>;
 }
 
 export function MetricasAdmin() {
