@@ -158,6 +158,22 @@ erDiagram
    - `GET /api/proyectos/:id` → Protegido con `requireAuth` para ver el detalle completo y `url_demo`.
    - `POST /api/admin/proyectos`, `PUT /api/admin/proyectos/:id`, `DELETE /api/admin/proyectos/:id` → Protegidos con `requireAuth` y `requireRol('administrador')`.
 
+#### ✅ Contrato implementado de proyectos
+
+- **Alias:** `/api/projects` y `/api/admin/projects` se comportan igual que `/api/proyectos` y `/api/admin/proyectos`.
+- **Endpoints:**
+  - `GET /api/proyectos` (público): arreglo ordenado por `fecha_publicacion DESC, id DESC`.
+  - `GET /api/proyectos/:id` (`requireAuth`, cualquier rol): `{ ok: true, proyecto }`.
+  - `GET /api/admin/proyectos` (administrador, **adicional al contrato original**): arreglo con todos los campos de administración.
+  - `POST` / `PUT /:id` / `DELETE /:id` en `/api/admin/proyectos` (administrador). `PUT` reemplaza los seis campos editables y no modifica `id_autor` ni `fecha_publicacion`; `id_autor` del `POST` sale siempre del token.
+- **Campos expuestos por audiencia:**
+  - Público: `id`, `titulo`, `descripcion`, `tecnologias`, `imagen_url`, `fecha_publicacion`.
+  - Detalle autenticado: lo anterior más `url_demo`.
+  - Administrador: lo anterior más `imagen_public_id` e `id_autor`.
+- **Validación (400 `{ ok: false, error, fields }`):** `titulo` 3-150; `descripcion` hasta 5000; `tecnologias` hasta 255; `url_demo` http/https hasta 255 sin credenciales; `imagen_url` https con host `res.cloudinary.com` (sin puerto ni credenciales); `imagen_public_id` hasta 255 y solo junto a `imagen_url`. Se recorta el texto y `''` se guarda como `NULL`.
+- **Códigos:** 400 (id o campos inválidos), 401 (sin token; también `POST` si el autor del token ya no existe, FK `23503`), 403 (rol insuficiente), 404 (proyecto inexistente), 500 genérico. No existe 409.
+- **Imágenes:** al borrar o reemplazar un proyecto no se elimina el recurso en Cloudinary (huérfanos aceptados).
+
 ---
 
 ### 3. 🛠️ Bautista Genovese — Servicios Ofertados y Auditoría UX/UI
@@ -333,7 +349,7 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Construir estructura general en React (layouts, navbar, menú, footer) y secciones públicas de presentación, tecnologías y servicios.
 - [x] **Sprint 2 (Frontend):** Desarrollar la interfaz visual de la sección de Proyectos y Demos con estado condicional (`locked`) para exigir sesión iniciada al ver detalles.
-- [ ] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
+- [x] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
 - [ ] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
 - [ ] **Sprint 4 (QA):** Ejecutar pruebas de calidad sobre todos los flujos de creación, lectura y actualización de proyectos.
 
