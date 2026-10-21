@@ -12,6 +12,7 @@ const {
   tecnologiasRouter,
   adminTecnologiasRouter
 } = require('./routes/servicios');
+const { proyectosRouter, adminProyectosRouter } = require('./routes/proyectos');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -67,6 +68,13 @@ app.use('/api/technologies', tecnologiasRouter);
 
 app.use('/api/admin/tecnologias', adminTecnologiasRouter);
 app.use('/api/admin/technologies', adminTecnologiasRouter);
+
+// Rutas del módulo de proyectos (en español y alias compatible)
+app.use('/api/proyectos', proyectosRouter);
+app.use('/api/projects', proyectosRouter);
+
+app.use('/api/admin/proyectos', adminProyectosRouter);
+app.use('/api/admin/projects', adminProyectosRouter);
 
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {
