@@ -51,7 +51,7 @@ export function toGalleryCards({ data, loading, error }, { loggedIn }) {
     return PROJECTS.map(project => ({ key: project.id, title: project.title, description: project.description, preview: project.preview, sample: true, locked: false }));
   }
   return data.map(project => ({
-    key: String(project.id), title: project.titulo, description: project.descripcion || "", imageUrl: project.imagen_url, sample: false,
+    key: String(project.id), title: project.titulo, description: project.descripcion || "", technologies: project.tecnologias || "", imageUrl: project.imagen_url, sample: false,
     locked: !loggedIn, ...(loggedIn ? { demoHref: `/proyectos/${project.id}` } : {}),
   }));
 }
