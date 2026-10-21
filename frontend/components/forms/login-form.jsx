@@ -4,9 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import useAuth from "@/hooks/use-auth";
+import { safeNextPath } from "@/lib/safe-redirect";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+/** Lee ?next= al momento de redirigir (sin useSearchParams) y solo acepta rutas internas. */
+function redirectAfterLogin() {
+  return safeNextPath(new URLSearchParams(window.location.search).get("next"));
+}
 
 /** Punto de integración: onSignIn({ email, password }) devuelve una promesa. */
 export default function LoginForm({ onSignIn }) {
@@ -54,7 +60,7 @@ export default function LoginForm({ onSignIn }) {
       setStatus("success");
       setMessage(`¡Bienvenido/a, ${data?.usuario?.nombre || "Usuario"}! Sesión iniciada.`);
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = redirectAfterLogin();
       }, 1000);
     } catch (err) {
       setStatus("error");
@@ -153,7 +159,7 @@ export default function LoginForm({ onSignIn }) {
       setStatus("success");
       setMessage(isRegister ? "¡Cuenta creada con éxito! Redirigiendo..." : "Sesión iniciada. Redirigiendo...");
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = redirectAfterLogin();
       }, 1000);
     } catch (err) {
       setStatus("error");
