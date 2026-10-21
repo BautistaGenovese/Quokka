@@ -11,9 +11,11 @@ const CAMPOS_OPCIONALES = ['descripcion', 'tecnologias', 'url_demo', 'imagen_url
 // proyectos.id es SERIAL (INTEGER de 32 bits): fuera de rango, PostgreSQL respondería con error.
 const ID_MAXIMO = 2147483647;
 
+// Solo dígitos decimales canónicos: Number() aceptaría '1e3', '0x10' o ' 7 '.
 function parsearId(valor) {
+  if (typeof valor !== 'string' || !/^[1-9]\d{0,9}$/.test(valor)) return null;
   const id = Number(valor);
-  return Number.isSafeInteger(id) && id > 0 && id <= ID_MAXIMO ? id : null;
+  return id <= ID_MAXIMO ? id : null;
 }
 
 // Largo en puntos de código, no en unidades UTF-16.

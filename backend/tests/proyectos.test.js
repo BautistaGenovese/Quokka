@@ -101,7 +101,7 @@ test('listarProyectosAdmin: incluye columnas de administración', async t => {
 
 test('obtenerProyecto: 400, 404 y 200', async t => {
   const f = preparar(t, { rowCount: 0, rows: [] });
-  for (const id of ['abc', '0', '-1', '1.5', '2147483648', '99999999999999999999']) {
+  for (const id of ['abc', '0', '-1', '1.5', '1e3', '0x10', ' 7', '007', '2147483648', '99999999999999999999']) {
     await controlador.obtenerProyecto({ params: { id } }, f.res);
     assert.equal(f.res.statusCode, 400, id);
   }
