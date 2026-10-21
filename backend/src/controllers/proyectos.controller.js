@@ -8,9 +8,12 @@ const ORDEN = 'ORDER BY fecha_publicacion DESC, id DESC';
 
 const CAMPOS_OPCIONALES = ['descripcion', 'tecnologias', 'url_demo', 'imagen_url', 'imagen_public_id'];
 
+// proyectos.id es SERIAL (INTEGER de 32 bits): fuera de rango, PostgreSQL respondería con error.
+const ID_MAXIMO = 2147483647;
+
 function parsearId(valor) {
   const id = Number(valor);
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
+  return Number.isSafeInteger(id) && id > 0 && id <= ID_MAXIMO ? id : null;
 }
 
 // Largo en puntos de código, no en unidades UTF-16.
