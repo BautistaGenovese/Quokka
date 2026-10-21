@@ -95,3 +95,30 @@ CREATE INDEX IF NOT EXISTS idx_visitas_fecha ON visitas (fecha);
 CREATE INDEX IF NOT EXISTS idx_visitas_usuario_id ON visitas (usuario_id);
 CREATE INDEX IF NOT EXISTS idx_mensajes_contacto_estado ON mensajes_contacto (estado, creado_en DESC);
 CREATE INDEX IF NOT EXISTS idx_proyectos_id_autor ON proyectos (id_autor);
+
+-- -----------------------------------------------------------------------------
+-- Datos iniciales: proyectos de muestra
+-- Solo se insertan si la tabla está vacía, porque este script corre en cada
+-- arranque del backend. Sin imagen (el frontend muestra la imagen por defecto)
+-- y con el repositorio del equipo como enlace de demo.
+-- -----------------------------------------------------------------------------
+INSERT INTO proyectos (titulo, descripcion, tecnologias, url_demo)
+SELECT muestra.titulo, muestra.descripcion, muestra.tecnologias, 'https://github.com/BautistaGenovese/Quokka'
+FROM (VALUES
+  (1, 'Gestor de Turnos & Agenda Web',
+   'Propuesta de reserva horaria con prevención de solapamientos y panel de administración.',
+   'Next.js, Express, PostgreSQL'),
+  (2, 'Dashboard de Métricas & Tráfico',
+   'Propuesta de panel con gráficos de visitas, tráfico público y usuarios autenticados.',
+   'Next.js, Express, PostgreSQL'),
+  (3, 'E-Commerce con API de Pagos',
+   'Propuesta de catálogo, carrito y validación de stock con integración de pagos.',
+   'Next.js, Express, PostgreSQL'),
+  (4, 'Portal de Reservas Gastronómicas',
+   'Propuesta de reservas con selección de comensales y validación de fechas.',
+   'Next.js, Express, PostgreSQL')
+) AS muestra (orden, titulo, descripcion, tecnologias)
+WHERE NOT EXISTS (SELECT 1 FROM proyectos)
+-- El listado ordena por id DESC ante la misma fecha: se insertan al revés
+-- para que se muestren en el orden de arriba.
+ORDER BY muestra.orden DESC;

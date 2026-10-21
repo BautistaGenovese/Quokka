@@ -5,17 +5,20 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
-    "test": "node --test tests/contact.test.js tests/servicios.test.js"
+    "dev": "node --watch-path=src src/server.js",
+    "test": "node --test tests/contacto.test.js tests/servicios.test.js tests/proyectos.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.6",
     "express": "^5.2.1",
+    "google-auth-library": "^11.3.1",
+    "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.1.1",
     "pg": "^8.23.1"
   }

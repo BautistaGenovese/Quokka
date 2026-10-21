@@ -14,7 +14,8 @@ import ContactForm from "@/components/forms/contact-form";
 import Footer from "@/components/layout/footer";
 import useAppearance from "@/hooks/use-appearance";
 import { submitContactRequest } from "@/lib/contact-api";
-import { TEAM, SITE_LINKS, SERVICES, TECHNOLOGIES } from "@/lib/site-content";
+import { TEAM, SITE_LINKS } from "@/lib/site-content";
+import PublicCatalog from "@/components/portfolio/public-catalog";
 
 export default function PortfolioPage() {
   const { theme, mode, setTheme, setMode } = useAppearance();
@@ -35,12 +36,12 @@ export default function PortfolioPage() {
       </Section>
       <Section id="servicios" tabIndex={-1} surface="card" className="menu-destination studio-section">
         <div className="studio-shell"><SectionHeading number="03" label="Lo que hacemos" description="Del primer boceto a la lógica que lo hace posible. Pensamos cada parte como un mismo sistema.">Damos forma<br /><span className="word-wave">a lo que imaginás.</span></SectionHeading>
-          <div className="studio-services">{SERVICES.map((service, index) => <article className="studio-service-row" key={service.title}><span className="studio-service-number">0{index + 1}</span><h3>{service.title}</h3><div><p>{service.description}</p><ul className="studio-tags" aria-label={`Especialidades de ${service.title}`}>{service.tags.map(tag => <li key={tag}>{tag}</li>)}</ul></div></article>)}</div>
+          <PublicCatalog kind="servicios" />
         </div>
       </Section>
       <ProjectGallery />
       <Section id="stack-tech" tabIndex={-1} surface="page" className="menu-destination studio-section">
-        <div className="studio-shell studio-stack-layout"><SectionHeading number="05" label="Las herramientas" description="El oficio también está en elegir con qué construir.">Nuestra caja<br />de <mark className="word-marker">herramientas.</mark></SectionHeading><div className="studio-stack-list">{TECHNOLOGIES.map((technology, index) => <article key={technology.title}><span className="studio-stack-index">0{index + 1}</span><div><h3>{technology.title}</h3></div></article>)}</div></div>
+        <div className="studio-shell studio-stack-layout"><SectionHeading number="05" label="Las herramientas" description="El oficio también está en elegir con qué construir.">Nuestra caja<br />de <mark className="word-marker">herramientas.</mark></SectionHeading><PublicCatalog kind="tecnologias" /></div>
       </Section>
       <Section as="div" surface="primary" className="studio-marquee"><Marquee size="sm" speed={22} items={["Curiosidad", "Código compartido", "Diseño con intención", "Ideas en movimiento"]} label="El pulso de Quokka" /></Section>
       <Section id="contacto" tabIndex={-1} surface="card" className="menu-destination studio-section footer-predecessor">

@@ -116,14 +116,15 @@ erDiagram
 #### 🔌 Qué debe hacer Juan en el Backend:
 
 1. **`backend/src/middleware/auth.js`:** Exportar los middlewares `requireAuth` (verifica el JWT) y `requireRol(...roles)` (verifica que `req.user.rol` esté permitido). **Importante:** Tus compañeros (Ignacio, Lautaro, Bautista y Micaías) importarán estos dos middlewares para proteger sus rutas.
-   - **Acción puntual en el módulo de contacto:** En [`backend/src/routes/contact.routes.js`] hay un `TODO (Juan Girón)` dentro de `router.post('/', ...)` para que inyectes `requireAuth` cuando esté listo, ya que el equipo definió que **solo usuarios registrados pueden enviar mensajes de contacto**.
+   - **Acción puntual en el módulo de contacto:** En [`backend/src/routes/contacto.routes.js`] hay un `TODO (Juan Girón)` dentro de `contactoRouter.post('/', ...)` para que inyectes `requireAuth` cuando esté listo, ya que el equipo definió que **solo usuarios registrados pueden enviar mensajes de contacto**.
 2. **`backend/src/routes/auth.js`:**
    - `POST /api/auth/registro` → Hashea password con `bcrypt` e inserta en `usuarios`.
    - `POST /api/auth/login` → Compara hash con `bcrypt` y devuelve el token JWT.
    - `POST /api/auth/google` → Verifica credencial con `google-auth-library` y hace `INSERT INTO usuarios (nombre, email, google_id) ... ON CONFLICT (email) DO UPDATE`.
 3. **`backend/src/routes/usuarios.js` (Sprint 3 - Panel Admin):**
-   - `GET /api/admin/usuarios` → Lista `id, nombre, email, rol, fecha_creacion` de la tabla `usuarios` (nunca devolver `password_hash`).
-   - `PATCH /api/admin/usuarios/:id/rol` → Permite al Administrador cambiar el `rol` (`usuario`, `operador`, `administrador`).
+   - `GET /api/admin/usuarios` → Lista `id, nombre, email, rol, fecha_creacion` de la tabla `usuarios` (nunca devolver `password_hash`). Permitido para `'operador'` (solo lectura) y `'administrador'`.
+   - `PATCH /api/admin/usuarios/:id/rol` → Permite exclusivamente al Administrador cambiar el `rol` (`usuario`, `operador`, `administrador`).
+   - `DELETE /api/admin/usuarios/:id` → Permite exclusivamente al Administrador eliminar un usuario registrado.
 
 ---
 
@@ -156,6 +157,22 @@ erDiagram
    - `GET /api/proyectos` → Público (devuelve resumen sin exponer recursos privados si aplica).
    - `GET /api/proyectos/:id` → Protegido con `requireAuth` para ver el detalle completo y `url_demo`.
    - `POST /api/admin/proyectos`, `PUT /api/admin/proyectos/:id`, `DELETE /api/admin/proyectos/:id` → Protegidos con `requireAuth` y `requireRol('administrador')`.
+
+#### ✅ Contrato implementado de proyectos
+
+- **Alias:** `/api/projects` y `/api/admin/projects` se comportan igual que `/api/proyectos` y `/api/admin/proyectos`.
+- **Endpoints:**
+  - `GET /api/proyectos` (público): arreglo ordenado por `fecha_publicacion DESC, id DESC`.
+  - `GET /api/proyectos/:id` (`requireAuth`, cualquier rol): `{ ok: true, proyecto }`.
+  - `GET /api/admin/proyectos` (administrador, **adicional al contrato original**): arreglo con todos los campos de administración.
+  - `POST` / `PUT /:id` / `DELETE /:id` en `/api/admin/proyectos` (administrador). `PUT` reemplaza los seis campos editables y no modifica `id_autor` ni `fecha_publicacion`; `id_autor` del `POST` sale siempre del token.
+- **Campos expuestos por audiencia:**
+  - Público: `id`, `titulo`, `descripcion`, `tecnologias`, `imagen_url`, `fecha_publicacion`.
+  - Detalle autenticado: lo anterior más `url_demo`.
+  - Administrador: lo anterior más `imagen_public_id` e `id_autor`.
+- **Validación (400 `{ ok: false, error, fields }`):** `titulo` 3-150; `descripcion` hasta 5000; `tecnologias` hasta 255; `url_demo` http/https hasta 255 sin credenciales; `imagen_url` https con host `res.cloudinary.com` (sin puerto ni credenciales); `imagen_public_id` hasta 255 y solo junto a `imagen_url`. Se recorta el texto y `''` se guarda como `NULL`.
+- **Códigos:** 400 (id o campos inválidos), 401 (sin token; también `POST` si el autor del token ya no existe, FK `23503`), 403 (rol insuficiente), 404 (proyecto inexistente), 500 genérico. No existe 409.
+- **Imágenes:** al borrar o reemplazar un proyecto no se elimina el recurso en Cloudinary (huérfanos aceptados).
 
 ---
 
@@ -259,7 +276,7 @@ CREATE TABLE IF NOT EXISTS servicios_tecnologias (
 
 - **Sprint 2 (Ya activo):**
   - `POST /api/contacto` (y alias `POST /api/contact` por compatibilidad): Valida y sanitiza los datos (`nombre`, `email`, `tipo`, `mensaje`), los guarda en `mensajes_contacto` con estado `'pendiente'` mediante consultas parametrizadas y notifica por correo con Nodemailer.
-  - **Restricción de acceso (Solo Usuarios Registrados):** Por decisión del equipo, para poder enviar un mensaje/mail desde el formulario de contacto es obligatorio haber iniciado sesión. En [`backend/src/routes/contact.routes.js`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/backend/src/routes/contact.routes.js) ya quedó señalado con un `TODO (Juan Girón)` el lugar exacto dentro de `router.post('/', /* TODO (Juan Girón): requireAuth, */ contactRateLimiter, createContactRequest);` donde Juan debe agregar el middleware `requireAuth` apenas termine el módulo de autenticación.
+  - **Restricción de acceso (Solo Usuarios Registrados):** Por decisión del equipo, para poder enviar un mensaje/mail desde el formulario de contacto es obligatorio haber iniciado sesión. En [`backend/src/routes/contacto.routes.js`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/backend/src/routes/contacto.routes.js) ya quedó señalado con un `TODO (Juan Girón)` el lugar exacto dentro de `contactoRouter.post('/', /* TODO (Juan Girón): requireAuth, */ limitadorContacto, crearSolicitudContacto);` donde Juan debe agregar el middleware `requireAuth` apenas termine el módulo de autenticación.
 - **Sprint 3 (Panel del Operador):**
   - `GET /api/operador/contactos?estado=pendiente|respondido`: Lista los mensajes de `mensajes_contacto` (requiere rol `'operador'` o `'administrador'`).
   - `POST /api/operador/contactos/:id/responder`: Envía el correo al usuario usando Nodemailer y actualiza `estado = 'respondido'`, `respuesta = $2`, `respondido_en = NOW()`.
@@ -287,7 +304,8 @@ CREATE TABLE IF NOT EXISTS servicios_tecnologias (
 1. **`backend/src/routes/metricas.js`:**
    - `POST /api/visitas` → Público. Recibe `{ ruta }` (y opcionalmente detecta el usuario si envía token) e inserta en `visitas`.
    - `GET /api/metricas/visitas?desde=AAAA-MM-DD&hasta=AAAA-MM-DD&tipo=todas|registradas` → Protegido para `'administrador'`. Ejecuta la consulta parametrizada filtrando por `usuario_id IS NOT NULL` cuando `tipo === 'registradas'`.
-2. **`backend/src/routes/github.js`:**
+2. **`backend/src/routes/github.js` (Integración GitHub REST API):**
+   - `GET /api/github/miembros` (o `/api/github/equipo`): Consulta los perfiles de GitHub de los 5 integrantes del equipo en la API de GitHub (`/users/:username`) con caché en memoria (para no superar el rate limit de GitHub), devolviendo avatar, nombre, bio/descripción y link al perfil de GitHub para renderizar la galería del equipo (`TeamGallery`) de forma dinámica sin dejar los perfiles hardcodeados.
    - `GET /api/github/repos` → Consulta los repositorios del equipo en la API de GitHub con caché en memoria.
 
 ---
@@ -319,11 +337,11 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Configurar repositorio central, inicializar entorno React + Tailwind, `docker-compose.yml` y diseño del modelo de datos.
 - [x] **Sprint 2 (Frontend):** Maquetar e implementar interfaz y validación cliente de Login y Registro (`/iniciar-sesion`).
-- [ ] **Sprint 2 (Backend - Auth propio):** Crear `POST /api/auth/registro` y `POST /api/auth/login` con `bcrypt` y emisión de `JWT` sobre la tabla `usuarios`.
-- [ ] **Sprint 2 (Backend - Google OAuth):** Crear `POST /api/auth/google` verificando token con `google-auth-library`.
-- [ ] **Sprint 2/3 (Backend - Middlewares):** Crear `backend/src/middleware/auth.js` exportando `requireAuth` y `requireRol`, y **activar `requireAuth` en `backend/src/routes/contact.routes.js`** (donde está el `TODO (Juan Girón)`).
-- [ ] **Sprint 3 (Panel Admin Usuarios):** Desarrollar vista de Administrador y endpoints (`GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/:id/rol`) para gestionar usuarios registrados.
-- [ ] **Sprint 4 (Seguridad):** Auditar y validar aislamiento estricto de rutas privadas en React y permisos de API (visitantes, registrados, operadores y administradores).
+- [x] **Sprint 2 (Backend - Auth propio):** Crear `POST /api/auth/registro` y `POST /api/auth/login` con `bcrypt` y emisión de `JWT` sobre la tabla `usuarios`.
+- [x] **Sprint 2 (Backend - Google OAuth):** Crear `POST /api/auth/google` verificando token con `google-auth-library`.
+- [x] **Sprint 2/3 (Backend - Middlewares):** Crear `backend/src/middleware/auth.js` exportando `requireAuth` y `requireRol`, y **activar `requireAuth` en `backend/src/routes/contacto.routes.js`** (donde está el `TODO (Juan Girón)`).
+- [x] **Sprint 3 (Panel Admin Usuarios):** Desarrollar vista de Administrador y endpoints (`GET /api/admin/usuarios`, `PATCH /api/admin/usuarios/:id/rol`, `DELETE /api/admin/usuarios/:id`) para gestionar usuarios registrados.
+- [x] **Sprint 4 (Seguridad):** Auditar y validar aislamiento estricto de rutas privadas en React y permisos de API (visitantes, registrados, operadores y administradores).
 
 ---
 
@@ -331,8 +349,8 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Construir estructura general en React (layouts, navbar, menú, footer) y secciones públicas de presentación, tecnologías y servicios.
 - [x] **Sprint 2 (Frontend):** Desarrollar la interfaz visual de la sección de Proyectos y Demos con estado condicional (`locked`) para exigir sesión iniciada al ver detalles.
-- [ ] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
-- [ ] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
+- [x] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
+- [x] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
 - [ ] **Sprint 4 (QA):** Ejecutar pruebas de calidad sobre todos los flujos de creación, lectura y actualización de proyectos.
 
 ---
@@ -341,11 +359,11 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Elaborar el Manual de Diseño y Estilo (`DESIGN.md`), paletas de colores, tipografías y prototipado visual.
 - [x] **Sprint 2:** Maquetar componentes reutilizables en Tailwind (`Button`, `Input`, `Select`, `Textarea`, `Card`, carruseles, `SwipeToast`) adaptables a PC y móviles.
-- [ ] **Sprint 3 (Backend - CRUD Servicios):** Crear `backend/src/routes/servicios.js` con `GET /api/servicios` (público) y `POST`, `PUT`, `DELETE /api/admin/servicios` (protegidos para `'administrador'`) sobre la tabla `servicios`.
-- [ ] **Sprint 3 (Frontend - CRUD Servicios):** Construir la interfaz de gestión de Servicios dentro del panel del Administrador y conectar la sección pública de servicios a la API.
+- [x] **Sprint 3 (Backend - CRUD Servicios):** Crear `backend/src/routes/servicios.js` con `GET /api/servicios` (público) y `POST`, `PUT`, `DELETE /api/admin/servicios` (protegidos para `'administrador'`) sobre la tabla `servicios`.
+- [x] **Sprint 3 (Frontend - CRUD Servicios):** Módulo ServiciosAdmin en `/panel#servicios-admin` con creación, edición, confirmación de borrado y conexión de la sección pública a la API. La autenticación se integra por separado con Juan.
 - [x] **Sprint 3 (Base de Datos - Tecnologías):** Incorporar `tecnologias` y `servicios_tecnologias` a `database/init.sql`, con clave primaria compuesta y claves foráneas con `ON DELETE CASCADE`.
 - [x] **Sprint 3 (Backend - Tags y Herramientas):** Implementar `GET /api/tecnologias`, incluir tecnologías en `GET /api/servicios` y guardar `tecnologia_ids` en POST/PUT mediante transacciones sobre un mismo cliente.
-- [ ] **Sprint 3 (Frontend - Tags y Herramientas):** Incorporar el selector de tecnologías al formulario de servicios y consumir el catálogo en «Las herramientas».
+- [x] **Sprint 3 (Frontend - Tags y Herramientas):** Select de opciones con etiquetas removibles en el formulario de servicios, CRUD del catálogo en `/panel#tecnologias-admin` y consumo público en «Las herramientas».
 - [ ] **Sprint 4 (Auditoría UX/UI):** Verificar que todas las vistas y paneles desarrollados por el equipo respeten el `DESIGN.md`.
 
 ---
@@ -354,9 +372,9 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Levantar arquitectura base del servidor Express (`server.js`, `db.js`), conectar PostgreSQL en Docker, crear `/api/status` y documentar arranque (`backend/README.md`).
 - [x] **Sprint 1/2 (Base de Datos Unificada):** Crear script automático [`database/init.sql`](file:///C:/Users/Ignacio/Yo/Proyecto-Leng4/Quokka/database/init.sql) con las 5 tablas en español y redactar este contrato técnico (`BACKEND_CONTRACT.md`).
-- [x] **Sprint 2 (Contacto y Cotizaciones):** Construir formulario de contacto (`contact-form.jsx`), cliente API (`contact-api.js`), endpoint `POST /api/contacto` con validaciones, rate-limiting, inserción en `mensajes_contacto`, servicio Nodemailer (`mailer.service.js`) y tests unitarios (`contact.test.js`). Dejar preparado el `TODO` en `contact.routes.js` para exigir usuario registrado (`requireAuth`).
-- [ ] **Sprint 3 (Backend - Panel Operador):** Crear endpoints `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder` (protegidos con `requireAuth` y `requireRol('operador', 'administrador')`) que envíen la respuesta por correo con Nodemailer y actualicen `estado = 'respondido'`.
-- [ ] **Sprint 3 (Frontend - Panel Operador):** Construir el panel de navegación para el Operador permitiendo listar mensajes recibidos y responderlos desde la interfaz.
+- [x] **Sprint 2 (Contacto y Cotizaciones):** Construir formulario de contacto (`contact-form.jsx`), cliente API (`contact-api.js`), endpoint `POST /api/contacto` con validaciones, rate-limiting, inserción en `mensajes_contacto`, servicio Nodemailer (`correo.service.js`) y tests unitarios (`contacto.test.js`). Dejar preparado el `TODO` en `contacto.routes.js` para exigir usuario registrado (`requireAuth`).
+- [x] **Sprint 3 (Backend - Panel Operador):** Crear endpoints `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder` (con los `TODO` listos para integrar `requireAuth` y `requireRol('operador', 'administrador')`) que envían la respuesta por correo con Nodemailer y actualizan `estado = 'respondido'`.
+- [x] **Sprint 3 (Frontend - Panel Operador):** Módulo ConsultasAdmin conectado en `/panel#consultas-admin` (`ContactsManager`), dentro de la única `AdminPage`, con filtros por estado y tipo, lectura de solicitudes, borradores en memoria y formulario de respuesta conectado a los endpoints de listado y respuesta; el acceso por rol se integra con Juan.
 - [ ] **Sprint 4 (Despliegue):** Preparar el código fuente para producción y gestionar el despliegue en la nube (Vercel / Render / Railway).
 
 ---
@@ -366,5 +384,5 @@ const { rows } = await db.query(
 - [x] **Sprint 1:** Seleccionar y documentar APIs Web externas a integrar y configurar librerías de animación en el entorno.
 - [x] **Sprint 2:** Aplicar animaciones fluidas a transiciones de página (`NavigationTransition`), títulos (`AnimatedHeading`), mascota interactiva (`SlingButton`) y componentes clave.
 - [ ] **Sprint 3 (Cloudinary):** Implementar `backend/src/routes/archivos.js` y middleware `multer` para subida/borrado seguro de imágenes en Cloudinary (`POST` y `DELETE /api/admin/imagenes`).
-- [ ] **Sprint 3 (GitHub REST API):** Implementar `GET /api/github/repos` en el backend y conectar la visualización dinámica en el frontend.
+- [ ] **Sprint 3 (GitHub REST API - Repositorios y Equipo):** Implementar en `backend/src/routes/github.js` los endpoints `GET /api/github/repos` y `GET /api/github/miembros` para cargar dinámicamente desde la API de GitHub los repositorios y los perfiles de los integrantes del equipo en la sección pública (`TeamGallery`) sin que queden hardcodeados.
 - [ ] **Sprint 4 (Métricas y Gráficos):** Implementar `POST /api/visitas`, `GET /api/metricas/visitas` con consultas SQL parametrizadas sobre la tabla `visitas`, componente rastreador en frontend y gráficos interactivos (Recharts) en el panel del Administrador.

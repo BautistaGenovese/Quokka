@@ -23,7 +23,8 @@ Los tests usan node:test, React SSR y el motor GSAP real donde corresponde. Veri
 
 ## Estructura
 
-- app/: rutas y layout del App Router. page.js compone el portfolio; iniciar-sesion/page.jsx expone el login.
+- app/: rutas y layout del App Router. page.js compone el portfolio; iniciar-sesion/page.jsx expone el login. panel/page.jsx expone una sola AdminPage con módulos y anclas.
+- components/panel/: AdminPage, módulos de administración, proveedor del catálogo, CRUD de servicios y tecnologías y bandeja preparada para los endpoints de Ignacio.
 - components/portfolio/: hero, títulos de sección, equipo, proyectos y composición pública.
 - components/navigation/: navbar, menú, paleta, transiciones y Sling del símbolo.
 - components/layout/: Section, footer, detalles de marca, seguidor y efectos de Quokka.
@@ -39,6 +40,12 @@ Los tests usan node:test, React SSR y el motor GSAP real donde corresponde. Veri
 app/componentes era una URL de catálogo, no otra biblioteca. Fue eliminada; components es el único directorio de código de componentes. Las primitivas de biblioteca como Checkbox, RadioGroup y las variantes de cards se mantienen porque tienen contratos reutilizables y tests, aunque no todas se rendericen en la portada.
 
 ## Apariencia y superficies
+
+El panel se abre en `/panel`. Servicios y tecnologías consumen la API en `NEXT_PUBLIC_API_URL` (por defecto `http://localhost:4000`), compartida con el formulario de contacto. La portada consume esos mismos catálogos públicos: ya no depende de las listas estáticas de servicios y herramientas. Requiere backend y PostgreSQL disponibles; un catálogo vacío no se rellena con ejemplos. Después de administrar contenido, al volver al portafolio se vuelven a consultar los datos.
+
+`/panel#consultas-admin` está preparada para `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder`; esos endpoints aún corresponden a la implementación de Ignacio. Mientras no existan, la vista muestra que la bandeja no está conectada. Los filtros distinguen tipo y estado, y una respuesta fallida conserva el texto. No se cambió autenticación ni se simulan roles o sesiones.
+
+AdminPage compone ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin y MetricasAdmin. ProyectosAdmin monta ProjectsManager (CRUD para administradores, lista de solo lectura para operadores); las métricas se indican como próxima incorporación. El navbar, menú y paleta son los existentes; los módulos se recorren con anclas dentro de `/panel`, sin subpáginas. El navbar público incluye el icono de acceso al panel. El selector de tecnologías reutiliza Select y permite agregar varias opciones y quitar sus etiquetas. Los estilos de composición están en `styles/panel.css`.
 
 AppearanceProvider se monta una sola vez en app/layout.js, envolviendo páginas y efectos globales. useAppearance devuelve theme, mode, setTheme y setMode. Conserva la selección durante navegación interna; no usa almacenamiento persistente. El estado inicial es Sonrisa/claro.
 
@@ -146,7 +153,7 @@ ArrowLink, desde components/ui/arrow-link, reemplaza los enlaces subrayados stud
 
 Los cinco integrantes tienen profileHref. TeamGallery muestra el GitHub de la tarjeta activa debajo del carrusel, en una pestaña nueva con noopener noreferrer.
 
-La portada y sus interacciones son públicas. El formulario de contacto está conectado a `POST /api/contact` mediante `submitContactRequest`; el inicio de sesión mantiene su validación y contrato de callback pendiente de autenticación en servidor. Los proyectos son propuestas locales, no demos desplegadas ni repositorios sincronizados automáticamente. Estas limitaciones son parte explícita de la entrega actual.
+La portada y sus interacciones son públicas. El formulario de contacto está conectado a `POST /api/contact` mediante `submitContactRequest`; el inicio de sesión mantiene su validación y contrato de callback pendiente de autenticación en servidor. La galería de proyectos lee `GET /api/proyectos`; las propuestas locales de `site-content.js` son solo un respaldo cuando la API falla o no tiene proyectos, y nunca se mezclan con los reales. El detalle `/proyectos/[id]` exige sesión (el 401 del backend es la protección real; la redirección es solo UX) y vuelve al detalle tras iniciar sesión mediante `?next=`, que solo acepta rutas internas. Estas limitaciones son parte explícita de la entrega actual.
 
 ## CI del pull request
 

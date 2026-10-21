@@ -1,3 +1,4 @@
+import Script from "next/script";
 import { Figtree, DM_Mono, Gabarito } from "next/font/google";
 import "./globals.css";
 import { AppearanceProvider } from "@/hooks/use-appearance";
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
         <QuokkaEffects />
         <CursorFollower />
         </AppearanceProvider>
+        <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
       </body>
     </html>
   );

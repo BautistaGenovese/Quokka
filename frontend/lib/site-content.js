@@ -13,18 +13,6 @@ export const SITE_LINKS = [
   { href: "#proyectos", label: "Proyectos y demos" }, { href: "#stack-tech", label: "Tecnologías" },
   { href: "#contacto", label: "Contacto" },
 ];
-export const SERVICES = [
-  { title: "Desarrollo Web Fullstack", description: "Interfaces adaptables, componentes reutilizables y un backend modular para aplicaciones web.", tags: ["React", "Node.js", "Responsive"] },
-  { title: "APIs y bases de datos", description: "Endpoints REST, modelado de datos y validación de solicitudes para conectar las distintas partes del sistema.", tags: ["Express", "PostgreSQL", "REST"] },
-  { title: "Motion Design", description: "Transiciones y microinteracciones que acompañan la navegación, respetando teclado y movimiento reducido.", tags: ["GSAP", "SVG", "Accesibilidad"] },
-];
-export const TECHNOLOGIES = [
-  { title: "React y Next.js" },
-  { title: "Tailwind CSS" },
-  { title: "GSAP" },
-  { title: "Node.js y Express" },
-  { title: "PostgreSQL" },
-];
 // Propuestas del portfolio; todavía no representan demos publicadas.
 // Sin demoHref: no se fabrican rutas a aplicaciones que aún no existen.
 export const PROJECTS = [

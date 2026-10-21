@@ -58,6 +58,12 @@ test("la cubierta unifica anclas y rutas, espera el cambio de página y conserva
     windowListeners.get("quokka:navigate")({detail:"/"});
     const returned = covered(); effects[0](); await returned;
     assert.ok(calls.includes("/"), "el Quokka vuelve al estudio desde el login bajo cobertura");
+    global.location.pathname = "/panel";
+    global.location.href = "http://localhost:3000/panel";
+    const previousCalls = calls.filter(call => call === "#equipo").length;
+    assert.equal(click("http://localhost:3000/panel#equipo").prevented, true, "el panel también usa la navegación compartida por anclas");
+    covered();
+    assert.equal(calls.filter(call => call === "#equipo").length, previousCalls + 1);
   } finally {
     cleanup?.();
     Object.assign(global, previous);
