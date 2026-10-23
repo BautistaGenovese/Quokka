@@ -3,4 +3,6 @@ node_modules/
 .env*
 .atl/
 .atl/*
-
+openspec/
+openspec/*
+CLAUDE.md

@@ -13,7 +13,7 @@ Este documento establece el **estándar único y obligatorio** para la base de d
 Para evitar confusiones de idioma o diferencias de nombres entre sprints:
 
 1. **Todas las tablas y columnas están íntegramente en español (`snake_case`)**, respetando el diagrama Entidad-Relación (`dbdiagram.io`) y el documento de APIs externas del equipo.
-2. **Inicialización compartida:** El modelo actualizado contempla **7 tablas**, definidas en `database/init.sql`, incluidas `tecnologias` y `servicios_tecnologias`. El backend ejecuta el script al arrancar; Docker lo ejecuta al inicializar un volumen vacío. `CREATE TABLE IF NOT EXISTS` crea tablas faltantes, pero no modifica las existentes.
+2. **Inicialización compartida:** El modelo actualizado contempla **7 tablas**, definidas en `database/init.sql`, incluidas `tecnologias` y `servicios_tecnologias`. El backend ejecuta el script al arrancar; Docker lo ejecuta al inicializar un volumen vacío. `CREATE TABLE IF NOT EXISTS` crea tablas faltantes, pero no modifica las existentes. Además, incluye la siembra condicional (`seed`) de 4 proyectos de muestra cuando la tabla `proyectos` se encuentra vacía.
 3. Cada integrante tiene detallada aquí **su tabla asignada**, **el tipo y nulabilidad de cada columna (y por qué)**, y **los endpoints exactos que debe programar en su módulo**.
 
 ---
@@ -157,6 +157,29 @@ erDiagram
    - `GET /api/proyectos` → Público (devuelve resumen sin exponer recursos privados si aplica).
    - `GET /api/proyectos/:id` → Protegido con `requireAuth` para ver el detalle completo y `url_demo`.
    - `POST /api/admin/proyectos`, `PUT /api/admin/proyectos/:id`, `DELETE /api/admin/proyectos/:id` → Protegidos con `requireAuth` y `requireRol('administrador')`.
+
+#### ✅ Contrato implementado de proyectos
+
+- **Alias:** `/api/projects` y `/api/admin/projects` se comportan igual que `/api/proyectos` y `/api/admin/proyectos`.
+- **Endpoints:**
+  - `GET /api/proyectos` (público): arreglo ordenado por `fecha_publicacion DESC, id DESC`.
+  - `GET /api/proyectos/:id` (`requireAuth`, cualquier rol): `{ ok: true, proyecto }`.
+  - `GET /api/admin/proyectos` (administrador, **adicional al contrato original**): arreglo con todos los campos de administración.
+  - `POST` / `PUT /:id` / `DELETE /:id` en `/api/admin/proyectos` (administrador). `PUT` reemplaza los seis campos editables y no modifica `id_autor` ni `fecha_publicacion`; `id_autor` del `POST` sale siempre del token.
+- **Campos expuestos por audiencia:**
+  - Público: `id`, `titulo`, `descripcion`, `tecnologias`, `imagen_url`, `fecha_publicacion`.
+  - Detalle autenticado: lo anterior más `url_demo`.
+  - Administrador: lo anterior más `imagen_public_id` e `id_autor`.
+- **Validación de Identificador (`:id`):**
+  - Los endpoints que reciben `:id` (`GET /api/proyectos/:id`, `PUT /api/admin/proyectos/:id`, `DELETE /api/admin/proyectos/:id`) exigen estrictamente dígitos decimales canónicos (`/^[1-9]\d{0,9}$/`) dentro del rango de PostgreSQL `SERIAL` (`1 <= id <= 2147483647`).
+  - Se rechazan con `400 { ok: false, error: 'Identificador de proyecto inválido' }` entradas no canónicas (espacios, ceros precedentes `'007'`, hexadecimal `'0x10'`, notación científica `'1e3'`) o que superen el rango entero de 32 bits.
+  - En el frontend, la página de detalle `/proyectos/[id]` verifica este mismo rango y responde con `404 (notFound)` inmediatamente ante valores fuera de rango sin consultar al servidor.
+- **Validación de Datos (400 `{ ok: false, error, fields }`):** `titulo` 3-150 caracteres (en puntos de código); `descripcion` hasta 5000; `tecnologias` hasta 255; `url_demo` http/https hasta 255 sin credenciales; `imagen_url` https con host `res.cloudinary.com` (sin puerto ni credenciales); `imagen_public_id` hasta 255 y solo junto a `imagen_url`. Se recorta el texto (`trim`) y las cadenas vacías `''` se almacenan como `NULL`.
+- **Códigos:** 400 (id o campos inválidos), 401 (sin token; también `POST` si el autor del token ya no existe, FK `23503`), 403 (rol insuficiente), 404 (proyecto inexistente), 500 genérico. No existe 409.
+- **Gestión de Imágenes:** Al borrar o reemplazar un proyecto no se elimina el recurso en Cloudinary (huérfanos aceptados). Si un proyecto no posee imagen o falla su carga, el frontend despliega el fallback local `/previews/proyecto.svg`.
+- **Semilla inicial en Base de Datos:** `database/init.sql` inserta condicionalmente 4 proyectos muestra con enlaces de demo hacia el repositorio cuando la tabla `proyectos` está vacía (`WHERE NOT EXISTS (SELECT 1 FROM proyectos)`).
+- **Seguridad en Redirecciones post-login (`safeNextPath`):** El acceso al detalle `/proyectos/:id` sin sesión redirige a `/iniciar-sesion?next=/proyectos/:id`. La función `safeNextPath` sanea y restringe el parámetro `next` para admitir solo rutas relativas internas, bloqueando intentos de *Open Redirect* (dominios externos, secuencias con prefijo doble barra `//evil.com` o segmentos de punto normalizados `/.//evil.com`, `/a/..//evil.com`).
+- **Módulo Panel Administrador (`ProjectsManager`):** Integrado en `/panel#proyectos-admin` permitiendo altas, bajas y modificaciones con validación simétrica a la del servidor. Los operadores pueden consultar el listado en modo lectura a través del endpoint público.
 
 ---
 
@@ -333,9 +356,9 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Construir estructura general en React (layouts, navbar, menú, footer) y secciones públicas de presentación, tecnologías y servicios.
 - [x] **Sprint 2 (Frontend):** Desarrollar la interfaz visual de la sección de Proyectos y Demos con estado condicional (`locked`) para exigir sesión iniciada al ver detalles.
-- [ ] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
-- [ ] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
-- [ ] **Sprint 4 (QA):** Ejecutar pruebas de calidad sobre todos los flujos de creación, lectura y actualización de proyectos.
+- [x] **Sprint 2/3 (Backend - Lectura Proyectos):** Crear `GET /api/proyectos` (público) y `GET /api/proyectos/:id` (protegido con `requireAuth`).
+- [x] **Sprint 3 (CRUD Proyectos y Demos):** Desarrollar interfaz en el panel de Administrador y endpoints (`POST`, `PUT`, `DELETE` en `/api/admin/proyectos`) con validación estricta de imágenes hacia la tabla `proyectos`.
+- [x] **Sprint 4 (QA):** Ejecutar pruebas de calidad sobre todos los flujos de creación, lectura y actualización de proyectos (pruebas unitarias y de integración en backend y frontend).
 
 ---
 

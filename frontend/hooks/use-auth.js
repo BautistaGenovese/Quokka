@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
+const AUTH_EVENT = "quokka:auth-change";
 
 export const ROLE_LABELS = {
   usuario: "Usuario",
@@ -10,37 +11,54 @@ export const ROLE_LABELS = {
   administrador: "Administrador",
 };
 
+// La sesión vive en localStorage y se lee como store externo:
+// así no hace falta copiarla al estado con setState dentro de un efecto.
+const subscribeNoop = () => () => {};
+
+function subscribeSession(onChange) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(AUTH_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(AUTH_EVENT, onChange);
+  };
+}
+
+// useSyncExternalStore exige el mismo objeto mientras no cambie el valor guardado.
+let cachedRaw = null;
+let cachedUser = null;
+
 function readStoredUser() {
   if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem("quokka_user");
+  const token = window.localStorage.getItem("quokka_token");
+  if (!raw || !token) return null;
+  if (raw === cachedRaw) return cachedUser;
   try {
-    const raw = window.localStorage.getItem("quokka_user");
-    const token = window.localStorage.getItem("quokka_token");
-    if (!raw || !token) return null;
-    return JSON.parse(raw);
+    cachedUser = JSON.parse(raw);
   } catch {
-    return null;
+    cachedUser = null;
   }
+  cachedRaw = raw;
+  return cachedUser;
+}
+
+function notifyAuthChange() {
+  window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
 export default function useAuth() {
-  const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const syncFromStorage = useCallback(() => {
-    setUser(readStoredUser());
-  }, []);
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const user = useSyncExternalStore(subscribeSession, readStoredUser, () => null);
+  // Solo se verifica el token presente al montar; sin token no hay nada que cargar.
+  const [initialToken] = useState(() =>
+    typeof window === "undefined" ? null : window.localStorage.getItem("quokka_token"),
+  );
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
-    const initialUser = readStoredUser();
-    setUser(initialUser);
-
-    const token = typeof window !== "undefined" ? window.localStorage.getItem("quokka_token") : null;
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    const token = initialToken;
+    if (!token) return;
 
     let cancelled = false;
     fetch(`${API_BASE_URL}/api/auth/me`, {
@@ -50,7 +68,7 @@ export default function useAuth() {
         if (res.status === 401) {
           window.localStorage.removeItem("quokka_token");
           window.localStorage.removeItem("quokka_user");
-          if (!cancelled) setUser(null);
+          notifyAuthChange();
           return;
         }
         if (!res.ok) return;
@@ -58,38 +76,32 @@ export default function useAuth() {
         if (data?.usuario && !cancelled) {
           if (data.token) window.localStorage.setItem("quokka_token", data.token);
           window.localStorage.setItem("quokka_user", JSON.stringify(data.usuario));
-          setUser(data.usuario);
+          notifyAuthChange();
         }
       })
       .catch(() => {
         // Si el backend no está accesible temporalmente, conservamos la sesión local
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setChecking(false);
       });
 
-    const onStorage = () => syncFromStorage();
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("quokka:auth-change", onStorage);
     return () => {
       cancelled = true;
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("quokka:auth-change", onStorage);
     };
-  }, [syncFromStorage]);
+  }, [initialToken]);
 
   const logout = useCallback(() => {
     if (typeof window === "undefined") return;
     window.localStorage.removeItem("quokka_token");
     window.localStorage.removeItem("quokka_user");
-    setUser(null);
-    window.dispatchEvent(new Event("quokka:auth-change"));
+    notifyAuthChange();
     window.location.href = "/";
   }, []);
 
   return {
     mounted,
-    loading,
+    loading: !mounted || (initialToken !== null && checking),
     user,
     roleLabel: user?.rol ? ROLE_LABELS[user.rol] || user.rol : null,
     isAdmin: user?.rol === "administrador",

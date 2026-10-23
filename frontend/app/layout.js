@@ -1,5 +1,6 @@
 import Script from "next/script";
-import { Figtree, DM_Mono, Gabarito } from "next/font/google";
+import { Figtree, DM_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppearanceProvider } from "@/hooks/use-appearance";
 import QuokkaEffects from "@/components/layout/quokka-effects";
@@ -8,7 +9,12 @@ import CursorFollower from "@/components/layout/cursor-follower";
 
 const figtree = Figtree({ variable: "--font-loaded-body", subsets: ["latin"], display: "swap" });
 const dmMono = DM_Mono({ variable: "--font-loaded-mono", weight: ["400", "500"], subsets: ["latin"], display: "swap" });
-const gabarito = Gabarito({ variable: "--font-loaded-display", subsets: ["latin"], display: "swap" });
+const gabarito = localFont({
+  src: "./fonts/Gabarito-Variable.ttf",
+  variable: "--font-loaded-display",
+  display: "swap",
+  weight: "400 900",
+});
 
 export const metadata = {
   title: "Quokka Studio · Código con instinto",
