@@ -12,6 +12,7 @@ const {
   tecnologiasRouter,
   adminTecnologiasRouter
 } = require('./routes/servicios');
+const metricasRouter = require('./routes/metricas');
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -67,6 +68,9 @@ app.use('/api/technologies', tecnologiasRouter);
 
 app.use('/api/admin/tecnologias', adminTecnologiasRouter);
 app.use('/api/admin/technologies', adminTecnologiasRouter);
+
+// Rutas al módulo de métricas
+app.use('/api', metricasRouter);
 
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {

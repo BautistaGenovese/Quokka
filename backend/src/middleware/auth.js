@@ -97,7 +97,37 @@ function requireRol(...rolesPermitidos) {
   };
 }
 
+/**
+ * Middleware opcional: si hay un token con firma válida, guarda el usuario en req.user. 
+ * Si no hay token, o la firma es inválida, sigue igual sin req.user (visita anónima) .
+ * Acepta tokens vencidos, porque la persona igual inicio sesión alguna vez .
+ */
+function identificarUsuarioOpcional(req, res, next) {
+  const secret = process.env.JWT_SECRET;
+  const token = extraerTokenDeHeaders(req.headers);
+
+  if (!secret || !token) {
+    return next();
+  }
+
+  try {
+    const payload = jwt.verify(token, secret, { ignoreExpiration: true});
+
+    req.user = {
+      id: payload.id,
+      nombre: payload.nombre,
+      email: payload.email,
+      rol: payload.rol,
+    };
+  } catch (error) {
+    // Firma inválida o token mal formado: se trata como anónimo
+  }
+
+  return next();
+}
+
 module.exports = {
   requireAuth,
   requireRol,
+  identificarUsuarioOpcional,
 };
