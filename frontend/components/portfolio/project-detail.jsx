@@ -10,6 +10,7 @@ import useAppearance from "@/hooks/use-appearance";
 import useAuth from "@/hooks/use-auth";
 import { panelRequest } from "@/lib/panel-api";
 import { isHttpUrl } from "@/lib/projects";
+import { registrarVisita } from "@/lib/visitas-api";
 
 const LINKS = [{ href: "/#proyectos", label: "Volver a proyectos" }];
 const formatDate = value => value ? new Date(value).toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" }) : null;
@@ -41,6 +42,9 @@ export default function ProjectDetail({ id }) {
   }, [ready, loggedIn, id, attempt]);
 
   const { status, project } = state;
+  // Métricas: se registra una visita al detalle solo cuando el proyecto se cargó
+  // correctamente, es decir, cuando la persona realmente pudo verlo.
+  useEffect(() => { if (status === "ready") registrarVisita("/proyectos/" + id); }, [status, id]);
   const date = formatDate(project?.fecha_publicacion);
   return <>
     <Navbar items={LINKS} homeHref="/" theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />

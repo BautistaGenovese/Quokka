@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test:motion": "node --test tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs",
     "test:components": "node --test tests/component-contracts.test.cjs",
-    "test": "node --test tests/component-contracts.test.cjs tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs tests/repository-contracts.test.cjs tests/panel-api.test.cjs tests/projects.test.cjs"
+    "test": "node --test tests/component-contracts.test.cjs tests/button-motion.test.cjs tests/scroll-carousel.test.cjs tests/navigation-transition.test.cjs tests/quokka-rain.test.cjs tests/interaction-cleanup.test.cjs tests/repository-contracts.test.cjs tests/panel-api.test.cjs tests/projects.test.cjs tests/github.test.cjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -17,11 +17,12 @@
     "gsap": "^3.15.0",
     "lucide-react": "^1.53.0",
     "motion": "^14.3.0",
-    "next": "16.4.0",
+    "next": "^16.4.3",
     "postcss": "^8.5.29",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

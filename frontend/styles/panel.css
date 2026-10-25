@@ -1,6 +1,8 @@
 /* Solo composición de los módulos; navbar, menú, paleta y campos son compartidos. */
 .admin-page { font-family: var(--font-body); }
-.admin-intro { padding: clamp(3rem, 7vw, 6rem) 0; }
+.admin-intro { padding: clamp(3rem, 7vw, 6rem) 0 clamp(.75rem, 1.5vw, 1.25rem); }
+/* El primer módulo queda cerca de la introducción sin quedar pegado a ella */
+.admin-intro + .admin-module { padding-top: clamp(1rem, 2vw, 1.5rem); }
 .admin-intro h1 { font-size: clamp(2.8rem, 7vw, 6rem); line-height: 1.05; margin-bottom: 1.25rem; }
 .admin-intro > .studio-shell > p:last-child { font-size: 1.1rem; line-height: 1.7; max-width: 38rem; }
 .admin-module { padding: clamp(2.5rem, 6vw, 5rem) 0; scroll-margin-top: 90px; }
@@ -80,3 +82,14 @@
   .panel-dialog-body { padding: 22px 18px; }
   .panel-filters { grid-template-columns: 1fr; }
 }
+
+/* Métricas: filtros, totales y gráficos de visitas (Recharts) */
+.panel-metrics-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 24px; margin-bottom: 24px; }
+.panel-metrics-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.panel-metrics-totals { grid-column: 1 / -1; }
+/* En pantallas de escritorio los dos gráficos se muestran lado a lado */
+@media (min-width: 1024px) { .panel-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.panel-metrics-totals { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 32px; font-size: 15px; }
+.panel-metrics-totals strong { font: 600 28px/1.2 var(--font-display); margin-right: 6px; }
+.panel-metrics-chart { padding: 24px; min-width: 0; }
+.panel-metrics-chart h3 { font-size: 20px; margin-bottom: 16px; }

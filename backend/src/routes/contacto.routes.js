@@ -4,7 +4,7 @@ const {
   listarSolicitudesContacto,
   responderSolicitudContacto,
 } = require('../controllers/contacto.controller');
-const { crearLimitadorSolicitudes } = require('../middlewares/limitadorSolicitudes');
+const { crearLimitadorSolicitudes } = require('../middleware/limitadorSolicitudes');
 const { requireAuth, requireRol } = require('../middleware/auth');
 
 const contactoRouter = express.Router();

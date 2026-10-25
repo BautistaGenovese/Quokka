@@ -9,7 +9,7 @@ const {
 } = require('../src/controllers/contacto.controller');
 const servicioCorreo = require('../src/services/correo.service');
 const { sanitizarValorCabecera, escaparHtml } = servicioCorreo;
-const { crearLimitadorSolicitudes } = require('../src/middlewares/limitadorSolicitudes');
+const { crearLimitadorSolicitudes } = require('../src/middleware/limitadorSolicitudes');
 const contactoRouter = require('../src/routes/contacto.routes');
 
 function crearRespuestaSimulada() {
