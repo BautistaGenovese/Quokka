@@ -3,7 +3,8 @@ import CatalogManager from "./catalog-manager";
 import ContactsManager from "./contacts-manager";
 import UsersManager from "./users-manager";
 import ProjectsManager from "./projects-manager";
-import { PanelHeading } from "./panel-shared";
+import MetricsManager from "./metrics-manager";
+
 
 function AdminSection({ id, surface = "page", children }) {
   return <Section id={id} tabIndex={-1} surface={surface} className="admin-module menu-destination"><div className="studio-shell">{children}</div></Section>;
@@ -30,5 +31,5 @@ export function ProyectosAdmin() {
 }
 
 export function MetricasAdmin() {
-  return <AdminSection id="metricas-admin"><PanelHeading eyebrow="Próximamente" title="Métricas" description="Las estadísticas de visitas se incorporarán en esta sección." /></AdminSection>;
+  return <AdminSection id="metricas-admin"><MetricsManager /></AdminSection>;
 }

@@ -83,6 +83,7 @@ erDiagram
         serial id PK
         varchar_255 ruta "NOT NULL"
         int usuario_id FK "NULLABLE -> usuarios(id)"
+        varchar_50 seccion "NULLABLE (seccion de la portada alcanzada)"
         timestamptz fecha "NOT NULL, DEFAULT NOW()"
     }
 ```
@@ -152,7 +153,8 @@ erDiagram
 #### 🔌 Qué deben hacer Lautaro y Micaías en el Backend:
 
 1. **`backend/src/routes/archivos.js` (Micaías):**
-   - `POST /api/admin/imagenes` y `DELETE /api/admin/imagenes` usando `multer` (validando JPG/PNG/WebP hasta 5 MB) y `cloudinary`.
+   - **Decisión del equipo:** no se implementa subida desde el backend. Las imágenes se suben a mano a Cloudinary (Media Library) y el CRUD de proyectos guarda solo la URL en `imagen_url`, validada como `https://res.cloudinary.com/...`. Formato recomendado: JPG/PNG/WebP de hasta 5 MB.
+   - *(Opcional a futuro)* `POST /api/admin/imagenes` y `DELETE /api/admin/imagenes` usando `multer` y `cloudinary`.
 2. **`backend/src/routes/proyectos.js` (Lautaro):**
    - `GET /api/proyectos` → Público (devuelve resumen sin exponer recursos privados si aplica).
    - `GET /api/proyectos/:id` → Protegido con `requireAuth` para ver el detalle completo y `url_demo`.
@@ -304,12 +306,13 @@ CREATE TABLE IF NOT EXISTS servicios_tecnologias (
 | `id`         | `SERIAL`       |    **NO** (`PK`)    | `PRIMARY KEY`                                | Identificador único de cada evento de visita registrado.                                                                                                                                                                                                                    |
 | `ruta`       | `VARCHAR(255)` | **NO** (`NOT NULL`) | `CHECK (length >= 1)`                        | Guarda qué página visitó la persona (ej. `'/'`, `'/proyectos'`, `'/contacto'`).                                                                                                                                                                                             |
 | `usuario_id` | `INTEGER`      |   **SÍ** (`NULL`)   | `REFERENCES usuarios(id) ON DELETE SET NULL` | **Es clave que acepte `NULL`:** Si el visitante es anónimo (no inició sesión), se guarda `NULL` (visita general). Si tiene sesión iniciada, guarda su `id` (visita autenticada). Así se cumple el requisito de la cátedra de distinguir visitas generales vs. autenticadas. |
+| `seccion`    | `VARCHAR(50)`  |   **SÍ** (`NULL`)   | Una de: `inicio`, `manifiesto`, `equipo`, `servicios`, `proyectos`, `stack-tech`, `contacto` | Sección de la portada que alcanzó la persona (se registra al entrar en pantalla). Acepta `NULL` para páginas sin secciones como `/proyectos/:id` y para filas anteriores a esta columna. |
 | `fecha`      | `TIMESTAMPTZ`  | **NO** (`NOT NULL`) | `DEFAULT CURRENT_TIMESTAMP`                  | Fecha y hora de la visita, indexada para agrupar por rango de fechas (`BETWEEN $1 AND $2`) en los gráficos del Administrador.                                                                                                                                               |
 
 #### 🔌 Qué debe hacer Micaías en el Backend:
 
 1. **`backend/src/routes/metricas.js`:**
-   - `POST /api/visitas` → Público. Recibe `{ ruta }` (y opcionalmente detecta el usuario si envía token) e inserta en `visitas`.
+   - `POST /api/visitas` → Público. Recibe `{ ruta, seccion? }` (y detecta el usuario si envía token; sin token queda como visita anónima). `seccion` debe ser una de las siete de la portada. `/panel` e `/iniciar-sesion` no se registran (responde `204` sin insertar). Responde `201` al registrar.
    - `GET /api/metricas/visitas?desde=AAAA-MM-DD&hasta=AAAA-MM-DD&tipo=todas|registradas` → Protegido para `'administrador'`. Ejecuta la consulta parametrizada filtrando por `usuario_id IS NOT NULL` cuando `tipo === 'registradas'`.
 2. **`backend/src/routes/github.js` (Integración GitHub REST API):**
    - `GET /api/github/miembros` (o `/api/github/equipo`): Consulta los perfiles de GitHub de los 5 integrantes del equipo en la API de GitHub (`/users/:username`) con caché en memoria (para no superar el rate limit de GitHub), devolviendo avatar, nombre, bio/descripción y link al perfil de GitHub para renderizar la galería del equipo (`TeamGallery`) de forma dinámica sin dejar los perfiles hardcodeados.
@@ -390,6 +393,6 @@ const { rows } = await db.query(
 
 - [x] **Sprint 1:** Seleccionar y documentar APIs Web externas a integrar y configurar librerías de animación en el entorno.
 - [x] **Sprint 2:** Aplicar animaciones fluidas a transiciones de página (`NavigationTransition`), títulos (`AnimatedHeading`), mascota interactiva (`SlingButton`) y componentes clave.
-- [ ] **Sprint 3 (Cloudinary):** Implementar `backend/src/routes/archivos.js` y middleware `multer` para subida/borrado seguro de imágenes en Cloudinary (`POST` y `DELETE /api/admin/imagenes`).
-- [ ] **Sprint 3 (GitHub REST API - Repositorios y Equipo):** Implementar en `backend/src/routes/github.js` los endpoints `GET /api/github/repos` y `GET /api/github/miembros` para cargar dinámicamente desde la API de GitHub los repositorios y los perfiles de los integrantes del equipo en la sección pública (`TeamGallery`) sin que queden hardcodeados.
-- [ ] **Sprint 4 (Métricas y Gráficos):** Implementar `POST /api/visitas`, `GET /api/metricas/visitas` con consultas SQL parametrizadas sobre la tabla `visitas`, componente rastreador en frontend y gráficos interactivos (Recharts) en el panel del Administrador.
+- [x] **Sprint 3 (Cloudinary):** Subida manual de imágenes en Cloudinary; el CRUD de proyectos guarda `imagen_url` (solo `https://res.cloudinary.com/...`, validado en cliente y servidor). No se implementa `archivos.js` ni `multer`: los endpoints `POST` y `DELETE /api/admin/imagenes` quedan como mejora opcional.
+- [x] **Sprint 3 (GitHub REST API - Repositorios y Equipo):** `GET /api/github/miembros` (alias `/api/github/equipo`) en `backend/src/routes/github.js`, con caché en memoria de 10 min, y galería del equipo (`TeamGallery`) con foto y enlace tomados de GitHub, sin enlaces escritos a mano en el frontend. Los proyectos se cargan por CRUD con imágenes en Cloudinary, por lo que no se implementa `GET /api/github/repos`.
+- [x] **Sprint 4 (Métricas y Gráficos):** `POST /api/visitas` (con `seccion`), `GET /api/metricas/visitas` (por día: total, registradas y anónimas) y `GET /api/metricas/secciones` (embudo por sección) con consultas parametrizadas sobre `visitas`; rastreador en la portada y `/proyectos/:id`; gráficos con Recharts en `/panel#metricas-admin`. Pruebas: `backend/tests/metricas.test.js`.

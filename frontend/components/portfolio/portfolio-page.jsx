@@ -13,14 +13,18 @@ import Marquee from "@/components/ui/marquee";
 import ContactForm from "@/components/forms/contact-form";
 import Footer from "@/components/layout/footer";
 import useAppearance from "@/hooks/use-appearance";
+import useEquipoGithub from "@/hooks/use-equipo-github";
 import { submitContactRequest } from "@/lib/contact-api";
 import { TEAM, SITE_LINKS } from "@/lib/site-content";
 import PublicCatalog from "@/components/portfolio/public-catalog";
+import RastreadorVisitas from "@/components/portfolio/rastreador-visitas";
 
 export default function PortfolioPage() {
   const { theme, mode, setTheme, setMode } = useAppearance();
+  // Equipo con foto de perfil y enlace tomados de la API de GitHub (vía el backend)
+  const equipo = useEquipoGithub(TEAM);
   return <>
-    <a className="studio-skip-link" href="#contenido">Saltar al contenido</a>
+    <RastreadorVisitas /><a className="studio-skip-link" href="#contenido">Saltar al contenido</a>
     <Navbar items={SITE_LINKS} theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />
     <main id="contenido" tabIndex={-1} className="quokka-portfolio">
       <StudioHero />
@@ -32,7 +36,7 @@ export default function PortfolioPage() {
       </Section>
       <Section id="equipo" tabIndex={-1} surface="page" className="menu-destination studio-section studio-team">
         <div className="studio-shell"><SectionHeading number="02" label="El colectivo" description="Cinco miradas distintas, una misma base. Girá las tarjetas para descubrir qué aporta cada persona.">Buenas ideas.<br />Mejor <span className="word-color">en</span> <span className="word-outline">equipo.</span></SectionHeading></div>
-        <TeamGallery members={TEAM} />
+        <TeamGallery members={equipo} />
       </Section>
       <Section id="servicios" tabIndex={-1} surface="card" className="menu-destination studio-section">
         <div className="studio-shell"><SectionHeading number="03" label="Lo que hacemos" description="Del primer boceto a la lógica que lo hace posible. Pensamos cada parte como un mismo sistema.">Damos forma<br /><span className="word-wave">a lo que imaginás.</span></SectionHeading>

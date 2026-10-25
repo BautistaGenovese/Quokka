@@ -90,6 +90,11 @@ CREATE TABLE IF NOT EXISTS visitas (
   fecha TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Sección de la portada alcanzada (ej. 'equipo', 'contacto'). NULL cuando la visita es
+-- a una página sin secciones (ej. /proyectos/:id). Solo modifica la tabla `visitas`;
+-- ADD COLUMN IF NOT EXISTS lo hace compatible con volúmenes ya creados.
+ALTER TABLE visitas ADD COLUMN IF NOT EXISTS seccion VARCHAR(50);
+
 -- Índices para optimizar las consultas parametrizadas de métricas y listados
 CREATE INDEX IF NOT EXISTS idx_visitas_fecha ON visitas (fecha);
 CREATE INDEX IF NOT EXISTS idx_visitas_usuario_id ON visitas (usuario_id);
@@ -122,3 +127,25 @@ WHERE NOT EXISTS (SELECT 1 FROM proyectos)
 -- El listado ordena por id DESC ante la misma fecha: se insertan al revés
 -- para que se muestren en el orden de arriba.
 ORDER BY muestra.orden DESC;
+
+
+-- -----------------------------------------------------------------------------
+-- Imágenes de los proyectos de muestra (subidas a mano a Cloudinary).
+-- Solo completa las que no tienen imagen (imagen_url IS NULL): sirve tanto para
+-- bases nuevas como para las que ya tenían el seed sin imagen, y nunca pisa una
+-- imagen cargada desde el CRUD. imagen_public_id queda en NULL (es opcional).
+-- -----------------------------------------------------------------------------
+UPDATE proyectos AS p
+SET imagen_url = imagen.url
+FROM (VALUES
+  ('Gestor de Turnos & Agenda Web',
+   'https://res.cloudinary.com/iujuazh5/image/upload/f_auto,q_auto/Inicio_Agenda_del_d%C3%ADa_1x'),
+  ('Dashboard de Métricas & Tráfico',
+   'https://res.cloudinary.com/iujuazh5/image/upload/v1792960215/Dashboard_de_M%C3%A9tricas_y_Tr%C3%A1fico_1x.png'),
+  ('E-Commerce con API de Pagos',
+   'https://res.cloudinary.com/iujuazh5/image/upload/v1792960463/E-Commerce_con_API_de_Pagos_1x.png'),
+  ('Portal de Reservas Gastronómicas',
+   'https://res.cloudinary.com/iujuazh5/image/upload/v1792960559/Portal_de_Reservas_Gastron%C3%B3micas.png')
+) AS imagen (titulo, url)
+WHERE p.titulo = imagen.titulo
+  AND p.imagen_url IS NULL;

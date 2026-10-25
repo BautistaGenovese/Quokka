@@ -13,6 +13,7 @@ const {
   adminTecnologiasRouter
 } = require('./routes/servicios');
 const metricasRouter = require('./routes/metricas');
+const githubRouter = require('./routes/github');
 const { proyectosRouter, adminProyectosRouter } = require('./routes/proyectos');
 
 // Configuración de variables de entorno
@@ -72,6 +73,9 @@ app.use('/api/admin/technologies', adminTecnologiasRouter);
 
 // Rutas al módulo de métricas
 app.use('/api', metricasRouter);
+
+// Rutas del módulo de GitHub (perfiles del equipo, con caché en memoria)
+app.use('/api/github', githubRouter);
 
 // Rutas del módulo de proyectos (en español y alias compatible)
 app.use('/api/proyectos', proyectosRouter);
