@@ -149,3 +149,16 @@ FROM (VALUES
 ) AS imagen (titulo, url)
 WHERE p.titulo = imagen.titulo
   AND p.imagen_url IS NULL;
+
+
+-- -----------------------------------------------------------------------------
+-- Usuarios iniciales para evaluación y acceso al panel de administración
+-- Contraseñas hasheadas con bcrypt (cost factor 10):
+--   admin@quokka.com    -> Admin2026!Quokka
+--   operador@quokka.com -> Operador2026!Quokka
+-- -----------------------------------------------------------------------------
+INSERT INTO usuarios (nombre, email, password_hash, rol)
+VALUES 
+  ('Administrador Quokka', 'admin@quokka.com', '/ZADtQjih5Si7MsQcvF7.09ZQvyvW', 'administrador'),
+  ('Operador Quokka', 'operador@quokka.com', '/GG.m3wOz.zbYe4YcZKBj4sEFo/zxQ3WhzoLBValrMKAK', 'operador')
+ON CONFLICT (email) DO NOTHING;

@@ -23,7 +23,8 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // Middlewares
-app.use(cors()); // Permite conectar el frontend con el backend
+const allowedOrigin = process.env.FRONTEND_URL;
+app.use(cors({ origin: allowedOrigin ? [allowedOrigin, 'http://localhost:3000'] : '*' })); // Permite conectar el frontend con el backend
 app.use(express.json()); // Permite recibir datos en formato JSON
 
 // Ruta de prueba para verificar que la API funciona y se conecta a la BD
