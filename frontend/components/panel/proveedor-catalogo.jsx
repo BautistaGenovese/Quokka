@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import usePanelResource from "@/hooks/use-panel-resource";
+import usePanelResource from "@/hooks/use-recurso-panel";
 
 const CatalogContext = createContext(null);
 

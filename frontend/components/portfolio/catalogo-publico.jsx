@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/button";
-import usePanelResource from "@/hooks/use-panel-resource";
+import usePanelResource from "@/hooks/use-recurso-panel";
 
 /** La portada lee el mismo catálogo que administra el panel. */
 export default function PublicCatalog({ kind }) {

@@ -9,7 +9,7 @@ const {
     modificarTecnologia,
     borrarTecnologia
 } = require('../controllers/servicios.controller');
-const { requireAuth, requireRol } = require('../middleware/auth');
+const { requireAuth, requireRol } = require('../middleware/autenticacion');
 
 // Dos routers porque se necesitan permisos de admin
 const serviciosRouter = express.Router();

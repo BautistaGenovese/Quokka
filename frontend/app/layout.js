@@ -2,10 +2,10 @@ import Script from "next/script";
 import { Figtree, DM_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AppearanceProvider } from "@/hooks/use-appearance";
-import QuokkaEffects from "@/components/layout/quokka-effects";
-import NavigationTransition from "@/components/navigation/navigation-transition";
-import CursorFollower from "@/components/layout/cursor-follower";
+import { AppearanceProvider } from "@/hooks/use-apariencia";
+import QuokkaEffects from "@/components/layout/efectos-quokka";
+import NavigationTransition from "@/components/navigation/transicion-navegacion";
+import CursorFollower from "@/components/layout/seguidor-cursor";
 
 const figtree = Figtree({ variable: "--font-loaded-body", subsets: ["latin"], display: "swap" });
 const dmMono = DM_Mono({ variable: "--font-loaded-mono", weight: ["400", "500"], subsets: ["latin"], display: "swap" });

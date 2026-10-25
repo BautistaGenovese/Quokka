@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import SectionTransition from "./section-transition";
+import SectionTransition from "./transicion-seccion";
 import { getSectionTarget, navigateToSection } from "@/lib/section-navigation";
 
 /** Una única cubierta persistente para anclas y rutas de toda la aplicación. */

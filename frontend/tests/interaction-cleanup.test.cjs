@@ -14,7 +14,7 @@ function load(file, resolve = require) {
 }
 
 test("la captura tolera punteros expirados incluso después de hasPointerCapture", () => {
-  const { capturePointer, releasePointer } = load("lib/pointer-capture.js");
+  const { capturePointer, releasePointer } = load("lib/captura-puntero.js");
   const node = { hasPointerCapture: () => true,
     releasePointerCapture() { throw new DOMException("Invalid pointer id", "NotFoundError"); },
     setPointerCapture() { throw new DOMException("Invalid pointer id", "NotFoundError"); },
@@ -48,7 +48,7 @@ test("footer soporta entradas, movimiento reducido y remontajes sin recursión n
   global.requestAnimationFrame = fn => { frames.set(++id, fn); return id; };
   global.cancelAnimationFrame = key => frames.delete(key);
   try {
-    const hook = load("hooks/use-footer-motion.js", () => ({ useEffect: fn => { cleanup = fn(); } }));
+    const hook = load("hooks/use-movimiento-footer.js", () => ({ useEffect: fn => { cleanup = fn(); } }));
     for (let cycle = 0; cycle < 20; cycle++) {
       reduced = false;
       hook.default({current:root}, {current:edge});

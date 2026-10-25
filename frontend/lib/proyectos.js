@@ -1,4 +1,4 @@
-import { PROJECTS } from "./site-content";
+import { PROJECTS } from "./contenido-sitio";
 
 export const PROJECT_IMAGE_FALLBACK = "/previews/proyecto.svg";
 

@@ -47,8 +47,8 @@ test("FlipCard mantiene accesible solo la cara mostrada y refleja su estado cont
 });
 
 test("la galería del equipo conserva integrantes, imágenes locales y controles con IDs propios", () => {
-  const Gallery = load("components/portfolio/team-gallery.jsx").default;
-  const { TEAM } = load("lib/site-content.js");
+  const Gallery = load("components/portfolio/galeria-equipo.jsx").default;
+  const { TEAM } = load("lib/contenido-sitio.js");
   assert.equal(renderToStaticMarkup(h(Gallery, { members: [] })), "");
   const html = renderToStaticMarkup(h(React.Fragment, null,
     h(Gallery, { members: TEAM }), h(Gallery, { members: TEAM })));
@@ -84,10 +84,10 @@ test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjet
 });
 
 test("el portfolio usa el equipo real, destinos existentes y propuestas sin enlaces inventados", () => {
-  const { TEAM, SITE_LINKS, PROJECTS } = load("lib/site-content.js");
-  const Page = load("components/portfolio/portfolio-page.jsx").default;
-  const ContactForm = load("components/forms/contact-form.jsx").default;
-  const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Page)));
+  const { TEAM, SITE_LINKS, PROJECTS } = load("lib/contenido-sitio.js");
+  const Page = load("components/portfolio/pagina-portfolio.jsx").default;
+  const ContactForm = load("components/forms/formulario-contacto.jsx").default;
+  const html = renderToStaticMarkup(h(load("hooks/use-apariencia.jsx").AppearanceProvider, null, h(Page)));
   for (const member of TEAM) assert.ok(html.includes(member.name));
   assert.equal(TEAM.length, 5);
   assert.doesNotMatch(html, /Yuji|Megumi|Nobara|Satoru|Maki|hola@dominio|LinkedIn/);
@@ -106,15 +106,15 @@ test("el portfolio usa el equipo real, destinos existentes y propuestas sin enla
 });
 
 test("la marca del login regresa a la portada y no a una sección inexistente", () => {
-  const Login = load("components/navigation/login-page.jsx").default;
-  const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Login)));
+  const Login = load("components/navigation/pagina-login.jsx").default;
+  const html = renderToStaticMarkup(h(load("hooks/use-apariencia.jsx").AppearanceProvider, null, h(Login)));
   assert.match(html, /href="\/" aria-label="Quokka Studio, ir al inicio"/);
   assert.doesNotMatch(html, /href="#inicio"/);
 });
 
 test("el panel compone sus módulos en una página y reutiliza navbar, menú, paleta y anclas", () => {
-  const { default: AdminPage, ADMIN_LINKS } = load("components/panel/admin-page.jsx");
-  const Provider = load("hooks/use-appearance.jsx").AppearanceProvider;
+  const { default: AdminPage, ADMIN_LINKS } = load("components/panel/pagina-admin.jsx");
+  const Provider = load("hooks/use-apariencia.jsx").AppearanceProvider;
   const html = renderToStaticMarkup(h(Provider, null, h(AdminPage)));
   assert.equal([...html.matchAll(/<h1\b/g)].length, 1);
   for (const item of ADMIN_LINKS) {
@@ -131,7 +131,7 @@ test("el panel compone sus módulos en una página y reutiliza navbar, menú, pa
   assert.match(html, /palette-dialog/);
   assert.match(html, /Volver al portafolio/);
   assert.doesNotMatch(html, /href="\/panel\//);
-  const home = renderToStaticMarkup(h(Provider, null, h(load("components/portfolio/portfolio-page.jsx").default)));
+  const home = renderToStaticMarkup(h(Provider, null, h(load("components/portfolio/pagina-portfolio.jsx").default)));
   assert.match(home, /aria-label="Panel de control"[^>]*href="\/panel"/);
 });
 
@@ -147,7 +147,7 @@ test("los presets de movimiento se consumen sin filtrarse al DOM", () => {
 });
 
 test("DemoCard bloqueada no monta contenido ni enlaces de la demo real", () => {
-  const Demo = load("components/cards/demo-card.jsx").default;
+  const Demo = load("components/cards/tarjeta-demo.jsx").default;
   function PrivatePreview() { throw new Error("No debe montarse la preview privada"); }
   const html = renderToStaticMarkup(h(Demo, { locked: true, title: "Título reservado",
     description: "Descripción reservada", demoHref: "/demo-privada", preview: h(PrivatePreview) }));
@@ -237,8 +237,8 @@ test("los encabezados conservan nivel, nombre accesible y énfasis sin depender 
 });
 
 test("la página evita texto por letra, clones del equipo y bloqueos de demos repetidos", () => {
-  const Page = load("components/portfolio/portfolio-page.jsx").default;
-  const html = renderToStaticMarkup(h(load("hooks/use-appearance.jsx").AppearanceProvider, null, h(Page)));
+  const Page = load("components/portfolio/pagina-portfolio.jsx").default;
+  const html = renderToStaticMarkup(h(load("hooks/use-apariencia.jsx").AppearanceProvider, null, h(Page)));
   assert.doesNotMatch(html, /variable-proximity|Las demos te esperan|Explorar vista de prueba/);
   assert.equal([...html.matchAll(/class="circular-gallery-card-slot"/g)].length, 5);
   assert.equal([...html.matchAll(/class="halftone-reveal-canvas"/g)].length, 1);
@@ -262,10 +262,10 @@ test("campos repetidos conservan label, ayuda y error propios; el consumidor con
 });
 
 test("las variantes de card se componen sin la página de pruebas y sin URLs ficticias", () => {
-  const Project = load("components/cards/project-card.jsx").default;
-  const Team = load("components/cards/team-card.jsx").default;
-  const Skill = load("components/cards/skill-card.jsx").default;
-  const Demo = load("components/cards/demo-card.jsx").default;
+  const Project = load("components/cards/tarjeta-proyecto.jsx").default;
+  const Team = load("components/cards/tarjeta-equipo.jsx").default;
+  const Skill = load("components/cards/tarjeta-habilidad.jsx").default;
+  const Demo = load("components/cards/tarjeta-demo.jsx").default;
   const html = renderToStaticMarkup(h(React.Fragment, null,
     h(Project, { title: "Demo", description: "Proyecto" }),
     h(Team, { name: "Bautista", role: "Frontend", description: "Equipo" }),
@@ -289,7 +289,7 @@ test("el footer compacto conserva navegación y el login ofrece campos conectabl
   const html = renderToStaticMarkup(h(Footer));
   assert.doesNotMatch(html, /Tenés un proyecto|Escribinos|quokka-footer-cta/);
   assert.match(html, /quokka-footer-nav-grid/);
-  const Login = load("components/forms/login-form.jsx").default;
+  const Login = load("components/forms/formulario-login.jsx").default;
   const form = renderToStaticMarkup(h(Login));
   assert.match(form, /name="email"/);
   assert.match(form, /type="password"/);

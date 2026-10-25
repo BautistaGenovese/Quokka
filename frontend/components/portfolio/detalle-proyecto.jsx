@@ -5,11 +5,11 @@ import Navbar from "@/components/navigation/navbar";
 import Section from "@/components/layout/section";
 import ArrowLink from "@/components/ui/arrow-link";
 import Button from "@/components/ui/button";
-import ProjectPreview from "@/components/cards/project-preview";
-import useAppearance from "@/hooks/use-appearance";
-import useAuth from "@/hooks/use-auth";
+import ProjectPreview from "@/components/cards/vista-previa-proyecto";
+import useAppearance from "@/hooks/use-apariencia";
+import useAuth from "@/hooks/use-autenticacion";
 import { panelRequest } from "@/lib/panel-api";
-import { isHttpUrl } from "@/lib/projects";
+import { isHttpUrl } from "@/lib/proyectos";
 import { registrarVisita } from "@/lib/visitas-api";
 
 const LINKS = [{ href: "/#proyectos", label: "Volver a proyectos" }];

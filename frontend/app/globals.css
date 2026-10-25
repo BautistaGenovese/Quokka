@@ -139,7 +139,7 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Paletas actuales: valores sincronizados con lib/palettes.js. */
+/* Paletas actuales: valores sincronizados con lib/paletas.js. */
 :root, :root[data-pal="sonrisa"] {
   --palette-bg-1: light-dark(#FFF7E6, #1E1A26);
   --palette-bg-2: light-dark(#FBEBCB, #2A2433);

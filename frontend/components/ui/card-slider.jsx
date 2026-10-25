@@ -3,7 +3,7 @@
 import { Children, useId, useRef } from "react";
 import CarouselMobileControls from "./carousel-mobile-controls";
 import CardSwap, { Card } from "./CardSwap";
-import useScrollCarousel from "@/hooks/use-scroll-carousel";
+import useScrollCarousel from "@/hooks/use-carrusel-scroll";
 
 /** Adapta CardSwap de React Bits a las demos y controles de Quokka. */
 export default function CardSlider({ children, label = "Demos", className = "" }) {

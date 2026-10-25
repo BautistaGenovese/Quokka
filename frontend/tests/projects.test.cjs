@@ -20,8 +20,8 @@ function load(file) {
   return loaded.exports;
 }
 
-const { safeNextPath } = load("lib/safe-redirect.js");
-const { isHttpUrl, isCloudinaryUrl, toGalleryCards, validateProjectForm, PROJECT_IMAGE_FALLBACK } = load("lib/projects.js");
+const { safeNextPath } = load("lib/redireccion-segura.js");
+const { isHttpUrl, isCloudinaryUrl, toGalleryCards, validateProjectForm, PROJECT_IMAGE_FALLBACK } = load("lib/proyectos.js");
 
 test("safeNextPath acepta rutas relativas y rechaza redirecciones externas", () => {
   assert.equal(safeNextPath("/proyectos/3"), "/proyectos/3");

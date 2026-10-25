@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ts = require("typescript");
 
-const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../lib/quokka-rain.js"), "utf8"), {
+const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../lib/lluvia-quokka.js"), "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const loaded = { exports: {} };
@@ -67,7 +67,7 @@ test("Sling distingue clic, teclado, lanzamiento y cancelación sin ejecutar dos
   const motion = { animate:(value, to) => { value.set(to); return {stop() {}}; }, motion:{span:"span"}, useMotionValue:mv, useMotionTemplate:() => "", useMotionValueEvent:() => {}, useReducedMotion:() => false };
   const code = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../components/ui/SlingButton.jsx"), "utf8"), { compilerOptions:{module:ts.ModuleKind.CommonJS, jsx:ts.JsxEmit.ReactJSX, target:ts.ScriptTarget.ES2022, esModuleInterop:true} }).outputText;
   const component = { exports:{} };
-  const resolve = name => name === "@/lib/pointer-capture" ? {capturePointer:() => true,releasePointer:() => true} : name === "react" ? api : name === "motion/react" ? motion : name.endsWith(".css") ? {} : require(name);
+  const resolve = name => name === "@/lib/captura-puntero" ? {capturePointer:() => true,releasePointer:() => true} : name === "react" ? api : name === "motion/react" ? motion : name.endsWith(".css") ? {} : require(name);
   let cleanups = [];
   try {
     new Function("require","module","exports",code)(resolve,component,component.exports);

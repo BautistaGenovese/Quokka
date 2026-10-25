@@ -1,9 +1,9 @@
 import Section from "@/components/layout/section";
-import CatalogManager from "./catalog-manager";
-import ContactsManager from "./contacts-manager";
-import UsersManager from "./users-manager";
-import ProjectsManager from "./projects-manager";
-import MetricsManager from "./metrics-manager";
+import CatalogManager from "./gestor-catalogo";
+import ContactsManager from "./gestor-contactos";
+import UsersManager from "./gestor-usuarios";
+import ProjectsManager from "./gestor-proyectos";
+import MetricsManager from "./gestor-metricas";
 
 
 function AdminSection({ id, surface = "page", children }) {

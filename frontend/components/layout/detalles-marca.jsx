@@ -1,4 +1,4 @@
-import { TEAM } from "@/lib/site-content";
+import { TEAM } from "@/lib/contenido-sitio";
 
 /** Símbolo vectorial de Quokka. Sin IDs compartidos entre instancias. */
 export function QuokkaLogo() {

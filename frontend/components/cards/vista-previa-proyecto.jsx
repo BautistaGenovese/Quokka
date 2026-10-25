@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { PROJECT_IMAGE_FALLBACK } from "@/lib/projects";
+import { PROJECT_IMAGE_FALLBACK } from "@/lib/proyectos";
 
 /** Imagen de proyecto: usa la URL de Cloudinary y cae una sola vez a la imagen por defecto. */
 export default function ProjectPreview({ src, alt, sizes = "(max-width: 768px) 82vw, 608px" }) {

@@ -6,12 +6,12 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Textarea from "@/components/ui/textarea";
-import ProjectPreview from "@/components/cards/project-preview";
-import usePanelResource from "@/hooks/use-panel-resource";
-import useAuth from "@/hooks/use-auth";
-import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-shared";
+import ProjectPreview from "@/components/cards/vista-previa-proyecto";
+import usePanelResource from "@/hooks/use-recurso-panel";
+import useAuth from "@/hooks/use-autenticacion";
+import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-compartido";
 import { deleteCatalogRecord, saveCatalogRecord } from "@/lib/panel-api";
-import { validateProjectForm } from "@/lib/projects";
+import { validateProjectForm } from "@/lib/proyectos";
 
 const FIELDS = ["titulo", "descripcion", "tecnologias", "url_demo", "imagen_url", "imagen_public_id"];
 const formatDate = value => value ? new Date(value).toLocaleDateString("es-AR", { year: "numeric", month: "short", day: "numeric" }) : "";

@@ -3,11 +3,11 @@
 import { useId, useImperativeHandle, useRef, useState } from "react";
 import useActiveSection from "@/hooks/use-active-section";
 import Section from "@/components/layout/section";
-import NavbarIcon from "@/components/navigation/navbar-icon";
+import NavbarIcon from "@/components/navigation/icono-navbar";
 import Button from "@/components/ui/button.jsx";
 
 import { gsap, useGSAP, MOTION } from "@/lib/gsap";
-import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/panel-motion";
+import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/movimiento-panel";
 
 /** Navegación por anclas: items = [{ href: "#inicio", label: "Inicio" }].
  * El dialog NO modal flota sobre la página: el fondo sigue siendo interactivo

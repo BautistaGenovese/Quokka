@@ -1,12 +1,12 @@
 "use client";
 
-import { SITE_LINKS } from "@/lib/site-content";
+import { SITE_LINKS } from "@/lib/contenido-sitio";
 
 import { useRef } from "react";
 import Section from "@/components/layout/section";
 
-import { TeamAvatars, QuokkaPeek } from "@/components/layout/brand-details";
-import useFooterMotion, { FOOTER_REST_EDGE } from "@/hooks/use-footer-motion";
+import { TeamAvatars, QuokkaPeek } from "@/components/layout/detalles-marca";
+import useFooterMotion, { FOOTER_REST_EDGE } from "@/hooks/use-movimiento-footer";
 
 /** Navegación compacta, entrada del wordmark y curva con retorno elástico. */
 export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamHref = "#equipo" }) {

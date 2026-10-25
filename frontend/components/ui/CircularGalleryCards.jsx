@@ -1,5 +1,5 @@
 "use client";
-import { capturePointer, releasePointer } from "@/lib/pointer-capture";
+import { capturePointer, releasePointer } from "@/lib/captura-puntero";
 
 import { useEffect, useImperativeHandle, useRef } from "react";
 import "./CircularGallery.css";

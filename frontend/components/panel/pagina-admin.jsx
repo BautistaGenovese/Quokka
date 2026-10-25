@@ -4,10 +4,10 @@ import Navbar from "@/components/navigation/navbar";
 import Section from "@/components/layout/section";
 import AnimatedHeading from "@/components/ui/animated-heading";
 import Button from "@/components/ui/button";
-import useAppearance from "@/hooks/use-appearance";
-import useAuth from "@/hooks/use-auth";
-import CatalogProvider from "./catalog-provider";
-import { ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin, MetricasAdmin } from "./admin-modules";
+import useAppearance from "@/hooks/use-apariencia";
+import useAuth from "@/hooks/use-autenticacion";
+import CatalogProvider from "./proveedor-catalogo";
+import { ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin, MetricasAdmin } from "./modulos-admin";
 
 export const ADMIN_LINKS = [
   { href: "#metricas-admin", label: "Métricas" },

@@ -6,7 +6,7 @@ const vm = require("node:vm");
 const ts = require("typescript");
 
 test("la rueda se captura solo en el carrusel, normaliza unidades y conserva zoom y campos", () => {
-  const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../hooks/use-scroll-carousel.js"), "utf8"), {
+  const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../hooks/use-carrusel-scroll.js"), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
   const local = new Map();

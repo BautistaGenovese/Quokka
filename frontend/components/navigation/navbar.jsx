@@ -3,11 +3,11 @@
 import { useEffect, useRef, useImperativeHandle } from "react";
 
 import Section from "@/components/layout/section";
-import SiteMenu from "@/components/navigation/site-menu";
-import PalettePanel from "@/components/navigation/palette-panel";
+import SiteMenu from "@/components/navigation/menu-sitio";
+import PalettePanel from "@/components/navigation/panel-paletas";
 import QuokkaSling from "./quokka-sling";
 import useNavbarMotion from "@/hooks/use-navbar-motion";
-import useAuth from "@/hooks/use-auth";
+import useAuth from "@/hooks/use-autenticacion";
 import Button from "@/components/ui/button";
 import { LayoutDashboard, LogOut } from "lucide-react";
 

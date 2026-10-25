@@ -6,10 +6,10 @@ import Section from "@/components/layout/section";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
-import usePanelResource from "@/hooks/use-panel-resource";
-import useAuth from "@/hooks/use-auth";
+import usePanelResource from "@/hooks/use-recurso-panel";
+import useAuth from "@/hooks/use-autenticacion";
 import { deleteUser, updateUserRole } from "@/lib/panel-api";
-import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-shared";
+import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-compartido";
 
 const ROLE_LABELS = {
   usuario: "Usuario registrado",

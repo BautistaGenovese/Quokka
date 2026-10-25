@@ -7,7 +7,7 @@ const {
   modificarProyecto,
   borrarProyecto,
 } = require('../controllers/proyectos.controller');
-const { requireAuth, requireRol } = require('../middleware/auth');
+const { requireAuth, requireRol } = require('../middleware/autenticacion');
 
 const proyectosRouter = express.Router();
 const adminProyectosRouter = express.Router();

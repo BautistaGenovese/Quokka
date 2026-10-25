@@ -1,14 +1,14 @@
 "use client";
 
 import Section from "@/components/layout/section";
-import SectionHeading from "./section-heading";
+import SectionHeading from "./encabezado-seccion";
 import CardSlider from "@/components/ui/card-slider";
-import DemoCard from "@/components/cards/demo-card";
-import DemoPreview from "@/components/cards/demo-preview";
-import ProjectPreview from "@/components/cards/project-preview";
-import usePanelResource from "@/hooks/use-panel-resource";
-import useAuth from "@/hooks/use-auth";
-import { toGalleryCards } from "@/lib/projects";
+import DemoCard from "@/components/cards/tarjeta-demo";
+import DemoPreview from "@/components/cards/vista-previa-demo";
+import ProjectPreview from "@/components/cards/vista-previa-proyecto";
+import usePanelResource from "@/hooks/use-recurso-panel";
+import useAuth from "@/hooks/use-autenticacion";
+import { toGalleryCards } from "@/lib/proyectos";
 
 /** Las tarjetas no consultan la API: lo hace esta galería. Cada proyecto real es una tarjeta;
  * las muestras de site-content solo aparecen si la API falla o viene vacía. */

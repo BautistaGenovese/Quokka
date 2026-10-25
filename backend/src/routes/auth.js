@@ -3,8 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const db = require('../config/db');
-const initDb = require('../config/initDb');
-const { requireAuth } = require('../middleware/auth');
+const initDb = require('../config/inicializarBd');
+const { requireAuth } = require('../middleware/autenticacion');
 
 const authRouter = express.Router();
 

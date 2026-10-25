@@ -1,7 +1,7 @@
 "use client";
 
 import SlingButton from "@/components/ui/SlingButton";
-import { QuokkaLogo } from "@/components/layout/brand-details";
+import { QuokkaLogo } from "@/components/layout/detalles-marca";
 
 export default function QuokkaSling() {
   const home = () => {

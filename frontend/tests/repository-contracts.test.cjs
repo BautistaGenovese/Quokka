@@ -25,7 +25,7 @@ test("los imports locales y assets de la aplicación apuntan a archivos existent
 });
 
 test("DESIGN, las muestras y CSS comparten las cinco paletas actuales", () => {
-  const source = fs.readFileSync(path.join(root, "lib/palettes.js"), "utf8");
+  const source = fs.readFileSync(path.join(root, "lib/paletas.js"), "utf8");
   const palettes = JSON.parse(source.slice(source.indexOf("["), source.lastIndexOf("]") + 1));
   const css = postcss.parse(fs.readFileSync(path.join(root, "app/globals.css"), "utf8"));
   const design = fs.readFileSync(path.join(root, "../DESIGN.md"), "utf8");
@@ -49,9 +49,9 @@ test("DESIGN, las muestras y CSS comparten las cinco paletas actuales", () => {
 test("la portada es pública y no quedan rutas ni dependencias del catálogo antiguo", () => {
   const routes = walk(path.join(root, "app")).filter(file => /[\\/]page\.[jt]sx?$/.test(file)).map(file => path.relative(path.join(root, "app"), file).replaceAll("\\", "/")).sort();
   assert.deepEqual(routes, ["iniciar-sesion/page.jsx", "page.js", "panel/page.jsx", "proyectos/[id]/page.jsx"]);
-  const home = fs.readFileSync(path.join(root, "components/portfolio/portfolio-page.jsx"), "utf8");
+  const home = fs.readFileSync(path.join(root, "components/portfolio/pagina-portfolio.jsx"), "utf8");
   assert.match(home, /function PortfolioPage/);
   assert.doesNotMatch(home, /PortfolioPreview|\/componentes|\/experiencia/);
-  const menu = fs.readFileSync(path.join(root, "components/navigation/site-menu.jsx"), "utf8");
+  const menu = fs.readFileSync(path.join(root, "components/navigation/menu-sitio.jsx"), "utf8");
   assert.ok(menu.indexOf('className="site-menu-help"') < menu.indexOf('href={footerLink.href}'));
 });

@@ -8,7 +8,7 @@ import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import { panelRequest } from "@/lib/panel-api";
-import { PanelHeading } from "./panel-shared";
+import { PanelHeading } from "./panel-compartido";
 
 // Nombres legibles de cada sección de la portada (clave = id de la <Section>)
 const NOMBRES_SECCIONES = {
