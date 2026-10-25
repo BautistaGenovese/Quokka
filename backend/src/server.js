@@ -86,7 +86,7 @@ app.use('/api/admin/projects', adminProyectosRouter);
 
 // Inicializar esquema de BD y levantar el servidor
 if (require.main === module) {
-  initDb().finally(() => {
+  initDb().catch(err => console.warn("Aviso BD:", err.message)).finally(() => {
     app.listen(PORT, () => {
       console.log(`🚀 Servidor backend corriendo en http://localhost:${PORT}`);
       console.log(`👉 Para probar el estado: http://localhost:${PORT}/api/status`);
