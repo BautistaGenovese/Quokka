@@ -8,10 +8,10 @@ import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Textarea from "@/components/ui/textarea";
 import Select from "@/components/ui/select";
-import { usePanelCatalog } from "./catalog-provider";
-import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-shared";
+import { usePanelCatalog } from "./proveedor-catalogo";
+import { Feedback, PanelDialog, PanelHeading, ResourceState } from "./panel-compartido";
 import { deleteCatalogRecord, saveCatalogRecord } from "@/lib/panel-api";
-import useAuth from "@/hooks/use-auth";
+import useAuth from "@/hooks/use-autenticacion";
 
 const config = {
   servicios: { title: "Servicios", singular: "servicio", field: "nombre_servicio", description: "Dale forma a lo que ofrece el estudio. Cada cambio se refleja en el portafolio." },

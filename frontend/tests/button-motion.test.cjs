@@ -61,7 +61,7 @@ test("magnetismo, interrupciones, foco, presión, movimiento reducido y limpieza
     gsap.ticker.sleep();
   };
   try {
-    const useButtonMotion = load("hooks/use-button-motion.js", () => api).default;
+    const useButtonMotion = load("hooks/use-movimiento-boton.js", () => api).default;
     useButtonMotion({ current: el }, { current: content }, {
       inactive: false, magnetic: true, strength: 0.28, maxRotation: 7,
     });
@@ -140,7 +140,7 @@ test("magnetismo, interrupciones, foco, presión, movimiento reducido y limpieza
 test("menú y paleta comparten una caída completa, interrumpible y con limpieza", () => {
   const api = load("lib/gsap.js");
   const { gsap } = api;
-  const { preparePanelEntry, enterPanels, dropPanels } = load("lib/panel-motion.js", () => api);
+  const { preparePanelEntry, enterPanels, dropPanels } = load("lib/movimiento-panel.js", () => api);
   const previous = { width: global.innerWidth, height: global.innerHeight };
   global.innerWidth = 1200; global.innerHeight = 800;
   const panels = [new Surface(), new Surface(), new Surface()];

@@ -3,7 +3,7 @@ import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import Card from "@/components/ui/card";
 import Button from "@/components/ui/button";
 import Section from "@/components/layout/section";
-import DemoPreview from "./demo-preview";
+import DemoPreview from "./vista-previa-demo";
 
 /** Variante visual para explorar demos: la preview ocupa el protagonismo.
  * El slot admite capturas, vídeos o SVG; esta card no conoce el slider ni

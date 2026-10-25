@@ -1,22 +1,22 @@
 "use client";
 
-import SectionHeading from "@/components/portfolio/section-heading";
+import SectionHeading from "@/components/portfolio/encabezado-seccion";
 import AnimatedHeading from "@/components/ui/animated-heading";
 
 
 import Section from "@/components/layout/section";
 import Navbar from "@/components/navigation/navbar";
-import StudioHero from "@/components/portfolio/hero-section";
-import ProjectGallery from "@/components/portfolio/project-gallery";
-import TeamGallery from "@/components/portfolio/team-gallery";
+import StudioHero from "@/components/portfolio/seccion-portada";
+import ProjectGallery from "@/components/portfolio/galeria-proyectos";
+import TeamGallery from "@/components/portfolio/galeria-equipo";
 import Marquee from "@/components/ui/marquee";
-import ContactForm from "@/components/forms/contact-form";
+import ContactForm from "@/components/forms/formulario-contacto";
 import Footer from "@/components/layout/footer";
-import useAppearance from "@/hooks/use-appearance";
+import useAppearance from "@/hooks/use-apariencia";
 import useEquipoGithub from "@/hooks/use-equipo-github";
-import { submitContactRequest } from "@/lib/contact-api";
-import { TEAM, SITE_LINKS } from "@/lib/site-content";
-import PublicCatalog from "@/components/portfolio/public-catalog";
+import { submitContactRequest } from "@/lib/contacto-api";
+import { TEAM, SITE_LINKS } from "@/lib/contenido-sitio";
+import PublicCatalog from "@/components/portfolio/catalogo-publico";
 import RastreadorVisitas from "@/components/portfolio/rastreador-visitas";
 
 export default function PortfolioPage() {

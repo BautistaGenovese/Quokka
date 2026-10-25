@@ -1,14 +1,14 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import useScrollCarousel from "@/hooks/use-scroll-carousel";
+import useScrollCarousel from "@/hooks/use-carrusel-scroll";
 import Image from "next/image";
 import CircularGallery from "@/components/ui/CircularGalleryCards";
 import FlipCard from "@/components/ui/FlipCard";
 import Section from "@/components/layout/section";
 import CarouselMobileControls from "@/components/ui/carousel-mobile-controls";
 import Button from "@/components/ui/button";
-import "./team-gallery.css";
+import "./galeria-equipo.css";
 
 export default function TeamGallery({ members }) {
   const id = useId();

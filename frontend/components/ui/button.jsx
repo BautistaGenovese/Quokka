@@ -1,6 +1,6 @@
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import useButtonMotion from "@/hooks/use-button-motion";
+import useButtonMotion from "@/hooks/use-movimiento-boton";
 import ButtonLabel from "./button-label";
 import { BUTTON_MOTION } from "@/lib/gsap";
 

@@ -22,7 +22,7 @@ function load(file) {
 }
 
 const { combinarEquipoConGithub, normalizarNombre } = load("lib/github-api.js");
-const { TEAM } = load("lib/site-content.js");
+const { TEAM } = load("lib/contenido-sitio.js");
 
 test("normalizarNombre ignora tildes, mayúsculas y espacios repetidos", () => {
   assert.equal(normalizarNombre("  Micaías   VILLA "), "micaias villa");

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import ProjectDetail from "@/components/portfolio/project-detail";
+import ProjectDetail from "@/components/portfolio/detalle-proyecto";
 
 export const metadata = { title: "Proyecto · Quokka Studio", robots: { index: false, follow: false } };
 

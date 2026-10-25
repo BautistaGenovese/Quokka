@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../config/db');
-const initDb = require('../config/initDb');
-const { requireAuth, requireRol } = require('../middleware/auth');
+const initDb = require('../config/inicializarBd');
+const { requireAuth, requireRol } = require('../middleware/autenticacion');
 
 const usuariosRouter = express.Router();
 

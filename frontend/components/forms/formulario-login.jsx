@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
-import useAuth from "@/hooks/use-auth";
-import { safeNextPath } from "@/lib/safe-redirect";
+import useAuth from "@/hooks/use-autenticacion";
+import { safeNextPath } from "@/lib/redireccion-segura";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

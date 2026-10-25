@@ -1,11 +1,11 @@
 "use client";
-import { capturePointer, releasePointer } from "@/lib/pointer-capture";
+import { capturePointer, releasePointer } from "@/lib/captura-puntero";
 
 import { useEffect, useRef, useState } from "react";
-import { QuokkaLogo } from "./brand-details";
+import { QuokkaLogo } from "./detalles-marca";
 import SwipeToast from "@/components/ui/SwipeToast";
-import { createQuokkaRain, MAX_QUOKKAS } from "@/lib/quokka-rain";
-import "./quokka-effects.css";
+import { createQuokkaRain, MAX_QUOKKAS } from "@/lib/lluvia-quokka";
+import "./efectos-quokka.css";
 
 export default function QuokkaEffects() {
   const sprites = useRef([]);

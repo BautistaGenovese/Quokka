@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
-const { requireAuth, requireRol, identificarUsuarioOpcional } = require("../middleware/auth");
+const { requireAuth, requireRol, identificarUsuarioOpcional } = require("../middleware/autenticacion");
 
 // Secciones de la portada que se registran (ids de las <Section> del frontend),
 // en el orden en que aparecen en la página. Sirve también para ordenar el embudo.

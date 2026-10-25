@@ -1,4 +1,4 @@
-import LoginPage from "@/components/navigation/login-page";
+import LoginPage from "@/components/navigation/pagina-login";
 
 export const metadata = { title: "Iniciar sesión · Quokka Studio" };
 

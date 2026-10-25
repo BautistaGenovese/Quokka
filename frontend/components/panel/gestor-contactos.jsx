@@ -6,9 +6,9 @@ import Button from "@/components/ui/button";
 import Textarea from "@/components/ui/textarea";
 import Select from "@/components/ui/select";
 import Section from "@/components/layout/section";
-import usePanelResource from "@/hooks/use-panel-resource";
+import usePanelResource from "@/hooks/use-recurso-panel";
 import { replyToContact } from "@/lib/panel-api";
-import { Feedback, PanelHeading, ResourceState } from "./panel-shared";
+import { Feedback, PanelHeading, ResourceState } from "./panel-compartido";
 
 const labels = { cotizacion: "Cotización", asesoria: "Asesoría", general: "Consulta general", consulta: "Consulta general" };
 const date = value => new Date(value).toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" });

@@ -1,5 +1,5 @@
 'use client';
-import { capturePointer, releasePointer } from "@/lib/pointer-capture";
+import { capturePointer, releasePointer } from "@/lib/captura-puntero";
 
 import { useEffect, useId, useRef, useState } from 'react';
 import {

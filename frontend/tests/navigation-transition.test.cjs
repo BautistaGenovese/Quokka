@@ -16,14 +16,14 @@ test("la cubierta unifica anclas y rutas, espera el cambio de página y conserva
   const windowListeners = new Map();
   global.window = { dispatchEvent: event => calls.push(event.type), addEventListener:(key,fn) => windowListeners.set(key,fn), removeEventListener:key => windowListeners.delete(key) };
   const router = { push: href => calls.push(href) };
-  const compiled = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../components/navigation/navigation-transition.jsx"), "utf8"), {
+  const compiled = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../components/navigation/transicion-navegacion.jsx"), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText;
   const loaded = { exports: {} };
   const resolve = name => {
     if (name === "react") return { useEffect: fn => effects.push(fn), useRef: value => { const ref = { current: value }; refs.push(ref); return ref; } };
     if (name === "next/navigation") return { useRouter: () => router, usePathname: () => "/" };
-    if (name === "./section-transition") return { default: () => null };
+    if (name === "./transicion-seccion") return { default: () => null };
     if (name.includes("section-navigation")) return { getSectionTarget: hash => hash === "#equipo", navigateToSection: hash => calls.push(hash) };
     return require(name);
   };

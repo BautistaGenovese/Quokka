@@ -1,10 +1,10 @@
 "use client";
 
 import ArrowLink from "@/components/ui/arrow-link";
-import useAppearance from "@/hooks/use-appearance";
+import useAppearance from "@/hooks/use-apariencia";
 import Section from "@/components/layout/section";
 import Navbar from "./navbar";
-import LoginForm from "@/components/forms/login-form";
+import LoginForm from "@/components/forms/formulario-login";
 
 const LINKS = [{ href: "/", label: "Volver al estudio" }];
 

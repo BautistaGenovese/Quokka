@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const initDb = require('../config/initDb');
+const initDb = require('../config/inicializarBd');
 const servicioCorreo = require('../services/correo.service');
 const {
   sanitizarValorCabecera,

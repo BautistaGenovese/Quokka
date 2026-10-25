@@ -4,9 +4,9 @@ import { useId, useImperativeHandle, useRef, useState, useSyncExternalStore } fr
 import Section from "@/components/layout/section";
 import Button from "@/components/ui/button.jsx";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/panel-motion";
-import { PALETTES } from "@/lib/palettes";
-import NavbarIcon from "@/components/navigation/navbar-icon";
+import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/movimiento-panel";
+import { PALETTES } from "@/lib/paletas";
+import NavbarIcon from "@/components/navigation/icono-navbar";
 
 const subscribe = callback => {
   const media = matchMedia("(prefers-color-scheme: dark)");
