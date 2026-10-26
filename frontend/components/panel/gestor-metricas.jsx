@@ -23,8 +23,17 @@ const NOMBRES_SECCIONES = {
 };
 
 const COLOR_REGISTRADAS = "var(--s-action, #6d4aff)";
-// Gris oscuro derivado del color de texto del tema: se lee bien en modo claro y oscuro
-const COLOR_ANONIMAS = "color-mix(in srgb, var(--s-fg, #1f2937) 75%, transparent)";
+const COLOR_ANONIMAS = "var(--s-fg, #1f2937)";
+const CHART_TICK_STYLE = { fontSize: 12, fill: "var(--s-fg)" };
+const CHART_TOOLTIP_STYLE = {
+  backgroundColor: "var(--s-panel)",
+  border: "1px solid var(--s-line)",
+  borderRadius: "0.75rem",
+  color: "var(--s-fg)",
+  boxShadow: "0 8px 24px color-mix(in srgb, var(--palette-deep) 24%, transparent)",
+};
+const CHART_TOOLTIP_LABEL_STYLE = { color: "var(--s-fg)", fontWeight: 700 };
+const CHART_LEGEND_STYLE = { color: "var(--s-fg)" };
 
 /** Devuelve la fecha (AAAA-MM-DD) de hace `dias` días, en hora local. */
 function fechaHaceDias(dias) {
@@ -122,11 +131,11 @@ export default function MetricsManager() {
         <h3>Visitas por día</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={porDia} margin={{ top: 8, right: 24, bottom: 0, left: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-            <XAxis dataKey="dia" tick={{ fontSize: 12 }} padding={{ left: 24, right: 24 }} minTickGap={24} />
-            <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend />
+            <CartesianGrid stroke="var(--s-fg)" strokeDasharray="3 3" opacity={0.2} />
+            <XAxis dataKey="dia" tick={CHART_TICK_STYLE} padding={{ left: 24, right: 24 }} minTickGap={24} />
+            <YAxis allowDecimals={false} tick={CHART_TICK_STYLE} />
+            <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+            <Legend wrapperStyle={CHART_LEGEND_STYLE} />
             <Line type="monotone" dataKey="registradas" name="Registradas" stroke={COLOR_REGISTRADAS} strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="anonimas" name="Anónimas" stroke={COLOR_ANONIMAS} strokeWidth={2} dot={false} />
           </LineChart>
@@ -137,11 +146,11 @@ export default function MetricsManager() {
         <h3>Hasta dónde llegan en la portada</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={porSeccion} layout="vertical" margin={{ top: 8, right: 16, bottom: 0, left: 24 }}>
-            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
-            <YAxis type="category" dataKey="nombre" width={100} tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend />
+            <CartesianGrid stroke="var(--s-fg)" strokeDasharray="3 3" opacity={0.2} />
+            <XAxis type="number" allowDecimals={false} tick={CHART_TICK_STYLE} />
+            <YAxis type="category" dataKey="nombre" width={100} tick={CHART_TICK_STYLE} />
+            <Tooltip contentStyle={CHART_TOOLTIP_STYLE} labelStyle={CHART_TOOLTIP_LABEL_STYLE} />
+            <Legend wrapperStyle={CHART_LEGEND_STYLE} />
             <Bar dataKey="registradas" name="Registradas" stackId="visitas" fill={COLOR_REGISTRADAS} />
             <Bar dataKey="anonimas" name="Anónimas" stackId="visitas" fill={COLOR_ANONIMAS} />
           </BarChart>

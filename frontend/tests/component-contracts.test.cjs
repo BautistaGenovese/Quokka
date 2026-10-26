@@ -139,9 +139,18 @@ test("la portada entrega una pantalla de carga desde el HTML inicial y el menú 
   assert.match(html, /class="initial-page-loading" data-active="true"/);
   assert.match(html, /Cargando/);
   assert.match(navbarStyles, /\.initial-page-loading\s*\{[^}]*z-index:\s*1900/s);
-  assert.match(menuStyles, /\.site-menu-main \.site-menu-login\s*\{\s*margin-bottom:\.75rem;/);
+  assert.match(menuStyles, /\.site-menu-main \.site-menu-login\s*\{\s*width:auto; margin:1\.5rem \.25rem 1\.25rem;/);
   assert.doesNotMatch(menuStyles, /\.site-menu-main div\.site-menu-login/);
   assert.match(menuStyles, /site-menu-logout-icon \.button-label.*place-items:center/s);
+});
+
+test("las gráficas definen colores legibles para ejes, leyendas y tooltips en ambos temas", () => {
+  const source = fs.readFileSync(path.join(root, "components/panel/gestor-metricas.jsx"), "utf8");
+  assert.match(source, /CHART_TICK_STYLE = \{ fontSize: 12, fill: "var\(--s-fg\)" \}/);
+  assert.match(source, /backgroundColor: "var\(--s-panel\)"/);
+  assert.match(source, /labelStyle=\{CHART_TOOLTIP_LABEL_STYLE\}/g);
+  assert.match(source, /Legend wrapperStyle=\{CHART_LEGEND_STYLE\}/g);
+  assert.match(source, /const COLOR_ANONIMAS = "var\(--s-fg, #1f2937\)"/);
 });
 
 test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjeta frontal", () => {
