@@ -13,7 +13,7 @@ Este documento establece el **estándar único y obligatorio** para la base de d
 Para evitar confusiones de idioma o diferencias de nombres entre sprints:
 
 1. **Todas las tablas y columnas están íntegramente en español (`snake_case`)**, respetando el diagrama Entidad-Relación (`dbdiagram.io`) y el documento de APIs externas del equipo.
-2. **Inicialización compartida:** El modelo actualizado contempla **7 tablas**, definidas en `database/init.sql`, incluidas `tecnologias` y `servicios_tecnologias`. El backend ejecuta el script al arrancar; Docker lo ejecuta al inicializar un volumen vacío. `CREATE TABLE IF NOT EXISTS` crea tablas faltantes, pero no modifica las existentes. Además, incluye la siembra condicional (`seed`) de 4 proyectos de muestra cuando la tabla `proyectos` se encuentra vacía.
+2. **Inicialización compartida:** El modelo actualizado contempla **7 tablas**, definidas en `database/init.sql`, incluidas `tecnologias` y `servicios_tecnologias`. El backend ejecuta el script al arrancar; Docker lo ejecuta al inicializar un volumen vacío. `CREATE TABLE IF NOT EXISTS` crea tablas faltantes y las instrucciones `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` incorporan columnas nuevas a las bases existentes. Además, incluye la siembra condicional (`seed`) de 4 proyectos de muestra cuando la tabla `proyectos` se encuentra vacía.
 3. Cada integrante tiene detallada aquí **su tabla asignada**, **el tipo y nulabilidad de cada columna (y por qué)**, y **los endpoints exactos que debe programar en su módulo**.
 
 ---
@@ -35,6 +35,7 @@ erDiagram
         varchar_255 email "NOT NULL, UNIQUE"
         varchar_255 password_hash "NULLABLE"
         varchar_255 google_id "NULLABLE, UNIQUE"
+        text foto_perfil_url "NULLABLE, HTTPS Google profile image"
         varchar_20 rol "NOT NULL, DEFAULT 'usuario'"
         timestamptz fecha_creacion "NOT NULL, DEFAULT NOW()"
     }
@@ -111,6 +112,7 @@ erDiagram
 | `email`          | `VARCHAR(255)` | **NO** (`NOT NULL`) | `UNIQUE`                                                                | Es el identificador de login. `UNIQUE` evita cuentas duplicadas y permite el `ON CONFLICT (email)` al iniciar sesión con Google.                                               |
 | `password_hash`  | `VARCHAR(255)` |   **SÍ** (`NULL`)   | —                                                                       | **Debe aceptar `NULL`** porque los usuarios que ingresan con "Continuar con Google" (`Google Identity Services`) no crean contraseña local; se autentican por token de Google. |
 | `google_id`      | `VARCHAR(255)` |   **SÍ** (`NULL`)   | `UNIQUE`                                                                | **Debe aceptar `NULL`** porque los usuarios que se registran con email y contraseña tradicional no tienen vínculo con Google.                                                  |
+| `foto_perfil_url` | `TEXT`         |   **SÍ** (`NULL`)   | Solo se guardan URLs HTTPS de `googleusercontent.com`                   | Permite mostrar la foto de perfil recibida en el token verificado de Google. Las cuentas locales quedan sin foto.                                                             |
 | `rol`            | `VARCHAR(20)`  | **NO** (`NOT NULL`) | `DEFAULT 'usuario'` `CHECK IN ('usuario', 'operador', 'administrador')` | Define los permisos de acceso en los paneles (Requisito de cátedra: aislar permisos de Visitante, Usuario Registrado, Operador y Administrador).                               |
 | `fecha_creacion` | `TIMESTAMPTZ`  | **NO** (`NOT NULL`) | `DEFAULT CURRENT_TIMESTAMP`                                             | Permite auditar cuándo se registró cada cuenta en el panel de usuarios del Administrador.                                                                                      |
 
@@ -121,7 +123,8 @@ erDiagram
 2. **`backend/src/routes/auth.js`:**
    - `POST /api/auth/registro` → Hashea password con `bcrypt` e inserta en `usuarios`.
    - `POST /api/auth/login` → Compara hash con `bcrypt` y devuelve el token JWT.
-   - `POST /api/auth/google` → Verifica credencial con `google-auth-library` y hace `INSERT INTO usuarios (nombre, email, google_id) ... ON CONFLICT (email) DO UPDATE`.
+   - `POST /api/auth/google` → Verifica credencial con `google-auth-library`, guarda `google_id` y la foto validada del perfil, y devuelve `foto_perfil_url` en `usuario`.
+   - `GET /api/auth/me` → Devuelve los datos actualizados del usuario, incluida `foto_perfil_url`, para restaurar su avatar al cargar la sesión.
 3. **`backend/src/routes/usuarios.js` (Sprint 3 - Panel Admin):**
    - `GET /api/admin/usuarios` → Lista `id, nombre, email, rol, fecha_creacion` de la tabla `usuarios` (nunca devolver `password_hash`). Permitido para `'operador'` (solo lectura) y `'administrador'`.
    - `PATCH /api/admin/usuarios/:id/rol` → Permite exclusivamente al Administrador cambiar el `rol` (`usuario`, `operador`, `administrador`).

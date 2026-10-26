@@ -23,6 +23,23 @@ const limitadorAuth = crearLimitadorSolicitudes({
 // Hash ficticio con factor 10 para igualar el tiempo de respuesta cuando el correo no existe (mitiga Timing Attack)
 const DUMMY_HASH = '$2b$10$KSndWM5WfaPDW2gwgbn6Ze9I/ZADtQjih5Si7MsQcvF7.09ZQvyvW';
 
+/** Solo conserva URLs HTTPS de imágenes servidas por Google. */
+function normalizarFotoGoogle(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  try {
+    const url = new URL(value);
+    if (
+      url.protocol === 'https:' &&
+      (url.hostname === 'googleusercontent.com' || url.hostname.endsWith('.googleusercontent.com'))
+    ) {
+      return url.href;
+    }
+  } catch (error) {
+    // Un valor de perfil que no sea una URL válida se trata como ausente.
+  }
+  return null;
+}
+
 /**
  * Genera un token JWT firmado con los datos públicos del usuario.
  */
@@ -57,6 +74,7 @@ function formatearUsuarioPublico(fila) {
     email: fila.email,
     rol: fila.rol,
     fecha_creacion: fila.fecha_creacion,
+    foto_perfil_url: normalizarFotoGoogle(fila.foto_perfil_url),
   };
 }
 
@@ -106,7 +124,7 @@ authRouter.post('/registro', limitadorAuth, async (req, res) => {
     const resultado = await db.query(
       `INSERT INTO usuarios (nombre, email, password_hash, google_id)
        VALUES ($1, $2, $3, NULL)
-       RETURNING id, nombre, email, rol, fecha_creacion`,
+       RETURNING id, nombre, email, rol, fecha_creacion, foto_perfil_url`,
       [nombre, email, passwordHash]
     );
 
@@ -168,7 +186,7 @@ authRouter.post('/login', limitadorAuth, async (req, res) => {
     await initDb();
 
     const resultado = await db.query(
-      `SELECT id, nombre, email, password_hash, google_id, rol, fecha_creacion
+      `SELECT id, nombre, email, password_hash, google_id, rol, fecha_creacion, foto_perfil_url
        FROM usuarios
        WHERE LOWER(email) = $1
        LIMIT 1`,
@@ -272,16 +290,18 @@ authRouter.post('/google', limitadorAuth, async (req, res) => {
       ? payload.name.trim()
       : email.split('@')[0];
     const nombre = (nombreBase.length >= 2 ? nombreBase : 'Usuario Google').slice(0, 100);
+    const fotoPerfilUrl = normalizarFotoGoogle(payload.picture);
 
     await initDb();
 
     const resultado = await db.query(
-      `INSERT INTO usuarios (nombre, email, google_id)
-       VALUES ($1, $2, $3)
+      `INSERT INTO usuarios (nombre, email, google_id, foto_perfil_url)
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT (email) DO UPDATE
-         SET google_id = EXCLUDED.google_id
-       RETURNING id, nombre, email, rol, fecha_creacion`,
-      [nombre, email, googleId]
+         SET google_id = EXCLUDED.google_id,
+             foto_perfil_url = COALESCE(EXCLUDED.foto_perfil_url, usuarios.foto_perfil_url)
+       RETURNING id, nombre, email, rol, fecha_creacion, foto_perfil_url`,
+      [nombre, email, googleId, fotoPerfilUrl]
     );
 
     const usuario = formatearUsuarioPublico(resultado.rows[0]);
@@ -317,7 +337,7 @@ authRouter.get('/me', requireAuth, async (req, res) => {
     await initDb();
 
     const resultado = await db.query(
-      `SELECT id, nombre, email, rol, fecha_creacion
+      `SELECT id, nombre, email, rol, fecha_creacion, foto_perfil_url
        FROM usuarios
        WHERE id = $1
        LIMIT 1`,
