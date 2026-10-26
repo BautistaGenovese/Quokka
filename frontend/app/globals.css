@@ -293,6 +293,9 @@
 .button-radial-fill[data-cursor-fill="true"]::before {
   visibility: hidden;
 }
+html[data-cursor-follower="false"] .button-radial-fill:hover::before {
+  clip-path: circle(150% at var(--button-fill-x, 50%) var(--button-fill-y, 50%));
+}
 @media (prefers-reduced-motion: reduce) {
   .button-radial-fill::before { transition: none; }
   .button-radial-fill:hover::before { clip-path: circle(150% at 50% 50%); }
@@ -355,6 +358,8 @@
 .quokka-team { display:flex; margin:.25rem 0 .75rem; }
 .quokka-team > span { display:grid; place-items:center; flex-shrink:0; width:2.5rem; height:2.5rem; border:2px solid var(--s-bg); border-radius:50%; margin-left:-.55rem; font-family:var(--font-mono); font-size:.7rem; font-weight:700; background:var(--s-action); color:var(--s-on-action); }
 .quokka-team > span:first-child { margin-left:0; }
+.quokka-team > span { overflow: hidden; }
+.quokka-team > span img { width: 100%; height: 100%; object-fit: cover; }
 .quokka-team > span:nth-child(2) { background:var(--s-alt); color:var(--s-on-alt); }
 .quokka-team > span:nth-child(3) { background:var(--s-field); color:var(--s-on-field); }
 .quokka-team > span:nth-child(4) { background:var(--s-fg); color:var(--s-bg); }

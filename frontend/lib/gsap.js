@@ -24,9 +24,9 @@ export const MOTION = {
   unpress: { scale: 1, duration: 0.2, ease: "back.out(1.4)" },
   follower: { duration: 0.22, ease: "power3.out", radius: 9, expandedRatio: 0.85 },
   panel: {
-    enter: { duration: 0.65, ease: "power3.out", stagger: 0.075 },
+    enter: { duration: 0.35, ease: "power3.out", stagger: 0.04 },
     fall: { delay: 0.08, duration: 0.42, ease: "power2.in", stagger: 0.035 },
-    labels: { duration: 0.7, ease: "expo.out", stagger: 0.07 },
+    labels: { duration: 0.3, ease: "expo.out", stagger: 0.025 },
     rotations: [9, -12, 7], clearance: 40,
   },
   card: { duration: 0.35, ease: "power3.out", subtle: 4, expressive: 8 },

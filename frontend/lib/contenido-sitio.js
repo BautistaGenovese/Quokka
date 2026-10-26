@@ -9,9 +9,10 @@ export const TEAM = [
   { name: "Micaías Villa", role: "Animaciones e integraciones", description: "Transiciones de página, animaciones de componentes e integración de APIs externas." },
 ];
 export const SITE_LINKS = [
-  { href: "#inicio", label: "Inicio" }, { href: "#manifiesto", label: "Filosofía" },
+  { href: "#inicio", label: "Inicio" }, { href: "#proyectos", label: "Proyectos y demos" },
+  { href: "#manifiesto", label: "Filosofía" },
   { href: "#equipo", label: "Equipo" }, { href: "#servicios", label: "Servicios" },
-  { href: "#proyectos", label: "Proyectos y demos" }, { href: "#stack-tech", label: "Tecnologías" },
+  { href: "#stack-tech", label: "Tecnologías" },
   { href: "#contacto", label: "Contacto" },
 ];
 // Propuestas del portfolio; todavía no representan demos publicadas.

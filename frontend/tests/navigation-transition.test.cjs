@@ -21,9 +21,10 @@ test("la cubierta unifica anclas y rutas, espera el cambio de página y conserva
   }).outputText;
   const loaded = { exports: {} };
   const resolve = name => {
-    if (name === "react") return { useEffect: fn => effects.push(fn), useRef: value => { const ref = { current: value }; refs.push(ref); return ref; } };
+    if (name === "react") return { useEffect: fn => effects.push(fn), useRef: value => { const ref = { current: value }; refs.push(ref); return ref; }, useState: value => [value, () => {}] };
     if (name === "next/navigation") return { useRouter: () => router, usePathname: () => "/" };
     if (name === "./transicion-seccion") return { default: () => null };
+    if (name === "./indicador-carga-navegacion") return { default: () => null };
     if (name.includes("section-navigation")) return { getSectionTarget: hash => hash === "#equipo", navigateToSection: hash => calls.push(hash) };
     return require(name);
   };

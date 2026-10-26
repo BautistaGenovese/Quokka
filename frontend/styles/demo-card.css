@@ -85,3 +85,42 @@
 @media (max-width: 640px) {
   .quokka-card-swap-viewport { height: clamp(300px, 90vw, 500px); }
 }
+
+/* La información queda fuera de las capas que se arrastran. */
+.quokka-card-swap-track { min-width: 0; }
+.quokka-card-swap-editorial {
+  max-width: 80rem; display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  align-items: center; gap: 1rem clamp(2rem, 4vw, 4rem);
+}
+.demo-showcase-details { min-width: 0; }
+.demo-showcase-detail-stack { display: grid; }
+.demo-showcase-detail { grid-area: 1 / 1; align-self: center; }
+.demo-showcase-detail[aria-hidden="true"] { visibility: hidden; }
+.demo-showcase-index { margin-bottom: .75rem; font: .75rem/1.4 var(--font-pill); letter-spacing: .08em; font-variant-numeric: tabular-nums; color: var(--s-action); }
+.demo-showcase-title { font-family: var(--font-display); font-size: clamp(1.5rem, 2.5vw, 2.3rem); font-weight: 500; line-height: 1.1; letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
+.demo-showcase-description { margin-block: .75rem; font: 1rem/1.45 var(--font-body); overflow-wrap: anywhere; }
+.demo-showcase-technologies { margin-bottom: 1rem; font: .75rem/1.5 var(--font-mono); color: var(--s-action); overflow-wrap: anywhere; }
+.demo-showcase-access { margin-top: .65rem; max-width: 40ch; font: .8rem/1.45 var(--font-body); opacity: .8; }
+.demo-showcase-action { min-height: 44px; padding: .65rem 1rem; font-size: .95rem; }
+.demo-showcase-description, .demo-showcase-technologies, .demo-showcase-title { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.demo-showcase-title { -webkit-line-clamp: 3; }
+.demo-showcase-description { -webkit-line-clamp: 4; }
+.demo-showcase-technologies { -webkit-line-clamp: 2; }
+.demo-showcase-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 48px; margin-top: .5rem; }
+.quokka-card-swap-editorial .demo-showcase-controls { grid-column: 1 / -1; margin-top: 0; }
+.demo-showcase-controls .carousel-mobile-controls { display: flex; align-items: center; justify-content: center; gap: .75rem; margin: 0; }
+.demo-showcase-controls .carousel-mobile-controls > button { width: 48px; height: 48px; min-width: 48px; padding: 0; border-radius: 50%; }
+.demo-showcase-placeholder { background: color-mix(in srgb, var(--s-fg) 6%, transparent); border: 1px solid var(--s-line); border-radius: 1rem; }
+.demo-showcase-loading .demo-showcase-details { height: 15rem; }
+@media (max-width: 767px) {
+  .quokka-card-swap-editorial { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+  .demo-showcase-controls { gap: .5rem; }
+  .demo-showcase-controls > button { flex-shrink: 0; padding: .65rem .85rem; font-size: .875rem; white-space: nowrap; }
+  .demo-showcase-index { margin-bottom: .5rem; }
+  .demo-showcase-title { font-size: 1.35rem; -webkit-line-clamp: 2; }
+  .demo-showcase-action { display: flex; width: fit-content; max-width: 100%; margin-inline: auto; font-size: .875rem; }
+  .demo-showcase-access { font-size: .75rem; }
+  .demo-showcase-description { margin-block: .5rem; font-size: .9rem; -webkit-line-clamp: 2; }
+  .demo-showcase-technologies { margin-bottom: .5rem; }
+}

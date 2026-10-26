@@ -5,6 +5,8 @@ import useActiveSection from "@/hooks/use-active-section";
 import Section from "@/components/layout/section";
 import NavbarIcon from "@/components/navigation/icono-navbar";
 import Button from "@/components/ui/button.jsx";
+import AvatarUsuario from "@/components/navigation/avatar-usuario";
+import { LogOut } from "lucide-react";
 
 import { gsap, useGSAP, MOTION } from "@/lib/gsap";
 import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/movimiento-panel";
@@ -65,6 +67,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
       labels = modal.querySelectorAll(".site-menu-link-label");
       lines = modal.querySelectorAll(".site-menu-link-line");
       wantsOpen = true;
+      panels.forEach(panel => { panel.inert = false; });
       setExpanded(true);
       if (!modal.open) {
         modal.dataset.exiting = "false";
@@ -72,6 +75,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
         // El dialog conserva su scroll entre aperturas. Volver al comienzo
         // evita que una visita anterior al bloque inferior recorte el menú.
         modal.scrollTop = 0;
+        panels.forEach(panel => { panel.scrollTop = 0; });
         // Medimos después de show: antes el dialog no tiene layout.
         preparePanelEntry(panels);
         // La propuesta revela el texto desde abajo y dibuja cada separador.
@@ -107,6 +111,8 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
       wantsOpen = false;
 
       setExpanded(false);
+      if (modal.contains(document.activeElement)) trigger.current?.focus({ preventScroll: true });
+      panels.forEach(panel => { panel.inert = true; });
       modal.dataset.exiting = "true";
       if (reduced.matches) {
         finishClose();
@@ -127,6 +133,11 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
     const outside = (event) => {
       if (modal.open && !modal.contains(event.target) && !trigger.current?.contains(event.target)) close();
     };
+    // Tab y clic exterior usan la misma caída que la X y Escape.
+    const focusOutside = event => {
+      if (!modal.open || modal.contains(event.target) || trigger.current?.contains(event.target)) return;
+      close();
+    };
     const mediaChange = () => {
       if (!reduced.matches) return;
       animation?.kill();
@@ -141,6 +152,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
     window.addEventListener("quokka:navigation-start", navigation);
     document.addEventListener("keydown", escape);
     document.addEventListener("pointerdown", outside);
+    document.addEventListener("focusin", focusOutside);
     reduced.addEventListener("change", mediaChange);
     return () => {
       actions.current = null;
@@ -148,6 +160,7 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
       window.removeEventListener("quokka:navigation-start", navigation);
       document.removeEventListener("keydown", escape);
       document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("focusin", focusOutside);
       reduced.removeEventListener("change", mediaChange);
       if (modal.open) modal.close();
       closed.splice(0).forEach(resolve => resolve());
@@ -182,10 +195,18 @@ export default function SiteMenu({ items = EMPTY_ITEMS, ref, onRequestOpen, trig
               </ol>
             </nav>
             <p className="site-menu-help"><kbd>Esc</kbd> para cerrar</p>
-            {user && footerLink === LOGIN_LINK ? (
+            {user && onLogout ? (
               <div className="site-menu-login flex flex-wrap items-center gap-3">
-                <Button type="button" magnetic={false} variant="secondary" onClick={onLogout}>
+                <div className="site-menu-account" aria-label={`Sesión activa: ${user.nombre}, rol ${roleLabel}`}>
+                  <AvatarUsuario user={user} className="site-menu-account-avatar" imageClassName="site-menu-account-photo" />
+                  <span className="site-menu-account-copy"><strong>{user.nombre}</strong><small>{roleLabel}</small></span>
+                </div>
+                {footerLink !== LOGIN_LINK && <Button href={footerLink.href} magnetic={false} variant="secondary">{footerLink.label}</Button>}
+                <Button type="button" magnetic={false} variant="secondary" className="site-menu-logout-text" onClick={onLogout}>
                   Cerrar sesión ({roleLabel})
+                </Button>
+                <Button type="button" magnetic={false} variant="secondary" className="site-menu-logout-icon site-navbar-icon-control" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={onLogout}>
+                  <LogOut size={20} aria-hidden="true" />
                 </Button>
               </div>
             ) : (

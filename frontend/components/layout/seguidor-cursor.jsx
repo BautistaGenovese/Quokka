@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { gsap, useGSAP, MOTION } from "@/lib/gsap";
+import useAppearance from "@/hooks/use-apariencia";
 
 /**
  * Un único círculo ampliado, sin rellenos animados independientes.
@@ -12,6 +14,14 @@ import { gsap, useGSAP, MOTION } from "@/lib/gsap";
  * botón y se retira hacia el cursor antes de volver a body.
  */
 export default function CursorFollower() {
+  const { cursorFollowerEnabled } = useAppearance();
+  const enabledRef = useRef(cursorFollowerEnabled);
+  const hideRef = useRef(() => {});
+  useEffect(() => {
+    enabledRef.current = cursorFollowerEnabled;
+    if (!cursorFollowerEnabled) hideRef.current();
+  }, [cursorFollowerEnabled]);
+
   useGSAP((context, contextSafe) => {
     // Nodo decorativo gestionado aquí, fuera del árbol de React: podemos
     // trasladar el MISMO elemento entre body y Button sin recrearlo.
@@ -156,7 +166,9 @@ export default function CursorFollower() {
       el.dataset.visible = "false";
       tip.dataset.visible = "false";
     });
+    hideRef.current = hide;
     const onMove = contextSafe((event) => {
+      if (!enabledRef.current) { hide(); return; }
       if (event.pointerType !== "mouse" || !fine.matches || reduced.matches) {
         hide();
         return;
@@ -185,23 +197,45 @@ export default function CursorFollower() {
       resize(target && !leaving ? (parseFloat(getComputedStyle(target).width) || target.offsetWidth) * MOTION.follower.expandedRatio : MOTION.follower.radius);
       wake();
     });
-    const onOut = (event) => { if (!event.relatedTarget) hide(); };
+    // El scroll no significa que el puntero haya salido de la ventana. La
+    // coordenada cliente sigue siendo válida: revalidamos qué hay debajo y
+    // repintamos en esa misma posición, incluyendo botones que se desplazan.
+    const onScroll = contextSafe(() => {
+      if (!visible) return;
+      const hit = document.elementFromPoint(pointer.x, pointer.y);
+      if (hit?.closest('[data-cursor-quiet="true"]')) { hide(); return; }
+      const next = hit?.closest('[data-cursor-button="true"]') ?? null;
+      if (next) attach(next);
+      else if (target) leaving = true;
+      wake();
+    });
+    const onOut = (event) => {
+      if (event.relatedTarget) return;
+      const leftViewport = event.clientX <= 0 || event.clientY <= 0 ||
+        event.clientX >= window.innerWidth || event.clientY >= window.innerHeight;
+      // Algunos navegadores notifican pointerout cuando el scroll mueve el
+      // elemento bajo un cursor quieto. Revalidar ese punto evita confundirlo
+      // con salir de la ventana y apagar el seguidor.
+      if (leftViewport) hide();
+      else onScroll();
+    };
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerout", onOut);
     window.addEventListener("blur", hide);
     window.addEventListener("keydown", hide);
-    window.addEventListener("scroll", hide, { passive: true, capture: true });
+    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
     fine.addEventListener("change", hide);
     reduced.addEventListener("change", hide);
     return () => {
       hide();
+      hideRef.current = () => {};
       el.remove();
       tip.remove();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerout", onOut);
       window.removeEventListener("blur", hide);
       window.removeEventListener("keydown", hide);
-      window.removeEventListener("scroll", hide, true);
+      window.removeEventListener("scroll", onScroll, true);
       fine.removeEventListener("change", hide);
       reduced.removeEventListener("change", hide);
     };

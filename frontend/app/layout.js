@@ -1,10 +1,10 @@
-import Script from "next/script";
 import { Figtree, DM_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AppearanceProvider } from "@/hooks/use-apariencia";
 import QuokkaEffects from "@/components/layout/efectos-quokka";
 import NavigationTransition from "@/components/navigation/transicion-navegacion";
+import InitialPageLoader from "@/components/navigation/cargador-inicial";
 import CursorFollower from "@/components/layout/seguidor-cursor";
 
 const figtree = Figtree({ variable: "--font-loaded-body", subsets: ["latin"], display: "swap" });
@@ -26,17 +26,17 @@ export default function RootLayout({ children }) {
     <html
       lang="es"
       data-pal="sonrisa"
-      data-theme="light"
+      data-cursor-follower="true"
       className={`${figtree.variable} ${dmMono.variable} ${gabarito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AppearanceProvider>
         {children}
+        <InitialPageLoader />
         <NavigationTransition />
         <QuokkaEffects />
         <CursorFollower />
         </AppearanceProvider>
-        <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
       </body>
     </html>
   );

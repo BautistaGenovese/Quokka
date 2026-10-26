@@ -47,8 +47,9 @@ export default function ProjectDetail({ id }) {
   useEffect(() => { if (status === "ready") registrarVisita("/proyectos/" + id); }, [status, id]);
   const date = formatDate(project?.fecha_publicacion);
   return <>
+    <a className="studio-skip-link" href="#project-content">Saltar al contenido</a>
     <Navbar items={LINKS} homeHref="/" theme={theme} mode={mode} onThemeChange={setTheme} onModeChange={setMode} />
-    <Section as="main" surface="page" className="min-h-[calc(100dvh-82px)] px-gutter py-section">
+    <Section as="main" id="project-content" tabIndex={-1} surface="page" className="menu-destination min-h-[calc(100dvh-82px)] px-gutter py-section">
       <div className="mx-auto max-w-3xl space-y-8">
         <ArrowLink href="/#proyectos" direction="left">Volver a proyectos</ArrowLink>
         {status === "loading" && <p role="status">Cargando proyecto…</p>}

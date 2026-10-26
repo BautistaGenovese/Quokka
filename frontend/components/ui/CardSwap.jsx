@@ -206,7 +206,8 @@ const CardSwap = forwardRef(
       const root = rootRef.current;
       const stage = stageRef.current;
       if (!root || !stage || !count) return undefined;
-      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+      const motionPreference = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+      let reduce = motionPreference?.matches ?? false;
       const now = performance.now();
       const s0 = settingsRef.current;
 
@@ -646,6 +647,18 @@ const CardSwap = forwardRef(
         else wake();
       };
 
+      const onMotionChange = () => {
+        reduce = motionPreference.matches;
+        if (reduce) {
+          state.tx = state.ty = state.px = state.py = state.pvx = state.pvy = 0;
+          state.spread = state.spreadV = 0;
+          state.queue.forEach(clearTimeout);
+          state.queue = [];
+        }
+        schedule();
+        wake();
+      };
+
       apiRef.current = {
         next: () => shift(1),
         prev: () => shift(-1),
@@ -703,6 +716,7 @@ const CardSwap = forwardRef(
       root.addEventListener('lostpointercapture', onUp);
       root.addEventListener('click', onClick);
       document.addEventListener('visibilitychange', onVisibility);
+      motionPreference?.addEventListener('change', onMotionChange);
       schedule();
 
       return () => {
@@ -721,6 +735,7 @@ const CardSwap = forwardRef(
         root.removeEventListener('lostpointercapture', onUp);
         root.removeEventListener('click', onClick);
         document.removeEventListener('visibilitychange', onVisibility);
+        motionPreference?.removeEventListener('change', onMotionChange);
         apiRef.current = null;
       };
     }, [count]);

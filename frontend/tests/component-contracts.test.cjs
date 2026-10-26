@@ -10,7 +10,7 @@ const { renderToStaticMarkup } = require("react-dom/server");
 const root = path.resolve(__dirname, "..");
 const cache = new Map();
 
-function load(file) {
+function load(file, mocks = {}) {
   const absolute = path.resolve(root, file);
   if (cache.has(absolute)) return cache.get(absolute).exports;
   const loaded = { exports: {} };
@@ -19,6 +19,7 @@ function load(file) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText;
   const resolve = name => {
+    if (Object.hasOwn(mocks, name)) return mocks[name];
     if (name.endsWith(".css")) return {};
     if (!name.startsWith("@/") && !name.startsWith(".")) return require(name);
     const base = name.startsWith("@/") ? path.join(root, name.slice(2)) : path.resolve(path.dirname(absolute), name);
@@ -68,6 +69,90 @@ test("la galería del equipo conserva integrantes, imágenes locales y controles
   }
 });
 
+test("el avatar de cuenta acepta la foto HTTPS de Google y conserva iniciales como fallback", () => {
+  const avatar = load("components/navigation/avatar-usuario.jsx", {
+    "next/image": { __esModule: true, default: props => h("img", props) },
+  });
+  const Avatar = avatar.default;
+  const { getGoogleProfileImage, getUserInitials } = avatar;
+  const picture = "https://lh3.googleusercontent.com/a/profile-photo";
+  assert.equal(getGoogleProfileImage({ picture }), picture);
+  assert.equal(getGoogleProfileImage({ foto_perfil_url: "https://lh4.googleusercontent.com/a/photo" }), "https://lh4.googleusercontent.com/a/photo");
+  assert.equal(getGoogleProfileImage({ picture: "http://lh3.googleusercontent.com/a/photo" }), null);
+  assert.equal(getGoogleProfileImage({ picture: "https://images.example.test/a/photo" }), null);
+  assert.equal(getUserInitials({ nombre: "Revisión Quokka" }), "RQ");
+  assert.equal(getUserInitials({ nombre: "   " }), "?");
+
+  const fallback = renderToStaticMarkup(h(Avatar, { user: { nombre: "Revisión Quokka", picture: "https://images.example.test/a/photo" } }));
+  const image = renderToStaticMarkup(h(Avatar, { user: { nombre: "Revisión Quokka", picture } }));
+  assert.match(fallback, />RQ<\/span>/);
+  assert.match(image, /<img\b/);
+});
+
+test("el arrastre móvil del equipo nunca salta más de una persona por gesto", () => {
+  const { getDragTarget } = load("components/ui/CircularGalleryCards.jsx");
+  assert.equal(getDragTarget(2, -900, 200, 1), 3);
+  assert.equal(getDragTarget(2, 900, 200, 1), 1);
+  assert.equal(getDragTarget(2, -800, 200), 6, "el ratón de escritorio conserva el desplazamiento largo");
+});
+
+test("los botones conservan el relleno al hover cuando el seguidor está apagado", () => {
+  const source = fs.readFileSync(path.join(root, "components/ui/button.jsx"), "utf8");
+  const styles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
+  assert.match(source, /pointerenter.*setOrigin/s);
+  assert.match(styles, /html\[data-cursor-follower="false"\].*button-radial-fill:hover::before/s);
+  assert.match(navbarStyles, /html\[data-cursor-follower="false"\].*site-navbar-icon-control:hover\s*\{\s*color:\s*var\(--s-bg\)/s);
+});
+
+test("la apariencia guarda tema y modo, y el modo inicial sigue la preferencia del sistema", () => {
+  const source = fs.readFileSync(path.join(root, "hooks/use-apariencia.jsx"), "utf8");
+  const layout = fs.readFileSync(path.join(root, "app/layout.js"), "utf8");
+  const styles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  assert.match(source, /mode: "system"/);
+  assert.match(source, /quokka_appearance_theme/);
+  assert.match(source, /quokka_appearance_mode/);
+  assert.match(source, /setItem\(STORAGE_KEYS\.theme/);
+  assert.match(source, /setItem\(STORAGE_KEYS\.mode/);
+  assert.match(layout, /data-cursor-follower="true"/);
+  assert.doesNotMatch(layout, /data-theme="light"/);
+  assert.match(styles, /@media \(prefers-color-scheme: dark\)/);
+});
+
+test("el indicador de carga queda entre la transición y el menú", () => {
+  const Loading = load("components/navigation/indicador-carga-navegacion.jsx").default;
+  const html = renderToStaticMarkup(h(Loading, { active: true }));
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
+  const globalStyles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  assert.match(html, /role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /Cargando/);
+  assert.match(html, /role="progressbar"/);
+  assert.match(navbarStyles, /\.navigation-loading\s*\{[^}]*z-index:\s*1600/s);
+  assert.match(globalStyles, /\.section-transition\s*\{[^}]*z-index:\s*1500/s);
+});
+
+test("la portada entrega una pantalla de carga desde el HTML inicial y el menú móvil solo añade margen", () => {
+  const InitialLoader = load("components/navigation/cargador-inicial.jsx").default;
+  const html = renderToStaticMarkup(h(InitialLoader));
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
+  const menuStyles = fs.readFileSync(path.join(root, "styles/navigation.css"), "utf8");
+  assert.match(html, /class="initial-page-loading" data-active="true"/);
+  assert.match(html, /Cargando/);
+  assert.match(navbarStyles, /\.initial-page-loading\s*\{[^}]*z-index:\s*1900/s);
+  assert.match(menuStyles, /\.site-menu-main \.site-menu-login\s*\{\s*width:auto; margin:1\.5rem \.25rem 1\.25rem;/);
+  assert.doesNotMatch(menuStyles, /\.site-menu-main div\.site-menu-login/);
+  assert.match(menuStyles, /site-menu-logout-icon \.button-label.*place-items:center/s);
+});
+
+test("las gráficas definen colores legibles para ejes, leyendas y tooltips en ambos temas", () => {
+  const source = fs.readFileSync(path.join(root, "components/panel/gestor-metricas.jsx"), "utf8");
+  assert.match(source, /CHART_TICK_STYLE = \{ fontSize: 12, fill: "var\(--s-fg\)" \}/);
+  assert.match(source, /backgroundColor: "var\(--s-panel\)"/);
+  assert.match(source, /labelStyle=\{CHART_TOOLTIP_LABEL_STYLE\}/g);
+  assert.match(source, /Legend wrapperStyle=\{CHART_LEGEND_STYLE\}/g);
+  assert.match(source, /const COLOR_ANONIMAS = "var\(--s-fg, #1f2937\)"/);
+});
+
 test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjeta frontal", () => {
   const Slider = load("components/ui/card-slider.jsx").default;
   assert.equal(renderToStaticMarkup(h(Slider, null)), "");
@@ -79,8 +164,37 @@ test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjet
   assert.match(html, /Segunda demo/);
   assert.equal([...html.matchAll(/class="card-swap-slot"/g)].length, 2);
   assert.equal([...html.matchAll(/\binert=""/g)].length, 1);
-  assert.equal([...html.matchAll(/<button\b/g)].length, 2);
+  assert.equal([...html.matchAll(/<button\b/g)].length, 3);
+  assert.match(html, /aria-label="Pausar cambio automático"/);
   assert.doesNotMatch(html, /images.unsplash.com|Golden hour/);
+});
+
+test("la galería muestra la misma presentación pública y reserva el detalle para la sesión", () => {
+  const Gallery = load("components/portfolio/galeria-proyectos.jsx").default;
+  const resource = load("hooks/use-recurso-panel.js");
+  const auth = load("hooks/use-autenticacion.js");
+  const originalResource = resource.default, originalAuth = auth.default;
+  const project = { id: 7, titulo: "Título público", descripcion: "Descripción pública", tecnologias: "Tecnología del detalle", imagen_url: null, url_demo: "https://example.com/demo-privada" };
+  resource.default = () => ({ loading: false, error: null, data: [project] });
+  try {
+    auth.default = () => ({ mounted: true, user: null });
+    const locked = renderToStaticMarkup(h(Gallery));
+    assert.match(locked, /Título público/);
+    assert.match(locked, /Descripción pública/);
+    assert.doesNotMatch(locked, /Tecnología del detalle|demo-privada|demo-card-locked/);
+    assert.match(locked, /href="\/iniciar-sesion\?next=%2Fproyectos%2F7"/);
+    assert.match(locked, /Explorar con mi cuenta/);
+    auth.default = () => ({ mounted: true, user: { id: 1 } });
+    resource.default = () => ({ loading: false, error: null, data: [{ ...project, imagen_url: null }] });
+    const unlocked = renderToStaticMarkup(h(Gallery));
+    assert.match(unlocked, /Título público/);
+    assert.match(unlocked, /Tecnología del detalle/);
+    assert.match(unlocked, /href="\/proyectos\/7"/);
+    assert.doesNotMatch(unlocked, /demo-card-caption|data-tilt="true"/);
+  } finally {
+    resource.default = originalResource;
+    auth.default = originalAuth;
+  }
 });
 
 test("el portfolio usa el equipo real, destinos existentes y propuestas sin enlaces inventados", () => {
@@ -90,6 +204,9 @@ test("el portfolio usa el equipo real, destinos existentes y propuestas sin enla
   const html = renderToStaticMarkup(h(load("hooks/use-apariencia.jsx").AppearanceProvider, null, h(Page)));
   for (const member of TEAM) assert.ok(html.includes(member.name));
   assert.equal(TEAM.length, 5);
+  assert.ok(html.indexOf('id="proyectos"') < html.indexOf('id="manifiesto"'));
+  const { SECCIONES_RASTREADAS } = load("lib/visitas-api.js");
+  assert.ok(SECCIONES_RASTREADAS.indexOf("proyectos") < SECCIONES_RASTREADAS.indexOf("manifiesto"));
   assert.doesNotMatch(html, /Yuji|Megumi|Nobara|Satoru|Maki|hola@dominio|LinkedIn/);
   for (const item of SITE_LINKS) assert.ok(html.includes(`id="${item.href.slice(1)}"`), item.href);
   assert.ok(PROJECTS.every(project => !project.demoHref));
@@ -132,7 +249,7 @@ test("el panel compone sus módulos en una página y reutiliza navbar, menú, pa
   assert.match(html, /Volver al portafolio/);
   assert.doesNotMatch(html, /href="\/panel\//);
   const home = renderToStaticMarkup(h(Provider, null, h(load("components/portfolio/pagina-portfolio.jsx").default)));
-  assert.match(home, /aria-label="Panel de control"[^>]*href="\/panel"/);
+  assert.doesNotMatch(home, /aria-label="Panel de control"/);
 });
 
 test("los presets de movimiento se consumen sin filtrarse al DOM", () => {
@@ -210,17 +327,42 @@ test("la ayuda reutiliza un botón y se puede controlar externamente sin crear f
 
 test("dos navbars no duplican IDs y todos sus controles y títulos apuntan al panel propio", () => {
   const Navbar = load("components/navigation/navbar.jsx").default;
+  const Provider = load("hooks/use-apariencia.jsx").AppearanceProvider;
   const props = { items: [{ href: "#destino", label: "Destino" }], theme: "eucalipto", mode: "light", onThemeChange() {}, onModeChange() {} };
-  const html = renderToStaticMarkup(h(React.Fragment, null, h(Navbar, props), h(Navbar, props)));
+  const html = renderToStaticMarkup(h(Provider, null, h(React.Fragment, null, h(Navbar, props), h(Navbar, props))));
   assert.doesNotMatch(html, /Navegación principal|site-navbar-login|>Ingresar</);
   assert.match(html, /href="\/iniciar-sesion"/);
   assert.doesNotMatch(html, /site-menu-close/);
-  assert.equal([...html.matchAll(/site-navbar-icon-control/g)].length, 6);
+  assert.equal([...html.matchAll(/site-navbar-icon-control/g)].length, 4);
   assert.equal([...html.matchAll(/class="site-reading-progress"/g)].length, 2);
   const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
   assert.equal(new Set(ids).size, ids.length);
   for (const match of html.matchAll(/\saria-(?:controls|labelledby)="([^"]+)"/g)) {
     for (const id of match[1].split(" ")) assert.ok(ids.includes(id), `Referencia sin destino: ${id}`);
+  }
+});
+
+test("el acceso al panel espera la verificación del rol y login y detalle ofrecen salto al contenido", () => {
+  const Navbar = load("components/navigation/navbar.jsx").default;
+  const Provider = load("hooks/use-apariencia.jsx").AppearanceProvider;
+  const auth = load("hooks/use-autenticacion.js"), original = auth.default;
+  try {
+    for (const state of [
+      { mounted: false, loading: true, canAccessPanel: true },
+      { mounted: true, loading: true, canAccessPanel: true },
+      { mounted: true, loading: false, canAccessPanel: false },
+    ]) {
+      auth.default = () => state;
+      assert.doesNotMatch(renderToStaticMarkup(h(Provider, null, h(Navbar))), /aria-label="Panel de control"/);
+    }
+    auth.default = () => ({ mounted: true, loading: false, canAccessPanel: true });
+    assert.match(renderToStaticMarkup(h(Provider, null, h(Navbar))), /aria-label="Panel de control"/);
+  } finally { auth.default = original; }
+  for (const [file, id] of [["components/navigation/pagina-login.jsx", "login-content"], ["components/portfolio/detalle-proyecto.jsx", "project-content"]]) {
+    const Page = load(file).default;
+    const html = renderToStaticMarkup(h(Provider, null, h(Page, { id: "7" })));
+    assert.ok(html.includes(`href="#${id}"`));
+    assert.match(html, new RegExp(`<main[^>]*id="${id}"[^>]*tabindex="-1"`));
   }
 });
 
@@ -244,7 +386,7 @@ test("la página evita texto por letra, clones del equipo y bloqueos de demos re
   assert.equal([...html.matchAll(/class="halftone-reveal-canvas"/g)].length, 1);
   assert.doesNotMatch(html, /demo-preview-shader/);
   // La galería ahora es data-driven: en el servidor solo muestra el estado de carga.
-  assert.match(html, /role="status"[^>]*>Cargando proyectos/);
+  assert.match(html, /role="status"[^>]*>[\s\S]*?Cargando proyectos/);
 });
 
 test("campos repetidos conservan label, ayuda y error propios; el consumidor conserva atributos nativos", () => {
@@ -309,7 +451,8 @@ test("SwipeToast conserva anuncio y controles; Sling separa mascota del enlace d
   assert.match(closed, /data-phase="gone"/);
   assert.match(closed, /inert=""/);
   const Navbar = load("components/navigation/navbar.jsx").default;
-  const nav = renderToStaticMarkup(h(Navbar));
+  const Provider = load("hooks/use-apariencia.jsx").AppearanceProvider;
+  const nav = renderToStaticMarkup(h(Provider, null, h(Navbar)));
   assert.match(nav, /aria-label="Quokka, volver al inicio"/);
   assert.match(nav, /Estirá y soltá para hacer llover Quokkas/);
   assert.doesNotMatch(nav, /<a[^>]*>\s*<[^>]*sling-button/);

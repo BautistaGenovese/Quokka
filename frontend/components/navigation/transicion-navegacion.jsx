@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import SectionTransition from "./transicion-seccion";
+import NavigationLoadingIndicator from "./indicador-carga-navegacion";
 import { getSectionTarget, navigateToSection } from "@/lib/section-navigation";
 
 /** Una única cubierta persistente para anclas y rutas de toda la aplicación. */
@@ -10,30 +11,43 @@ export default function NavigationTransition() {
   const transition = useRef(null);
   const routeReady = useRef(null);
   const pending = useRef(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => { routeReady.current?.(); }, [pathname]);
   useEffect(() => {
-    let routeTimeout;
+    let routeTimeout, loadingTimer;
+    const showLoading = () => {
+      clearTimeout(loadingTimer);
+      loadingTimer = setTimeout(() => setLoading(true), 140);
+    };
+    const hideLoading = () => {
+      clearTimeout(loadingTimer);
+      loadingTimer = null;
+      setLoading(false);
+    };
     const navigate = url => {
       const samePage = url.pathname === location.pathname && url.search === location.search;
       if (pending.current || transition.current?.isActive()) return;
       pending.current = true;
+      showLoading();
       window.dispatchEvent(new Event("quokka:navigation-start"));
       transition.current?.play(() => {
         if (samePage) {
           if (url.hash) navigateToSection(url.hash);
           else { history.pushState(null, "", url.pathname + url.search); window.scrollTo({ top: 0, behavior: "instant" }); }
           pending.current = false;
+          hideLoading();
           return;
         }
         if (url.pathname === location.pathname) {
-          router.push(url.pathname + url.search + url.hash); pending.current = false; return;
+          router.push(url.pathname + url.search + url.hash); pending.current = false; hideLoading(); return;
         }
         return new Promise(resolve => {
           const finish = () => {
             clearTimeout(routeTimeout); routeReady.current = null; pending.current = false; resolve();
+            hideLoading();
           };
           routeReady.current = finish; routeTimeout = setTimeout(finish, 7000);
           try { router.push(url.pathname + url.search + url.hash); } catch { finish(); }
@@ -65,8 +79,9 @@ export default function NavigationTransition() {
       window.removeEventListener("quokka:navigate", requested);
       document.removeEventListener("click", click, true);
       clearTimeout(routeTimeout);
+      clearTimeout(loadingTimer);
       routeReady.current?.();
     };
   }, [router]);
-  return <SectionTransition ref={transition} />;
+  return <><NavigationLoadingIndicator active={loading} /><SectionTransition ref={transition} /></>;
 }

@@ -5,7 +5,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const ts = require("typescript");
 
-test("la rueda se captura solo en el carrusel, normaliza unidades y conserva zoom y campos", () => {
+test("el carrusel deja libre la rueda vertical y acepta desplazamiento horizontal o Shift sin romper zoom ni campos", () => {
   const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "../hooks/use-carrusel-scroll.js"), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -30,9 +30,11 @@ test("la rueda se captura solo en el carrusel, normaliza unidades y conserva zoo
   vm.runInNewContext(source, scope);
   scope.module.exports.default(root, { current: { next: () => next++, prev: () => prev++ } }, 5);
   const wheel = (deltaY, timeStamp, extra = {}) => local.get("wheel")({
-    deltaY, deltaX: 0, deltaMode: 0, timeStamp, target: { closest: () => null },
+    deltaY, deltaX: 0, deltaMode: 0, shiftKey: true, timeStamp, target: { closest: () => null },
     preventDefault: () => prevented++, stopPropagation: () => stopped++, ...extra,
   });
+  wheel(200, 0, { shiftKey: false });
+  assert.equal(next, 0); assert.equal(prevented, 0); assert.equal(stopped, 0, "el scroll vertical sigue perteneciendo a la página");
   wheel(30, 0); assert.equal(next, 0);
   wheel(30, 20); assert.equal(next, 1);
   wheel(200, 40); assert.equal(next, 1, "amortigua los eventos del trackpad");
@@ -40,7 +42,7 @@ test("la rueda se captura solo en el carrusel, normaliza unidades y conserva zoo
   local.get("pointerleave")();
   wheel(2, 400, { deltaMode: 1 }); wheel(2, 410, { deltaMode: 1 }); assert.equal(next, 2);
   wheel(1, 700, { deltaMode: 2 }); assert.equal(next, 3);
-  wheel(0, 1000, { deltaX: -80 }); assert.equal(prev, 2);
+  wheel(0, 1000, { deltaX: -80, shiftKey: false }); assert.equal(prev, 2);
   assert.equal(prevented, 8); assert.equal(stopped, 8);
   wheel(300, 1300, { ctrlKey: true }); assert.equal(prevented, 8, "el zoom sigue siendo nativo");
   wheel(300, 1600, { target: { closest: () => ({}) } }); assert.equal(prevented, 8);

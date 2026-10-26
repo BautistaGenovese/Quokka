@@ -189,12 +189,17 @@ const Button = forwardRef(function Button(
       el.style.removeProperty("--button-fill-x");
       el.style.removeProperty("--button-fill-y");
     };
-    // El mouse lo coordina CursorFollower desde la posición REAL de la bolita.
-    // Aquí solo queda el fallback táctil; no iniciar otra animación en hover.
-    const onPress = (event) => { if (event.pointerType !== "mouse") setOrigin(event); };
+    // Cuando el seguidor está apagado, CSS usa este punto de entrada para
+    // conservar el relleno radial del botón sin montar otra animación JS.
+    const onEnter = event => {
+      if (event.pointerType === "mouse" && document.documentElement.dataset.cursorFollower !== "true") setOrigin(event);
+    };
+    const onPress = event => { if (event.pointerType !== "mouse") setOrigin(event); };
+    el.addEventListener("pointerenter", onEnter);
     el.addEventListener("pointerdown", onPress);
     el.addEventListener("focus", onFocus);
     return () => {
+      el.removeEventListener("pointerenter", onEnter);
       el.removeEventListener("pointerdown", onPress);
       el.removeEventListener("focus", onFocus);
       el.style.removeProperty("--button-fill-x");

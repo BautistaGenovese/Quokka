@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
+import { clearSessionVerification, verifySession } from "@/lib/verificacion-sesion";
 const AUTH_EVENT = "quokka:auth-change";
 
 export const ROLE_LABELS = {
@@ -61,30 +61,9 @@ export default function useAuth() {
     if (!token) return;
 
     let cancelled = false;
-    fetch(`${API_BASE_URL}/api/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async res => {
-        if (res.status === 401) {
-          window.localStorage.removeItem("quokka_token");
-          window.localStorage.removeItem("quokka_user");
-          notifyAuthChange();
-          return;
-        }
-        if (!res.ok) return;
-        const data = await res.json().catch(() => null);
-        if (data?.usuario && !cancelled) {
-          if (data.token) window.localStorage.setItem("quokka_token", data.token);
-          window.localStorage.setItem("quokka_user", JSON.stringify(data.usuario));
-          notifyAuthChange();
-        }
-      })
-      .catch(() => {
-        // Si el backend no está accesible temporalmente, conservamos la sesión local
-      })
-      .finally(() => {
-        if (!cancelled) setChecking(false);
-      });
+    verifySession(token).finally(() => {
+      if (!cancelled) setChecking(false);
+    });
 
     return () => {
       cancelled = true;
@@ -93,6 +72,7 @@ export default function useAuth() {
 
   const logout = useCallback(() => {
     if (typeof window === "undefined") return;
+    clearSessionVerification();
     window.localStorage.removeItem("quokka_token");
     window.localStorage.removeItem("quokka_user");
     notifyAuthChange();

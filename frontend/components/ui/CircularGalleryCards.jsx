@@ -6,6 +6,11 @@ import "./CircularGallery.css";
 
 const wrap = (value, length) => ((value % length) + length) % length;
 
+export function getDragTarget(start, deltaX, spacing, maxSlides = Infinity) {
+  const slides = deltaX / Math.max(1, spacing);
+  return start - Math.max(-maxSlides, Math.min(maxSlides, slides));
+}
+
 /** Recorrido de CircularGallery con tarjetas DOM para admitir FlipCard. */
 export default function CircularGalleryCards({ ref, items, renderItem, bend = 3,
   scrollEase = 0.05, gap = 0.26, onActiveChange, className = "", style, ...rest }) {
@@ -71,10 +76,12 @@ export default function CircularGalleryCards({ ref, items, renderItem, bend = 3,
     };
     const measure = () => {
       width = el.clientWidth; height = el.clientHeight;
-      cardHeight = Math.min(400, height * 0.67);
+      cardHeight = Math.min(400, height * 0.78);
       cardWidth = Math.min(300, cardHeight * 0.75, width * 0.78);
+      if (width < 768) cardWidth = Math.min(240, width * 0.62, cardHeight * 0.75);
       // Reservar suficiente recorrido para monitores anchos sin un salto visible.
       spacing = Math.max(cardWidth * (1 + settings.current.gap), (width + cardWidth) / count);
+      if (width < 768) spacing = cardWidth * 1.16;
       nodes.forEach(node => {
         node.style.width = `${cardWidth}px`;
         node.style.height = `${cardHeight}px`;
@@ -98,7 +105,7 @@ export default function CircularGalleryCards({ ref, items, renderItem, bend = 3,
         capturePointer(el, event.pointerId);
         el.setAttribute("data-dragging", "");
       }
-      target = drag.start - dx / spacing;
+      target = getDragTarget(drag.start, dx, spacing, width < 768 ? 1 : Infinity);
       announce(Math.round(target)); wake();
     };
     const up = event => {

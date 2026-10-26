@@ -1,4 +1,8 @@
+"use client";
+
 import { TEAM } from "@/lib/contenido-sitio";
+import Image from "next/image";
+import { useState } from "react";
 
 /** Símbolo vectorial de Quokka. Sin IDs compartidos entre instancias. */
 export function QuokkaLogo() {
@@ -18,8 +22,15 @@ export function QuokkaLogo() {
 /** Iniciales y nombres del equipo, desde una única fuente de contenido. */
 export function TeamAvatars({ members = TEAM }) {
   return <div className="quokka-team" aria-label={`Equipo: ${members.map(member => member.name).join(", ")}`}>
-    {members.map(({ name }) => <span key={name} aria-hidden="true">{name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("")}</span>)}
+    {members.map(member => <Avatar key={member.name} member={member} />)}
   </div>;
+}
+
+function Avatar({ member: { name, portrait } }) {
+  const [failed, setFailed] = useState(null);
+  return <span aria-hidden="true">{portrait && failed !== portrait
+    ? <Image src={portrait} width={40} height={40} sizes="40px" alt="" onError={() => setFailed(portrait)} />
+    : name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("")}</span>;
 }
 
 /** Mascota del cierre, adaptada a los roles de la superficie. */
