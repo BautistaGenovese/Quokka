@@ -78,6 +78,13 @@ async function actualizarRolUsuario(req, res) {
     });
   }
 
+  if (req.user && Number(req.user.id) === id && nuevoRol !== 'administrador') {
+    return res.status(400).json({
+      ok: false,
+      error: 'No podés degradar tu propio rol de administrador mientras tenés sesión iniciada.',
+    });
+  }
+
   try {
     await initDb();
 

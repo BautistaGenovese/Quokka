@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const db = require('../config/db');
 const initDb = require('../config/inicializarBd');
+const { crearLimitadorSolicitudes } = require('../middleware/limitadorSolicitudes');
 const { requireAuth } = require('../middleware/autenticacion');
 
 const authRouter = express.Router();
@@ -11,6 +12,16 @@ const authRouter = express.Router();
 const SALT_ROUNDS = 10;
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Limitador estricto para prevenir fuerza bruta y credential stuffing
+const limitadorAuth = crearLimitadorSolicitudes({
+  ventanaMs: 15 * 60 * 1000, // 15 minutos
+  maximoSolicitudes: 10,     // Máximo 10 intentos por IP cada 15 minutos
+  mensaje: 'Demasiados intentos de autenticación. Por favor, aguardá unos minutos antes de reintentar.',
+});
+
+// Hash ficticio con factor 10 para igualar el tiempo de respuesta cuando el correo no existe (mitiga Timing Attack)
+const DUMMY_HASH = '$2b$10$KSndWM5WfaPDW2gwgbn6Ze9I/ZADtQjih5Si7MsQcvF7.09ZQvyvW';
 
 /**
  * Genera un token JWT firmado con los datos públicos del usuario.
@@ -29,7 +40,10 @@ function generarTokenJWT(usuario) {
       rol: usuario.rol,
     },
     secret,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    {
+      algorithm: 'HS256',
+      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    }
   );
 }
 
@@ -51,7 +65,7 @@ function formatearUsuarioPublico(fila) {
  * Registra un usuario local con nombre, email y password hasheado con bcrypt.
  * google_id queda en NULL y rol toma el DEFAULT 'usuario'.
  */
-authRouter.post('/registro', async (req, res) => {
+authRouter.post('/registro', limitadorAuth, async (req, res) => {
   const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
 
   const nombre = typeof body.nombre === 'string' ? body.nombre.trim() : '';
@@ -127,7 +141,7 @@ authRouter.post('/registro', async (req, res) => {
  * POST /api/auth/login
  * Verifica email y password contra la tabla `usuarios` usando bcrypt y emite un JWT.
  */
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', limitadorAuth, async (req, res) => {
   const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
@@ -162,6 +176,7 @@ authRouter.post('/login', async (req, res) => {
     );
 
     if (resultado.rowCount === 0) {
+      await bcrypt.compare(password, DUMMY_HASH);
       return res.status(401).json({
         ok: false,
         error: 'Credenciales inválidas.',
@@ -209,7 +224,7 @@ authRouter.post('/login', async (req, res) => {
  * Verifica el ID Token de Google con google-auth-library, inserta o actualiza `google_id`
  * mediante ON CONFLICT (email) DO UPDATE y devuelve un JWT propio.
  */
-authRouter.post('/google', async (req, res) => {
+authRouter.post('/google', limitadorAuth, async (req, res) => {
   const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
 
   // Acepta `token`, `credential` o `idToken` según cómo lo envíe el frontend con Google Identity Services
@@ -333,5 +348,6 @@ authRouter.get('/me', requireAuth, async (req, res) => {
   }
 });
 
-module.exports = authRouter;
+authRouter.limitadorAuth = limitadorAuth;
 
+module.exports = authRouter;

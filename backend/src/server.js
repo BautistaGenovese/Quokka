@@ -22,9 +22,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Seguridad: Confiar en el reverse proxy (Render) para obtener la IP real del cliente y ocultar banner
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// Cabeceras de seguridad HTTP (OWASP A05)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 // Middlewares
-app.use(cors()); // Permite conectar el frontend con el backend
-app.use(express.json()); // Permite recibir datos en formato JSON
+const allowedOrigin = process.env.FRONTEND_URL;
+app.use(cors({ origin: allowedOrigin ? [allowedOrigin, 'http://localhost:3000'] : '*' })); // Permite conectar el frontend con el backend
+app.use(express.json({ limit: '100kb' })); // Permite recibir datos en formato JSON con límite contra DoS
 
 // Ruta de prueba para verificar que la API funciona y se conecta a la BD
 app.get('/api/status', async (req, res) => {
@@ -38,8 +51,7 @@ app.get('/api/status', async (req, res) => {
   } catch (error) {
     console.error('Error al conectar la BD en status:', error);
     res.status(500).json({
-      estado: 'API funcionando, pero error en Base de Datos ❌',
-      error: error.message
+      estado: 'API funcionando, pero error en Base de Datos ❌'
     });
   }
 });

@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const { requireAuth, requireRol, identificarUsuarioOpcional } = require("../middleware/autenticacion");
+const { crearLimitadorSolicitudes } = require("../middleware/limitadorSolicitudes");
+
+// Limitador para proteger la tabla de visitas contra flooding masivo (DoS de almacenamiento)
+const limitadorVisitas = crearLimitadorSolicitudes({
+    ventanaMs: 60 * 1000,   // 1 minuto
+    maximoSolicitudes: 60,  // Hasta 60 eventos de visita/sección por minuto por IP
+    mensaje: "Demasiadas solicitudes de registro de visitas.",
+});
 
 // Secciones de la portada que se registran (ids de las <Section> del frontend),
 // en el orden en que aparecen en la página. Sirve también para ordenar el embudo.
@@ -48,7 +56,7 @@ function leerFiltros(query) {
  * - Páginas internas (/panel, /iniciar-sesion) se ignoran.
  * - `seccion` es opcional y debe ser una de SECCIONES_PERMITIDAS.
  */
-router.post("/visitas", identificarUsuarioOpcional, async (req, res) => {
+router.post("/visitas", limitadorVisitas, identificarUsuarioOpcional, async (req, res) => {
     const cuerpo = req.body || {};
     const ruta = typeof cuerpo.ruta === "string" ? cuerpo.ruta.trim() : "";
 
@@ -159,5 +167,7 @@ router.get("/metricas/secciones", requireAuth, requireRol("administrador"), asyn
         return res.status(500).json({ ok: false, error: "No se pudieron obtener las métricas por sección." });
     }
 });
+
+router.limitadorVisitas = limitadorVisitas;
 
 module.exports = router;

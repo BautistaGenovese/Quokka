@@ -47,7 +47,7 @@ function requireAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, secret);
+    const payload = jwt.verify(token, secret, { algorithms: ['HS256'] });
 
     req.user = {
       id: payload.id,
@@ -99,8 +99,8 @@ function requireRol(...rolesPermitidos) {
 
 /**
  * Middleware opcional: si hay un token con firma válida, guarda el usuario en req.user. 
- * Si no hay token, o la firma es inválida, sigue igual sin req.user (visita anónima) .
- * Acepta tokens vencidos, porque la persona igual inicio sesión alguna vez .
+ * Si no hay token, o la firma es inválida, sigue igual sin req.user (visita anónima).
+ * Acepta tokens vencidos, porque la persona igual inició sesión alguna vez.
  */
 function identificarUsuarioOpcional(req, res, next) {
   const secret = process.env.JWT_SECRET;
@@ -111,7 +111,7 @@ function identificarUsuarioOpcional(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, secret, { ignoreExpiration: true});
+    const payload = jwt.verify(token, secret, { algorithms: ['HS256'], ignoreExpiration: true });
 
     req.user = {
       id: payload.id,
