@@ -14,10 +14,14 @@ CREATE TABLE IF NOT EXISTS usuarios (
   email VARCHAR(255) NOT NULL UNIQUE CHECK (char_length(btrim(email)) >= 5),
   password_hash VARCHAR(255),
   google_id VARCHAR(255) UNIQUE,
+  foto_perfil_url TEXT,
   rol VARCHAR(20) NOT NULL DEFAULT 'usuario'
     CHECK (rol IN ('usuario', 'operador', 'administrador')),
   fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Actualiza también las bases ya creadas antes de agregar fotos de perfil de Google.
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto_perfil_url TEXT;
 
 -- -----------------------------------------------------------------------------
 -- 2. TABLA: proyectos
