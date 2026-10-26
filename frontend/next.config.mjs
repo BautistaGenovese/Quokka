@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ...(process.env.QUOKKA_DOCKER_BUILD === "1" ? { output: "standalone" } : {}),
   images: {
     // Solo Cloudinary: el servidor valida el mismo host antes de guardar imagen_url.
     remotePatterns: [

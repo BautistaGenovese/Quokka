@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 /**
  * Envía una solicitud de cotización, asesoría técnica o consulta general al backend.

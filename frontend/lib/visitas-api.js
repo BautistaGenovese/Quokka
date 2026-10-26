@@ -1,4 +1,4 @@
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
 /** Secciones de la portada que se rastrean, en el orden en que aparecen (ids de cada <Section>). */
 export const SECCIONES_RASTREADAS = ["inicio", "proyectos", "manifiesto", "equipo", "servicios", "stack-tech", "contacto"];

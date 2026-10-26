@@ -8,7 +8,7 @@ import useAuth from "@/hooks/use-autenticacion";
 import useAppearance from "@/hooks/use-apariencia";
 import { safeNextPath } from "@/lib/redireccion-segura";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 /** Lee ?next= al momento de redirigir (sin useSearchParams) y solo acepta rutas internas. */

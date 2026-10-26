@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch-path=src src/server.js",
-    "test": "node --test tests/contacto.test.js tests/servicios.test.js tests/proyectos.test.js tests/metricas.test.js tests/github.test.js"
+    "test": "node --test tests/contacto.test.js tests/servicios.test.js tests/proyectos.test.js tests/metricas.test.js tests/github.test.js tests/cors.test.js"
   },
   "keywords": [],
   "author": "",

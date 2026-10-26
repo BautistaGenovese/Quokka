@@ -1,0 +1,75 @@
+name: quokka-laptop
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: quokka
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configurar POSTGRES_PASSWORD en .env.laptop}
+      POSTGRES_DB: quokka
+    volumes:
+      - laptop_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quokka -d quokka"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.laptop
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://quokka:${POSTGRES_PASSWORD:?Configurar POSTGRES_PASSWORD en .env.laptop}@db:5432/quokka
+      DATABASE_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:?Configurar JWT_SECRET en .env.laptop}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      CONTACT_RECEIVER_EMAIL: ${CONTACT_RECEIVER_EMAIL:-}
+      GITHUB_USUARIOS: ${GITHUB_USUARIOS:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.laptop
+      args:
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    restart: unless-stopped
+
+  proxy:
+    image: caddy:2-alpine
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./Caddyfile.laptop:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate --url http://proxy:8080
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+volumes:
+  laptop_pgdata:

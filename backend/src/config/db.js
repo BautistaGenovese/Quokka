@@ -2,7 +2,9 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const isProduction = process.env.NODE_ENV === 'production';
-const requiresSsl = isProduction || (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') && !process.env.DATABASE_URL.includes('127.0.0.1'));
+const requiresSsl = process.env.DATABASE_SSL === 'false'
+  ? false
+  : isProduction || (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') && !process.env.DATABASE_URL.includes('127.0.0.1'));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

@@ -36,19 +36,22 @@ app.use((req, res, next) => {
 
 // Middlewares
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    const configuredOrigin = process.env.FRONTEND_URL;
-    if (
+app.use(cors((req, callback) => {
+  const origin = req.headers.origin;
+  let sameOrigin = false;
+  if (origin) {
+    try {
+      const parsedOrigin = new URL(origin);
+      sameOrigin = ['http:', 'https:'].includes(parsedOrigin.protocol) && parsedOrigin.host === req.get('host');
+    } catch { /* Origen inválido: CORS lo rechazará. */ }
+  }
+  const configuredOrigin = process.env.FRONTEND_URL;
+  callback(null, {
+    origin: !origin || sameOrigin ||
       (configuredOrigin && origin === configuredOrigin) ||
       origin === 'http://localhost:3000' ||
-      /^https:\/\/quokka-frontend.*\.vercel\.app$/.test(origin)
-    ) {
-      return callback(null, true);
-    }
-    return callback(null, false);
-  },
+      /^https:\/\/quokka-frontend.*\.vercel\.app$/.test(origin),
+  });
 }));
 app.use(express.json({ limit: '100kb' })); // Permite recibir datos en formato JSON con límite contra DoS
 
