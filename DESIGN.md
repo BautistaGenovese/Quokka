@@ -1,6 +1,6 @@
 # Manual de diseño de Quokka Studio
 
-Versión 4.1 · Actualizado el 18 de octubre de 2026.
+Versión 4.2 · Actualizado el 26 de octubre de 2026.
 
 La implementación vigente es el frontend React/Next.js de este repositorio. Este manual registra su comportamiento actual; no existe una implementación HTML paralela. La guía de componentes y de desarrollo está en [frontend/README.md](frontend/README.md). Los contratos pendientes de servidor están en [frontend/BACKEND-INTEGRATION.md](frontend/BACKEND-INTEGRATION.md).
 
@@ -8,9 +8,9 @@ La implementación vigente es el frontend React/Next.js de este repositorio. Est
 
 Quokka es un estudio digital colaborativo, editorial, cálido y juguetón. Las superficies amplias, titulares expresivos y pequeños gestos de movimiento acompañan la lectura. Los cinco integrantes comparten una identidad visual; no se inventan perfiles ni demos publicadas.
 
-La página principal es /. Presenta inicio, manifiesto, equipo, servicios, proyectos, tecnologías y contacto. /iniciar-sesion es el acceso preparado para conectar autenticación. /panel es una única página de gestión compuesta por módulos y navegación por anclas. No hay rutas públicas de laboratorio o experiencia. Los componentes reutilizables viven en frontend/components; no son páginas ni dependen de una ruta.
+La página principal es /. Presenta inicio, manifiesto, equipo, servicios, proyectos, tecnologías y contacto. /iniciar-sesion permite crear una cuenta o iniciar sesión con email/contraseña o Google. /panel es una única página de gestión compuesta por módulos y navegación por anclas. No hay rutas públicas de laboratorio o experiencia. Los componentes reutilizables viven en frontend/components; no son páginas ni dependen de una ruta.
 
-El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Servicios y tecnologías se leen de la API pública y se administran en el panel; carga, error con reintento y catálogo vacío tienen estados propios. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. La validación de contacto y login funciona en el cliente; el formulario de contacto en la portada se conecta al backend mediante su adaptador (`submitContactRequest`), mientras que login requiere su adaptador de autenticación y la interfaz no afirma que existan sesiones o envíos cuando el adaptador no está conectado.
+El contenido del equipo y las propuestas vive en frontend/lib/site-content.js. Servicios y tecnologías se leen de la API pública y se administran en el panel; carga, error con reintento y catálogo vacío tienen estados propios. Las imágenes de proyectos son maquetas identificadas como propuestas en desarrollo. El formulario de contacto y el acceso crean solicitudes contra la API; el backend valida, persiste y emite la sesión.
 
 ## 2. Tipografía y énfasis
 
@@ -100,6 +100,8 @@ La composición pública vive en components/portfolio y sus estilos en styles/po
 - Tamaños base: --text-hero, --text-title y --text-lead se adaptan con clamp; portfolio.css ajusta la jerarquía editorial.
 - Permitir min-width:0 en grids, tarjetas y fieldsets. Las etiquetas largas no deben crear scroll horizontal.
 - Bajo 768 px, personas y demos muestran flechas con iconos, nombres accesibles y área de 48 px. En escritorio se ocultan; siguen disponibles rueda, arrastre y teclado.
+
+La sección «Las herramientas» muestra hasta cuatro tecnologías a la vez, sin índices. Si hay más, los nombres rotan automáticamente cada tres segundos mientras la sección está visible; cada fila enmascara el cambio vertical. Movimiento reducido desactiva la animación. En escritorio, la lista iguala el alto del bloque de texto; en móvil se apila debajo y conserva filas legibles.
 
 ## 5. Navbar, menú y navegación
 

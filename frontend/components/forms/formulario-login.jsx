@@ -5,6 +5,7 @@ import Script from "next/script";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import useAuth from "@/hooks/use-autenticacion";
+import useAppearance from "@/hooks/use-apariencia";
 import { safeNextPath } from "@/lib/redireccion-segura";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -18,6 +19,7 @@ function redirectAfterLogin() {
 /** Punto de integración: onSignIn({ email, password }) devuelve una promesa. */
 export default function LoginForm({ onSignIn }) {
   const { mounted, user, roleLabel, canAccessPanel, logout } = useAuth();
+  const { mode } = useAppearance();
   const [authMode, setAuthMode] = useState("login"); // "login" | "registro"
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
@@ -25,6 +27,17 @@ export default function LoginForm({ onSignIn }) {
   const googleBtnRef = useRef(null);
   const [googleReady, setGoogleReady] = useState(false);
   const [googleError, setGoogleError] = useState(false);
+  const [prefersDark, setPrefersDark] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => setPrefersDark(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  const googleButtonTheme = mode === "dark" || (mode === "system" && prefersDark) ? "filled_black" : "outline";
 
   const isRegister = authMode === "registro";
 
@@ -83,7 +96,7 @@ export default function LoginForm({ onSignIn }) {
         googleBtnRef.current.innerHTML = "";
 
         window.google.accounts.id.renderButton(googleBtnRef.current, {
-          theme: "outline",
+          theme: googleButtonTheme,
           size: "large",
           shape: "pill",
           text: isRegister ? "signup_with" : "continue_with",
@@ -91,7 +104,7 @@ export default function LoginForm({ onSignIn }) {
           logo_alignment: "left",
         });
     }
-  }, [googleReady, isRegister, mounted, user, handleGoogleCredential]);
+  }, [googleReady, isRegister, mounted, user, handleGoogleCredential, googleButtonTheme]);
 
   async function submit(event) {
     event.preventDefault();

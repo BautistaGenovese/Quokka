@@ -432,7 +432,8 @@ test("el footer compacto conserva navegación y el login ofrece campos conectabl
   assert.doesNotMatch(html, /Tenés un proyecto|Escribinos|quokka-footer-cta/);
   assert.match(html, /quokka-footer-nav-grid/);
   const Login = load("components/forms/formulario-login.jsx").default;
-  const form = renderToStaticMarkup(h(Login));
+  const AppearanceProvider = load("hooks/use-apariencia.jsx").AppearanceProvider;
+  const form = renderToStaticMarkup(h(AppearanceProvider, null, h(Login)));
   assert.match(form, /name="email"/);
   assert.match(form, /type="password"/);
   assert.match(form, /autoComplete="current-password"/);
