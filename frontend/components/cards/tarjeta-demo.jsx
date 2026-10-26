@@ -10,7 +10,7 @@ import DemoPreview from "./vista-previa-demo";
  * carga sitios externos. El contenedor decide su ancho y la superficie.
  * Conserva el tilt de Card sin interferir con el transform del carrusel.
  */
-export default function DemoCard({ title, description, preview, demoHref, locked = false,
+export default function DemoCard({ title, description, preview, demoHref, locked = false, lockedLabel,
   surface = "muted", tilt = true, className = "", ...rest }) {
   const titleId = useId();
   // No difuminar ni tapar la demo real: en este estado NO montamos su slot,
@@ -25,8 +25,8 @@ export default function DemoCard({ title, description, preview, demoHref, locked
       <span className="demo-card-locked-badge">Solo para miembros</span>
       <div className="demo-card-locked-message">
         <span className="demo-card-lock"><LockKeyhole size={28} aria-hidden="true" /></span>
-        <h3 id={titleId} className="demo-card-title">Las demos te esperan</h3>
-        <p>Registrate para explorar y probar los proyectos.</p>
+        <h3 id={titleId} className="demo-card-title">{lockedLabel || "Las demos te esperan"}</h3>
+        <p>{lockedLabel ? "Acceso para miembros" : "Registrate para explorar y probar los proyectos."}</p>
       </div>
     </Section>
   </Card>;

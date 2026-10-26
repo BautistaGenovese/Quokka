@@ -9,6 +9,7 @@ import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import { panelRequest } from "@/lib/panel-api";
 import { PanelHeading } from "./panel-compartido";
+import { SECCIONES_RASTREADAS } from "@/lib/visitas-api";
 
 // Nombres legibles de cada sección de la portada (clave = id de la <Section>)
 const NOMBRES_SECCIONES = {
@@ -63,7 +64,9 @@ export default function MetricsManager() {
           error: null,
           // Se recorta la fecha ISO a AAAA-MM-DD para mostrarla en el eje
           porDia: (visitas.datos || []).map((fila) => ({ ...fila, dia: String(fila.dia).slice(0, 10) })),
-          porSeccion: (secciones.datos || []).map((fila) => ({ ...fila, nombre: NOMBRES_SECCIONES[fila.seccion] || fila.seccion })),
+          porSeccion: (secciones.datos || [])
+            .map((fila) => ({ ...fila, nombre: NOMBRES_SECCIONES[fila.seccion] || fila.seccion }))
+            .sort((a, b) => SECCIONES_RASTREADAS.indexOf(a.seccion) - SECCIONES_RASTREADAS.indexOf(b.seccion)),
         });
       },
       (error) => {

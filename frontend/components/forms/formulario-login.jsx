@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import useAuth from "@/hooks/use-autenticacion";
@@ -22,6 +23,8 @@ export default function LoginForm({ onSignIn }) {
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
   const googleBtnRef = useRef(null);
+  const [googleReady, setGoogleReady] = useState(false);
+  const [googleError, setGoogleError] = useState(false);
 
   const isRegister = authMode === "registro";
 
@@ -38,7 +41,7 @@ export default function LoginForm({ onSignIn }) {
     setMessage("");
   }
 
-  async function handleGoogleCredential(response) {
+  const handleGoogleCredential = useCallback(async response => {
     if (!response?.credential) return;
     setStatus("loading");
     setMessage("Verificando cuenta con Google...");
@@ -66,16 +69,11 @@ export default function LoginForm({ onSignIn }) {
       setStatus("error");
       setMessage(err.message || "No se pudo iniciar sesión con Google.");
     }
-  }
+  }, []);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || (mounted && user)) return;
-
-    let cancelado = false;
-    const interval = setInterval(() => {
-      if (typeof window !== "undefined" && window.google?.accounts?.id && googleBtnRef.current) {
-        clearInterval(interval);
-        if (cancelado) return;
+    if (!GOOGLE_CLIENT_ID || !googleReady || (mounted && user)) return;
+    if (window.google?.accounts?.id && googleBtnRef.current) {
 
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -92,14 +90,8 @@ export default function LoginForm({ onSignIn }) {
           width: 360,
           logo_alignment: "left",
         });
-      }
-    }, 150);
-
-    return () => {
-      cancelado = true;
-      clearInterval(interval);
-    };
-  }, [isRegister, mounted, user]);
+    }
+  }, [googleReady, isRegister, mounted, user, handleGoogleCredential]);
 
   async function submit(event) {
     event.preventDefault();
@@ -240,6 +232,9 @@ export default function LoginForm({ onSignIn }) {
         </p>
       )}
 
+      {GOOGLE_CLIENT_ID && <>
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive"
+        onReady={() => setGoogleReady(true)} onError={() => setGoogleError(true)} />
       {/* Divisor con la paleta de la superficie (sin fondos oscuros fijos) */}
       <div className="relative my-7 flex items-center justify-center">
         <div className="w-full border-t border-[var(--s-line,currentColor)] opacity-25" />
@@ -252,6 +247,8 @@ export default function LoginForm({ onSignIn }) {
       <div className="flex justify-center">
         <div ref={googleBtnRef} className="flex justify-center min-h-[44px]" />
       </div>
+      {googleError && <p role="status" className="text-sm text-center">No pudimos cargar Google. Podés continuar con correo y contraseña.</p>}
+      </>}
 
       {/* Alternar entre Iniciar Sesión y Registrarse con botón estilizado */}
       <div className="pt-6 border-t border-[var(--s-line,currentColor)] border-opacity-20 text-center space-y-3">

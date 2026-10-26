@@ -1,8 +1,8 @@
 "use client";
 import { useEffect } from "react";
 
-/** La rueda pertenece al carrusel bajo el puntero, incluso en sus extremos.
- * Los gestos táctiles verticales y el scroll exterior siguen siendo nativos. */
+/** La rueda vertical conserva el scroll de la página. El carrusel acepta
+ * gestos horizontales o Shift + rueda, además del arrastre y sus controles. */
 export default function useScrollCarousel(root, api, count) {
   useEffect(() => {
     const el = root.current;
@@ -12,9 +12,11 @@ export default function useScrollCarousel(root, api, count) {
     const wheel = event => {
       // Conservar el zoom del navegador y los controles nativos anidados.
       if (event.ctrlKey || event.target.closest?.("input, textarea, select, [contenteditable=true]")) return;
+      const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      if (!horizontal && !event.shiftKey) return;
       event.preventDefault();
       event.stopPropagation();
-      const raw = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      const raw = horizontal ? event.deltaX : event.deltaY;
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? el.clientHeight : 1;
       const delta = raw * unit;
       const now = event.timeStamp;

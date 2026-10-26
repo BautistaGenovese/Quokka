@@ -42,6 +42,8 @@ export function validateProjectForm(values) {
 }
 
 /**
+ * La presentación recibida del catálogo público se muestra con y sin sesión.
+ * locked limita el acceso al detalle, no oculta la presentación del proyecto.
  * Tarjetas de la galería. Devuelve null mientras carga. Las muestras estáticas solo
  * aparecen si la API falla o viene vacía, nunca mezcladas, y no enlazan ni se bloquean.
  */

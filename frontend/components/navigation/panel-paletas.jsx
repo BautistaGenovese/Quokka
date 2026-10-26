@@ -1,20 +1,14 @@
 "use client";
 
-import { useId, useImperativeHandle, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useImperativeHandle, useRef, useState } from "react";
 import Section from "@/components/layout/section";
+import useAppearance from "@/hooks/use-apariencia";
 import Button from "@/components/ui/button.jsx";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { preparePanelEntry, enterPanels, dropPanels } from "@/lib/movimiento-panel";
 import { PALETTES } from "@/lib/paletas";
 import NavbarIcon from "@/components/navigation/icono-navbar";
 
-const subscribe = callback => {
-  const media = matchMedia("(prefers-color-scheme: dark)");
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-};
-const snapshot = () => matchMedia("(prefers-color-scheme: dark)").matches;
-const serverSnapshot = () => false;
 const COLOR_ROLES = ["bg-1", "bg-2", "bg-3", "deep", "color-1", "color-2", "color-3"];
 
 /** Selector de apariencia: el layout conserva el estado de tema y modo.
@@ -33,7 +27,15 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
   const [expanded, setExpanded] = useState(false);
   const [colorName, setColorName] = useState(null);
   const [chosenColor, setChosenColor] = useState(null);
-  const systemDark = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
+  const { cursorFollowerEnabled, setCursorFollowerEnabled } = useAppearance();
+  const [systemDark, setSystemDark] = useState(false);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => setSystemDark(preference.matches);
+    update();
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
   const dark = mode === "dark" || (mode === "system" && systemDark);
   const collection = PALETTES.find(item => item.id === theme) ?? PALETTES[0];
   const names = collection.names[dark ? 1 : 0];
@@ -48,16 +50,25 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     let animation;
     let wantsOpen = false;
+    let finishing = false;
+    let finished = false;
     const closed = [];
     const finish = () => {
-      if (wantsOpen) return;
+      if (wantsOpen || finishing || finished) return;
+      finishing = true;
+      finished = true;
       const returnFocus = modal.contains(document.activeElement);
-      modal.close();
-      if (returnFocus) trigger.current?.focus({ preventScroll: true });
-      closed.splice(0).forEach(resolve => resolve());
+      try {
+        if (modal.open) modal.close();
+        if (returnFocus) trigger.current?.focus({ preventScroll: true });
+        for (const resolve of closed.splice(0)) resolve();
+      } finally {
+        finishing = false;
+      }
     };
     const open = contextSafe(() => {
-      animation?.kill(); wantsOpen = true; setExpanded(true);
+      animation?.kill(); wantsOpen = true; finishing = false; finished = false; setExpanded(true);
+      card.inert = false;
       if (!modal.open) {
         modal.dataset.exiting = "false";
         modal.show(); trigger.current?.focus({ preventScroll: true }); modal.scrollTop = 0;
@@ -74,6 +85,8 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
       }
       if (!wantsOpen) return;
       animation?.kill(); wantsOpen = false; setExpanded(false);
+      if (modal.contains(document.activeElement)) trigger.current?.focus({ preventScroll: true });
+      card.inert = true;
       modal.dataset.exiting = "true";
       if (reduced.matches) finish();
       else {
@@ -83,6 +96,10 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
     actions.current = { open, close };
     const escape = event => { if (event.key === "Escape" && modal.open) { event.preventDefault(); close(); } };
     const outside = event => { if (modal.open && !modal.contains(event.target) && !trigger.current?.contains(event.target)) close(); };
+    const focusOutside = event => {
+      if (!modal.open || modal.contains(event.target) || trigger.current?.contains(event.target)) return;
+      close();
+    };
     const settle = contextSafe(() => {
       if (!reduced.matches) return;
       animation?.kill();
@@ -91,14 +108,16 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
     });
     document.addEventListener("keydown", escape);
     document.addEventListener("pointerdown", outside);
+    document.addEventListener("focusin", focusOutside);
     reduced.addEventListener("change", settle);
     return () => {
       animation?.kill(); actions.current = null;
       document.removeEventListener("keydown", escape);
       document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("focusin", focusOutside);
       reduced.removeEventListener("change", settle);
       if (modal.open) modal.close();
-      closed.splice(0).forEach(resolve => resolve());
+      for (const resolve of closed.splice(0)) resolve();
     };
   }, { scope: root });
 
@@ -130,6 +149,13 @@ export default function PalettePanel({ ref, theme, mode, onThemeChange, onModeCh
               onPointerEnter={() => setColorName(index)} onFocus={() => setColorName(index)} onClick={() => { setChosenColor(index); setColorName(index); }} /></li>)}
           </ul>
           <p className="palette-color-name" aria-live="polite">{colorName === null ? "\u00a0" : names[colorName]}</p>
+          <div className="palette-cursor-setting">
+            <span className="palette-cursor-copy"><strong>Seguidor del cursor</strong><small>Mostrar el efecto del puntero</small></span>
+            <button type="button" role="switch" aria-label="Seguidor del cursor" aria-checked={cursorFollowerEnabled} onClick={() => setCursorFollowerEnabled(!cursorFollowerEnabled)}>
+              <span aria-hidden="true" />
+            </button>
+            <span className="palette-cursor-status" aria-live="polite">{cursorFollowerEnabled ? "Activo" : "Oculto"}</span>
+          </div>
           <p className="palette-note">El sitio reparte estos colores entre sus secciones; en modo oscuro usa la versión nocturna de la misma colección</p>
         </Section>
       </div>

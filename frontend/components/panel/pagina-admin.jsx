@@ -25,9 +25,8 @@ export default function AdminPage() {
   if (mounted && !loading && !canAccessPanel) {
     return <>
       <a className="studio-skip-link" href="#panel-content">Saltar al contenido</a>
-      <Navbar items={[]} homeHref="/" panelHref={null}
-        theme={appearance.theme} mode={appearance.mode} onThemeChange={appearance.setTheme} onModeChange={appearance.setMode}
-        menuFooter={{ href: "/", label: "Volver al portafolio" }} />
+      <Navbar items={[]} homeHref="/" panelHref={null} portfolioHref="/"
+        theme={appearance.theme} mode={appearance.mode} onThemeChange={appearance.setTheme} onModeChange={appearance.setMode} />
       <main id="panel-content" tabIndex={-1} className="admin-page">
         <Section className="admin-intro">
           <div className="studio-shell space-y-6">
@@ -54,9 +53,8 @@ export default function AdminPage() {
 
   return <CatalogProvider>
     <a className="studio-skip-link" href="#panel-content">Saltar al contenido</a>
-    <Navbar items={ADMIN_LINKS} homeHref="/" panelHref={null}
-      theme={appearance.theme} mode={appearance.mode} onThemeChange={appearance.setTheme} onModeChange={appearance.setMode}
-      menuFooter={{ href: "/", label: "Volver al portafolio" }} />
+    <Navbar items={ADMIN_LINKS} homeHref="/" panelHref={null} portfolioHref="/"
+      theme={appearance.theme} mode={appearance.mode} onThemeChange={appearance.setTheme} onModeChange={appearance.setMode} />
     <main id="panel-content" tabIndex={-1} className="admin-page">
       <Section className="admin-intro">
         <div className="studio-shell">

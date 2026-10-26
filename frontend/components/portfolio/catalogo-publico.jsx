@@ -7,9 +7,14 @@ import usePanelResource from "@/hooks/use-recurso-panel";
 export default function PublicCatalog({ kind }) {
   const resource = usePanelResource(`/api/${kind}`);
   const label = kind === "servicios" ? "servicios" : "tecnologías";
-  if (resource.loading) return <p role="status" className="py-8">Cargando {label}…</p>;
-  if (resource.error) return <div className="space-y-4 py-8"><p>No pudimos cargar {label} en este momento.</p><Button size="sm" variant="secondary" onClick={resource.reload}>Volver a intentar</Button></div>;
-  if (!resource.data.length) return <p className="py-8">Pronto compartiremos {kind === "servicios" ? "nuestros servicios" : "nuestras herramientas"}.</p>;
-  if (kind === "tecnologias") return <div className="studio-stack-list">{resource.data.map((item, index) => <article key={item.id}><span className="studio-stack-index">{String(index + 1).padStart(2, "0")}</span><div><h3>{item.nombre}</h3></div></article>)}</div>;
-  return <div className="studio-services">{resource.data.map((item, index) => <article className="studio-service-row" key={item.id}><span className="studio-service-number">{String(index + 1).padStart(2, "0")}</span><h3>{item.nombre_servicio}</h3><div><p>{item.descripcion}</p><ul className="studio-tags" aria-label={`Tecnologías de ${item.nombre_servicio}`}>{item.tecnologias.map(technology => <li key={technology.id}>{technology.nombre}</li>)}</ul></div></article>)}</div>;
+  let content;
+  if (resource.loading) content = <div role="status">
+    <p className="sr-only">Cargando {label}…</p>
+    <div className="studio-catalog-placeholder" aria-hidden="true"><span /><span /><span /></div>
+  </div>;
+  else if (resource.error) content = <div className="space-y-4 py-8"><p>No pudimos cargar {label} en este momento.</p><Button size="sm" variant="secondary" onClick={resource.reload}>Volver a intentar</Button></div>;
+  else if (!resource.data.length) content = <p className="py-8">Pronto compartiremos {kind === "servicios" ? "nuestros servicios" : "nuestras herramientas"}.</p>;
+  else if (kind === "tecnologias") content = <div className="studio-stack-list">{resource.data.map((item, index) => <article key={item.id}><span className="studio-stack-index">{String(index + 1).padStart(2, "0")}</span><div><h3>{item.nombre}</h3></div></article>)}</div>;
+  else content = <div className="studio-services">{resource.data.map((item, index) => <article className="studio-service-row" key={item.id}><span className="studio-service-number">{String(index + 1).padStart(2, "0")}</span><h3>{item.nombre_servicio}</h3><div><p>{item.descripcion}</p><ul className="studio-tags" aria-label={`Tecnologías de ${item.nombre_servicio}`}>{item.tecnologias.map(technology => <li key={technology.id}>{technology.nombre}</li>)}</ul></div></article>)}</div>;
+  return <div className={`studio-catalog studio-catalog-${kind}`} aria-busy={resource.loading}>{content}</div>;
 }

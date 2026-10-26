@@ -7,9 +7,11 @@ import Section from "@/components/layout/section";
 
 import { TeamAvatars, QuokkaPeek } from "@/components/layout/detalles-marca";
 import useFooterMotion, { FOOTER_REST_EDGE } from "@/hooks/use-movimiento-footer";
+import useEquipoGithub from "@/hooks/use-equipo-github";
+import { TEAM } from "@/lib/contenido-sitio";
 
 /** Navegación compacta, entrada del wordmark y curva con retorno elástico. */
-export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamHref = "#equipo" }) {
+export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamHref = "#equipo", members }) {
   const root = useRef(null);
   const edge = useRef(null);
 
@@ -26,7 +28,7 @@ export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamH
           <div className="quokka-footer-top">
             <nav aria-label="Navegar" className="quokka-footer-navigation"><h3>Navegar</h3><div className="quokka-footer-nav-grid">{links.map(({ href, label }) => <a key={href} href={href} className="quokka-footer-link">{label}</a>)}</div></nav>
             <div className="quokka-footer-columns">
-              <div><h3>Equipo</h3><TeamAvatars/><a href={teamHref} className="quokka-footer-link">Ver los perfiles</a></div>
+              <div><h3>Equipo</h3>{members ? <TeamAvatars members={members} /> : <GithubAvatars />}<a href={teamHref} className="quokka-footer-link">Ver los perfiles</a></div>
               <nav aria-label="Redes"><h3>Seguinos</h3><a className="quokka-footer-link" href="https://github.com/BautistaGenovese/Quokka" target="_blank" rel="noopener noreferrer">GitHub</a></nav>
             </div>
           </div>
@@ -39,5 +41,10 @@ export default function Footer({ links = SITE_LINKS, homeHref = "#inicio", teamH
       </div>
     </Section>
   );
+}
+
+function GithubAvatars() {
+  const members = useEquipoGithub(TEAM);
+  return <TeamAvatars members={members} />;
 }
 

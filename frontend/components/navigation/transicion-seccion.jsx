@@ -37,6 +37,25 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     let timeline = null;
     let cover = null;
+    let openingPass = true;
+    let inputLocked = false;
+    const preventScroll = event => event.preventDefault();
+    const preventKeys = event => {
+      if (["Tab", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
+    };
+    const lockInput = () => {
+      if (inputLocked) return;
+      inputLocked = true;
+      document.addEventListener("wheel", preventScroll, { passive: false });
+      document.addEventListener("touchmove", preventScroll, { passive: false });
+      document.addEventListener("keydown", preventKeys);
+    };
+    const unlockInput = () => {
+      inputLocked = false;
+      document.removeEventListener("wheel", preventScroll);
+      document.removeEventListener("touchmove", preventScroll);
+      document.removeEventListener("keydown", preventKeys);
+    };
     const paths = [...root.current.querySelectorAll("path")];
     const heights = paths.map(() => Array(POINTS).fill(100));
     // Curvas cúbicas con controles en el punto medio, igual que la demo.
@@ -65,6 +84,7 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
     const hide = contextSafe(() => {
       gsap.set(root.current, { autoAlpha: 0, pointerEvents: "none" });
       root.current.dataset.active = "false";
+      unlockInput();
     });
     const cancel = contextSafe(() => { timeline?.kill(); cover = null; hide(); });
     // Cada pasada comparte los retrasos aleatorios entre capas, tal como
@@ -72,6 +92,7 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
     const addPass = (opening, start) => {
       const delays = Array.from({ length: POINTS }, () => Math.random() * POINT_DELAY);
       timeline.call(() => {
+        openingPass = opening;
         heights.forEach(values => values.fill(100));
         render(opening);
       }, [], start);
@@ -79,7 +100,6 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
         const layerDelay = (opening ? layer : paths.length - layer - 1) * LAYER_DELAY;
         values.forEach((_, point) => timeline.to(values, {
           [point]: 0, duration: DURATION, ease: "power2.inOut",
-          onUpdate: () => render(opening),
         }, start + delays[point] + layerDelay));
       });
     };
@@ -89,10 +109,11 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
       if (reduced.matches) { onCovered(); return; }
       cover = onCovered;
       root.current.dataset.active = "true";
+      lockInput();
       gsap.set(root.current, { autoAlpha: 1, pointerEvents: "auto" });
       heights.forEach(values => values.fill(100));
       render(true);
-      timeline = gsap.timeline({ onComplete: hide });
+      timeline = gsap.timeline({ onComplete: hide, onUpdate: () => render(openingPass) });
       addPass(true, 0);
       const coveredAt = timeline.duration();
       timeline.call(navigate, [], coveredAt);
@@ -107,21 +128,12 @@ const SectionTransition = forwardRef(function SectionTransition(_, ref) {
       if (!reduced.matches) return;
       timeline?.kill(); navigate(); hide();
     });
-    const preventScroll = event => { if (root.current.dataset.active === "true") event.preventDefault(); };
-    const preventKeys = event => {
-      if (root.current.dataset.active === "true" && ["Tab", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) event.preventDefault();
-    };
     actions.current = { play, cancel };
     reduced.addEventListener("change", settle);
-    document.addEventListener("wheel", preventScroll, { passive: false });
-    document.addEventListener("touchmove", preventScroll, { passive: false });
-    document.addEventListener("keydown", preventKeys);
     return () => {
       alive = false; timeline?.kill(); cover = null; actions.current = null;
       reduced.removeEventListener("change", settle);
-      document.removeEventListener("wheel", preventScroll);
-      document.removeEventListener("touchmove", preventScroll);
-      document.removeEventListener("keydown", preventKeys);
+      unlockInput();
     };
   }, { scope: root, dependencies: [mounted], revertOnUpdate: true });
 
