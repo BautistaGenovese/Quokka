@@ -35,8 +35,21 @@ app.use((req, res, next) => {
 });
 
 // Middlewares
-const allowedOrigin = process.env.FRONTEND_URL;
-app.use(cors({ origin: allowedOrigin ? [allowedOrigin, 'http://localhost:3000'] : '*' })); // Permite conectar el frontend con el backend
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const configuredOrigin = process.env.FRONTEND_URL;
+    if (
+      (configuredOrigin && origin === configuredOrigin) ||
+      origin === 'http://localhost:3000' ||
+      /^https:\/\/quokka-frontend.*\.vercel\.app$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+}));
 app.use(express.json({ limit: '100kb' })); // Permite recibir datos en formato JSON con límite contra DoS
 
 // Ruta de prueba para verificar que la API funciona y se conecta a la BD
