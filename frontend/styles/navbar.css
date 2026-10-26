@@ -2,6 +2,20 @@
    su propio contexto y el header no usa transforms como containing block. */
 .site-navbar { --navbar-height: 82px; position: sticky; top: 0; z-index: 1700; isolation: isolate; background: transparent; --quokka-fur: #C98B5B; --quokka-muzzle: #F2D2B0; }
 .site-reading-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 1800; pointer-events: none; background: var(--palette-color-1); transform: scaleX(0); transform-origin: left; }
+.initial-page-loading { position:fixed; inset:0; z-index:1900; display:grid; place-items:center; padding:1.5rem; background:var(--s-bg); color:var(--s-fg); opacity:1; visibility:visible; transition:opacity .28s ease, visibility .28s ease; }
+.initial-page-loading[data-active="false"] { opacity:0; visibility:hidden; pointer-events:none; }
+.initial-page-loading-content { display:grid; gap:.8rem; width:min(15rem, 100%); }
+.initial-page-loading-label { font:700 .9rem/1.2 var(--font-display); letter-spacing:.04em; }
+.initial-page-loading-track { position:relative; display:block; height:3px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--s-fg) 14%, transparent); }
+.initial-page-loading-progress { position:absolute; inset:0 auto 0 0; width:38%; border-radius:inherit; background:var(--s-action); animation:navigation-loading-progress 1.1s var(--motion-ease-in-out, ease-in-out) infinite alternate; }
+@media (prefers-reduced-motion:reduce) { .initial-page-loading, .initial-page-loading-progress { transition:none; animation:none; } .initial-page-loading-progress { width:100%; transform:none; } }
+.navigation-loading { position:fixed; z-index:1600; left:50%; bottom:max(1rem, env(safe-area-inset-bottom)); display:grid; gap:.55rem; width:min(19rem, calc(100vw - 2rem)); padding:.8rem 1rem; border:1px solid var(--s-line); border-radius:1rem; background:color-mix(in srgb, var(--s-bg) 78%, transparent); color:var(--s-fg); box-shadow:0 12px 36px color-mix(in srgb, var(--palette-deep) 18%, transparent); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); opacity:0; pointer-events:none; transform:translate(-50%, 1rem); transition:opacity .2s ease, transform .2s ease; }
+.navigation-loading[data-active="true"] { opacity:1; transform:translate(-50%, 0); }
+.navigation-loading-label { font:600 .82rem/1.2 var(--font-body); }
+.navigation-loading-track { position:relative; display:block; height:3px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--s-fg) 14%, transparent); }
+.navigation-loading-progress { position:absolute; inset:0 auto 0 0; width:38%; border-radius:inherit; background:var(--s-action); animation:navigation-loading-progress 1.1s var(--motion-ease-in-out, ease-in-out) infinite alternate; }
+@keyframes navigation-loading-progress { from { transform:translateX(-5%); } to { transform:translateX(170%); } }
+@media (prefers-reduced-motion:reduce) { .navigation-loading, .navigation-loading-progress { transition:none; animation:none; } .navigation-loading-progress { width:100%; transform:none; } }
 .site-navbar-inner { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1380px; min-height: 82px; margin-inline: auto; padding-inline: clamp(1.2rem, 4.5vw, 3.5rem); gap: 1rem; }
 .site-navbar-brand { display: inline-flex; align-items: center; gap: .75rem; font-family: var(--font-display); font-size: 1.65rem; font-weight: 800; line-height: 1; letter-spacing: -.03em; text-decoration: none; }
 .site-navbar-mascot-motion { display: inline-flex; flex-shrink: 0; }

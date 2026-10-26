@@ -105,6 +105,45 @@ test("los botones conservan el relleno al hover cuando el seguidor está apagado
   assert.match(navbarStyles, /html\[data-cursor-follower="false"\].*site-navbar-icon-control:hover\s*\{\s*color:\s*var\(--s-bg\)/s);
 });
 
+test("la apariencia guarda tema y modo, y el modo inicial sigue la preferencia del sistema", () => {
+  const source = fs.readFileSync(path.join(root, "hooks/use-apariencia.jsx"), "utf8");
+  const layout = fs.readFileSync(path.join(root, "app/layout.js"), "utf8");
+  const styles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  assert.match(source, /mode: "system"/);
+  assert.match(source, /quokka_appearance_theme/);
+  assert.match(source, /quokka_appearance_mode/);
+  assert.match(source, /setItem\(STORAGE_KEYS\.theme/);
+  assert.match(source, /setItem\(STORAGE_KEYS\.mode/);
+  assert.match(layout, /data-cursor-follower="true"/);
+  assert.doesNotMatch(layout, /data-theme="light"/);
+  assert.match(styles, /@media \(prefers-color-scheme: dark\)/);
+});
+
+test("el indicador de carga queda entre la transición y el menú", () => {
+  const Loading = load("components/navigation/indicador-carga-navegacion.jsx").default;
+  const html = renderToStaticMarkup(h(Loading, { active: true }));
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
+  const globalStyles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  assert.match(html, /role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /Cargando/);
+  assert.match(html, /role="progressbar"/);
+  assert.match(navbarStyles, /\.navigation-loading\s*\{[^}]*z-index:\s*1600/s);
+  assert.match(globalStyles, /\.section-transition\s*\{[^}]*z-index:\s*1500/s);
+});
+
+test("la portada entrega una pantalla de carga desde el HTML inicial y el menú móvil solo añade margen", () => {
+  const InitialLoader = load("components/navigation/cargador-inicial.jsx").default;
+  const html = renderToStaticMarkup(h(InitialLoader));
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
+  const menuStyles = fs.readFileSync(path.join(root, "styles/navigation.css"), "utf8");
+  assert.match(html, /class="initial-page-loading" data-active="true"/);
+  assert.match(html, /Cargando/);
+  assert.match(navbarStyles, /\.initial-page-loading\s*\{[^}]*z-index:\s*1900/s);
+  assert.match(menuStyles, /\.site-menu-main \.site-menu-login\s*\{\s*margin-bottom:\.75rem;/);
+  assert.doesNotMatch(menuStyles, /\.site-menu-main div\.site-menu-login/);
+  assert.match(menuStyles, /site-menu-logout-icon \.button-label.*place-items:center/s);
+});
+
 test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjeta frontal", () => {
   const Slider = load("components/ui/card-slider.jsx").default;
   assert.equal(renderToStaticMarkup(h(Slider, null)), "");

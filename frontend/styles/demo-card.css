@@ -119,7 +119,7 @@
   .demo-showcase-controls > button { flex-shrink: 0; padding: .65rem .85rem; font-size: .875rem; white-space: nowrap; }
   .demo-showcase-index { margin-bottom: .5rem; }
   .demo-showcase-title { font-size: 1.35rem; -webkit-line-clamp: 2; }
-  .demo-showcase-action { width: auto; max-width: 100%; font-size: .875rem; }
+  .demo-showcase-action { display: flex; width: fit-content; max-width: 100%; margin-inline: auto; font-size: .875rem; }
   .demo-showcase-access { font-size: .75rem; }
   .demo-showcase-description { margin-block: .5rem; font-size: .9rem; -webkit-line-clamp: 2; }
   .demo-showcase-technologies { margin-bottom: .5rem; }

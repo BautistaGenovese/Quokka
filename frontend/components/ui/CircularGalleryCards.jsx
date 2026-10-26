@@ -81,7 +81,7 @@ export default function CircularGalleryCards({ ref, items, renderItem, bend = 3,
       if (width < 768) cardWidth = Math.min(240, width * 0.62, cardHeight * 0.75);
       // Reservar suficiente recorrido para monitores anchos sin un salto visible.
       spacing = Math.max(cardWidth * (1 + settings.current.gap), (width + cardWidth) / count);
-      if (width < 768) spacing = cardWidth * 1.06;
+      if (width < 768) spacing = cardWidth * 1.16;
       nodes.forEach(node => {
         node.style.width = `${cardWidth}px`;
         node.style.height = `${cardHeight}px`;
