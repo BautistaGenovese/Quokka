@@ -5,6 +5,7 @@
 function crearLimitadorSolicitudes({
   ventanaMs = 15 * 60 * 1000, // 15 minutos por defecto
   maximoSolicitudes = 5,     // Máximo 5 envíos por ventana por IP
+  maximoClaves = 5000,       // Tope máximo de IPs en memoria (protección anti-DoS)
   mensaje = 'Realizaste demasiados intentos. Por favor, esperá unos minutos antes de volver a intentar.',
 } = {}) {
   const intentos = new Map();
@@ -15,11 +16,19 @@ function crearLimitadorSolicitudes({
         intentos.delete(clave);
       }
     }
+    // Si aún supera el tope tras limpiar expirados, expulsar las entradas más antiguas (FIFO)
+    if (intentos.size > maximoClaves) {
+      const sobrante = intentos.size - maximoClaves;
+      const iterador = intentos.keys();
+      for (let i = 0; i < sobrante; i++) {
+        intentos.delete(iterador.next().value);
+      }
+    }
   }
 
   const middleware = (req, res, next) => {
     const ahora = Date.now();
-    if (intentos.size > 1000) limpiarExpirados(ahora);
+    if (intentos.size >= 1000) limpiarExpirados(ahora);
 
     const ip = req.ip || req.socket?.remoteAddress || 'desconocida';
     const actual = intentos.get(ip);
