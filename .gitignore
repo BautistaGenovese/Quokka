@@ -6,3 +6,4 @@ node_modules/
 openspec/
 openspec/*
 CLAUDE.md
+.agents/
