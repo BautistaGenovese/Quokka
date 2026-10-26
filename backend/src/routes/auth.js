@@ -11,7 +11,7 @@ const authRouter = express.Router();
 
 const SALT_ROUNDS = 10;
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client((process.env.GOOGLE_CLIENT_ID || '').trim().replace(/[\r\n\s]+/g, ''));
 
 // Limitador estricto para prevenir fuerza bruta y credential stuffing
 const limitadorAuth = crearLimitadorSolicitudes({
@@ -252,7 +252,7 @@ authRouter.post('/google', limitadorAuth, async (req, res) => {
   try {
     const ticket = await googleClient.verifyIdToken({
       idToken: googleToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: (process.env.GOOGLE_CLIENT_ID || '').trim().replace(/[\r\n\s]+/g, ''),
     });
 
     const payload = ticket.getPayload();
