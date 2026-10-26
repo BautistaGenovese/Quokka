@@ -45,7 +45,7 @@ export default function PortfolioPage() {
         </div>
       </Section>
       <Section id="stack-tech" tabIndex={-1} surface="page" className="menu-destination studio-section">
-        <div className="studio-shell studio-stack-layout"><SectionHeading number="05" label="Las herramientas" description="El oficio también está en elegir con qué construir.">Nuestra caja<br />de <mark className="word-marker">herramientas.</mark></SectionHeading><PublicCatalog kind="tecnologias" /></div>
+        <div className="studio-shell studio-stack-layout"><SectionHeading number="05" label="Las herramientas" description="Elegimos cada tecnología por lo que aporta a cada proyecto: interfaces claras, experiencias ágiles y bases sólidas para crecer. Combinamos herramientas conocidas con ganas de experimentar, siempre al servicio de una buena idea.">Nuestra caja<br />de <mark className="word-marker">herramientas.</mark></SectionHeading><PublicCatalog kind="tecnologias" /></div>
       </Section>
       <Section as="div" surface="primary" className="studio-marquee"><Marquee size="sm" speed={22} items={["Curiosidad", "Código compartido", "Diseño con intención", "Ideas en movimiento"]} label="El pulso de Quokka" /></Section>
       <Section id="contacto" tabIndex={-1} surface="card" className="menu-destination studio-section footer-predecessor">

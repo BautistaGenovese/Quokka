@@ -1,6 +1,6 @@
 # Frontend de Quokka Studio
 
-La aplicación pública vive en / y el acceso en /iniciar-sesion. La página principal ya no es un laboratorio ni una experiencia aparte. Se retiraron las rutas /componentes y /experiencia y el HTML anterior.
+La aplicación pública vive en / y el acceso en /iniciar-sesion. El login admite email/contraseña y Google Identity Services. La página principal ya no es un laboratorio ni una experiencia aparte. Se retiraron las rutas /componentes y /experiencia y el HTML anterior.
 
 [DESIGN.md](../DESIGN.md) registra las decisiones visuales actuales. [BACKEND-INTEGRATION.md](./BACKEND-INTEGRATION.md) distingue las interfaces preparadas de las funciones de servidor pendientes.
 
@@ -41,13 +41,15 @@ app/componentes era una URL de catálogo, no otra biblioteca. Fue eliminada; com
 
 ## Apariencia y superficies
 
-El panel se abre en `/panel`. Servicios y tecnologías consumen la API en `NEXT_PUBLIC_API_URL` (por defecto `http://localhost:4000`), compartida con el formulario de contacto. La portada consume esos mismos catálogos públicos: ya no depende de las listas estáticas de servicios y herramientas. Requiere backend y PostgreSQL disponibles; un catálogo vacío no se rellena con ejemplos. Después de administrar contenido, al volver al portafolio se vuelven a consultar los datos.
+El panel se abre en `/panel`. Servicios y tecnologías consumen la API en `NEXT_PUBLIC_API_URL` (por defecto `http://localhost:4000`), compartida con el formulario de contacto. La portada consume esos mismos catálogos públicos: ya no depende de las listas estáticas de servicios y herramientas. «Las herramientas» muestra hasta cuatro tecnologías sin numerar; si hay más, rota los nombres automáticamente cada tres segundos solo mientras la sección está visible. Cada fila enmascara el cambio vertical; movimiento reducido detiene la animación. En escritorio, la lista toma el alto del texto contiguo; en móvil se apila y conserva filas de al menos 5rem. Requiere backend y PostgreSQL disponibles; un catálogo vacío no se rellena con ejemplos. Después de administrar contenido, al volver al portafolio se vuelven a consultar los datos.
 
-`/panel#consultas-admin` está preparada para `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder`; esos endpoints aún corresponden a la implementación de Ignacio. Mientras no existan, la vista muestra que la bandeja no está conectada. Los filtros distinguen tipo y estado, y una respuesta fallida conserva el texto. No se cambió autenticación ni se simulan roles o sesiones.
+`/panel#consultas-admin` consume `GET /api/operador/contactos` y `POST /api/operador/contactos/:id/responder`. El backend controla el acceso por rol; la vista muestra estados de carga y error, distingue tipo y estado, y conserva el borrador si una respuesta falla.
 
 AdminPage compone ServiciosAdmin, TecnologiasAdmin, ConsultasAdmin, UsuariosAdmin, ProyectosAdmin y MetricasAdmin. ProyectosAdmin monta ProjectsManager (CRUD para administradores, lista de solo lectura para operadores); MetricasAdmin monta MetricsManager (gráficos de Recharts con visitas por día y secciones alcanzadas, solo administrador); la portada monta RastreadorVisitas y el detalle de proyecto registra su visita (ver BACKEND-INTEGRATION.md, "Métricas de visitas"). El navbar, menú y paleta son los existentes; los módulos se recorren con anclas dentro de `/panel`, sin subpáginas. El navbar público incluye el icono de acceso al panel. El selector de tecnologías reutiliza Select y permite agregar varias opciones y quitar sus etiquetas. Los estilos de composición están en `styles/panel.css`.
 
 AppearanceProvider se monta una sola vez en app/layout.js, envolviendo páginas y efectos globales. useAppearance devuelve theme, mode, setTheme y setMode. Conserva la selección durante navegación interna; no usa almacenamiento persistente. El estado inicial es Sonrisa/claro.
+
+Google Identity Services usa `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, un OAuth Client ID de tipo Aplicación web que el navegador necesita para iniciar el flujo. Es un identificador público, no un secreto: no configurar el Client Secret en variables `NEXT_PUBLIC_*` ni incluirlo en el frontend. El backend verifica la credencial con su variable privada `GOOGLE_CLIENT_ID`, que debe corresponder al mismo cliente OAuth; configurar los orígenes autorizados de JavaScript para cada host (por ejemplo, localhost y el dominio de producción). El botón de Google usa el estilo oscuro de GIS cuando el tema activo es oscuro, incluida la preferencia del sistema.
 
 Paletas: sonrisa, lagorosa, ultramar, pitaya y verbena. Sus IDs exactos y muestras están en lib/palettes.js; los selectores CSS y tokens están en app/globals.css. Modo: light, dark o system. system retira data-theme para seguir el sistema operativo.
 
@@ -118,7 +120,7 @@ FlipCard recibe front, back, flipped/defaultFlipped, onFlipChange, axis, flipOnC
 
 useScrollCarousel normaliza unidades y amortigua trackpads. Captura únicamente gestos horizontales o Shift + rueda dentro del componente; la rueda vertical, el zoom y los campos conservan su comportamiento nativo. capturePointer/releasePointer centralizan la tolerancia a punteros expirados. No llamar directamente a releasePointerCapture en consumidores.
 
-Equipo y demos ajustan su escenario al alto de la ventana, sin ocultar contenido con alturas fijas de sección. El equipo recorre todo el ancho, mantiene las fotos de GitHub y agrupa sus controles con el enlace de perfil. Los catálogos y proyectos reservan espacio durante la carga con placeholders estáticos. Menú y paleta se cierran sin animación al mover el foco fuera del panel, para no cubrir el siguiente control de teclado. Google Identity se carga solo en el formulario de login, si hay un client ID configurado; onReady inicializa el botón sin sondeo periódico. Estos cambios no alteran el backend ni los permisos.
+Equipo y demos ajustan su escenario al alto de la ventana, sin ocultar contenido con alturas fijas de sección. El equipo recorre todo el ancho, mantiene las fotos de GitHub y agrupa sus controles con el enlace de perfil. Los catálogos y proyectos reservan espacio durante la carga con placeholders estáticos. Menú y paleta se cierran sin animación al mover el foco fuera del panel, para no cubrir el siguiente control de teclado. Google Identity se carga solo en el formulario de login, si hay un client ID configurado; onReady inicializa el botón sin sondeo periódico.
 
 ## Texto, ilustración y marquee
 
@@ -155,7 +157,9 @@ ArrowLink, desde components/ui/arrow-link, reemplaza los enlaces subrayados stud
 
 La foto de perfil y el enlace de cada integrante vienen de `GET /api/github/miembros` (hook `useEquipoGithub`, `lib/github-api.js`); `TEAM` ya no trae `profileHref`. Se emparejan por nombre y, si la API falla, la tarjeta muestra las iniciales y no se dibuja el botón. El footer reutiliza los mismos perfiles de GitHub y conserva iniciales si falla la imagen. En móvil, TeamGallery deja visibles las tarjetas vecinas, ofrece indicadores seleccionables y muestra la posición actual. TeamGallery muestra el GitHub de la tarjeta activa debajo del carrusel, en una pestaña nueva con noopener noreferrer. `next.config.mjs` permite `avatars.githubusercontent.com` en `next/image`.
 
-La portada y sus interacciones son públicas. El formulario de contacto está conectado a `POST /api/contact` mediante `submitContactRequest`; el registro y el inicio de sesión usan la API de autenticación; el entorno local requiere JWT_SECRET para emitir sesiones. La galería de proyectos lee `GET /api/proyectos`; las propuestas locales de `site-content.js` son solo un respaldo cuando la API falla o no tiene proyectos, y nunca se mezclan con los reales. El detalle `/proyectos/[id]` exige sesión (el 401 del backend es la protección real; la redirección es solo UX) y vuelve al detalle tras iniciar sesión mediante `?next=`, que solo acepta rutas internas. Estas limitaciones son parte explícita de la entrega actual.
+La portada y sus interacciones son públicas; enviar el formulario de contacto requiere sesión y usa `POST /api/contacto` mediante `submitContactRequest`. El registro, el inicio con email y Google usan la API de autenticación. En un entorno local, el backend requiere `JWT_SECRET` y `GOOGLE_CLIENT_ID` para emitir sesiones locales y validar credenciales de Google. La galería de proyectos lee `GET /api/proyectos`; las propuestas locales de `site-content.js` son solo un respaldo cuando la API falla o no tiene proyectos, y nunca se mezclan con los reales. El detalle `/proyectos/[id]` exige sesión (el 401 del backend es la protección real; la redirección es solo UX) y vuelve al detalle tras iniciar sesión mediante `?next=`, que solo acepta rutas internas.
+
+El avatar de la cuenta autenticada se obtiene de `usuario.foto_perfil_url`, que devuelve el backend en login, Google y `GET /api/auth/me`. `AvatarUsuario` solo muestra imágenes HTTPS de Google; las cuentas locales o las fotos fallidas conservan las iniciales como fallback. `next.config.mjs` permite `googleusercontent.com` en `next/image`.
 
 ## CI del pull request
 

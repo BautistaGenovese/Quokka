@@ -1,6 +1,6 @@
 # Integración del frontend con el servidor
 
-El frontend público está en /; el acceso preparado está en /iniciar-sesion. El equipo viene de lib/site-content.js; los proyectos vienen de la API (ver "Proyectos"), con las propuestas de site-content como respaldo. No hay sesión simulada, registro ficticio, página de laboratorio ni shader de previews.
+El frontend público está en /; el acceso está en /iniciar-sesion. El equipo viene de lib/site-content.js; los proyectos vienen de la API (ver "Proyectos"), con las propuestas de site-content como respaldo. No hay sesión simulada, registro ficticio, página de laboratorio ni shader de previews.
 
 ## Responsabilidades
 
@@ -8,15 +8,17 @@ El servidor debe resolver autenticación, permisos, consultas a GitHub, envío d
 
 ## Contacto
 
-ContactForm recibe onSubmitMessage, una función asíncrona con { name, email, type, message }. En la portada (`PortfolioPage`), el formulario se conecta mediante `submitContactRequest` (`lib/contact-api.js`) al endpoint `POST /api/contact` del backend, que valida y sanitiza en servidor, aplica límite de solicitudes por IP (rate limiting), persiste la consulta en PostgreSQL y envía la notificación por correo con Nodemailer. Sin adaptador, la UI únicamente valida y comunica que el envío no está habilitado.
+ContactForm recibe onSubmitMessage, una función asíncrona con { name, email, type, message }. En la portada (`PortfolioPage`), el formulario se conecta mediante `submitContactRequest` (`lib/contacto-api.js`) a `POST /api/contacto` (el backend también conserva el alias `/api/contact`). Requiere un token de sesión. El servidor valida, limita solicitudes por IP, persiste la consulta en PostgreSQL y envía la notificación por correo con Nodemailer.
 
 El consumidor cliente puede importar ContactForm y suministrar su callback; no pasar funciones desde una página Server Component. El formulario administra carga y mensajes; el adaptador administra red y credenciales.
 
 ## Inicio de sesión
 
-LoginForm recibe onSignIn({ email, password }). La capa de integración debe crear la sesión real, resolver errores, aplicar el método de transporte acordado y actualizar el contexto de usuario. El componente no persiste la contraseña ni la envía si falta el callback. La validación local exige un email válido y una contraseña no vacía; las reglas definitivas pertenecen al backend.
+El formulario conecta registro, inicio de sesión y Google Identity Services a `POST /api/auth/registro`, `POST /api/auth/login` y `POST /api/auth/google`. Las respuestas exitosas contienen un token y `usuario`; el cliente conserva ambos como `quokka_token` y `quokka_user` en `localStorage`, y `GET /api/auth/me` verifica y refresca la sesión al volver a cargar la aplicación. El cierre elimina ambos valores. El backend aplica los permisos; la visibilidad del panel en el cliente es solo UX.
 
-No hay endpoints inventados, autenticación conectada ni cookies de sesión creadas por esta entrega. AppearanceProvider contiene solo preferencias visuales, no identidad o permisos. El menú ya incluye un enlace funcional a /iniciar-sesion al pie del panel.
+Google Identity requiere `NEXT_PUBLIC_GOOGLE_CLIENT_ID` en el frontend. Es público por diseño para que GIS pueda identificar al cliente web; no debe contener el Client Secret. El backend requiere `GOOGLE_CLIENT_ID` en su entorno privado y verifica que la credencial corresponda al mismo cliente. Las cuentas vinculadas a Google reciben `foto_perfil_url` validada de `googleusercontent.com`; `GET /api/auth/me` la devuelve para restaurar el avatar. Las cuentas sin foto usan iniciales.
+
+AppearanceProvider contiene solo preferencias visuales, no identidad o permisos. El menú incluye un enlace funcional a `/iniciar-sesion` al pie del panel.
 
 ## Datos de presentación
 
