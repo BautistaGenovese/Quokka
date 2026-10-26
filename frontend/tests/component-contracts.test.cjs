@@ -99,8 +99,10 @@ test("el arrastre móvil del equipo nunca salta más de una persona por gesto", 
 test("los botones conservan el relleno al hover cuando el seguidor está apagado", () => {
   const source = fs.readFileSync(path.join(root, "components/ui/button.jsx"), "utf8");
   const styles = fs.readFileSync(path.join(root, "app/globals.css"), "utf8");
+  const navbarStyles = fs.readFileSync(path.join(root, "styles/navbar.css"), "utf8");
   assert.match(source, /pointerenter.*setOrigin/s);
   assert.match(styles, /html\[data-cursor-follower="false"\].*button-radial-fill:hover::before/s);
+  assert.match(navbarStyles, /html\[data-cursor-follower="false"\].*site-navbar-icon-control:hover\s*\{\s*color:\s*var\(--s-bg\)/s);
 });
 
 test("CardSwap conserva las demos personalizadas y deja accesible solo la tarjeta frontal", () => {

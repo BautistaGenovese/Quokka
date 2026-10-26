@@ -11,6 +11,7 @@
 .site-navbar-icon-control { display: grid; place-items: center; flex: none; width: 46px; height: 46px; padding: 0; border: 1px solid var(--s-line); position: relative; isolation: isolate; overflow: hidden; border-radius: 15px; background: var(--s-bg); color: var(--s-fg); cursor: pointer; touch-action: manipulation; transition: background-color .2s var(--motion-ease-out), color .2s var(--motion-ease-out), border-color .2s var(--motion-ease-out); }
 .site-navbar-icon-control::before { position: absolute; inset: 0; z-index: -1; background: var(--s-fg); }
 .site-navbar-icon-control:hover { color: var(--s-fg); }
+html[data-cursor-follower="false"] .site-navbar-icon-control:hover { color: var(--s-bg); }
 .site-navbar-icon-control:is([data-cursor-ink="true"], :focus-visible) { color: var(--s-bg); }
 .site-navbar-icon-control > span { position: relative; z-index: 1; }
 .site-navbar-dashboard-icon { width: 22px; height: 22px; overflow: visible; }
