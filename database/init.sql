@@ -160,9 +160,16 @@ WHERE p.titulo = imagen.titulo
 -- Contraseñas hasheadas con bcrypt (cost factor 10):
 --   admin@quokka.com    -> Admin2026!Quokka
 --   operador@quokka.com -> Operador2026!Quokka
+-- Repara automáticamente los hashes truncados de versiones previas sin pisar
+-- contraseñas válidas configuradas manualmente.
 -- -----------------------------------------------------------------------------
 INSERT INTO usuarios (nombre, email, password_hash, rol)
-VALUES 
-  ('Administrador Quokka', 'admin@quokka.com', '/ZADtQjih5Si7MsQcvF7.09ZQvyvW', 'administrador'),
-  ('Operador Quokka', 'operador@quokka.com', '/GG.m3wOz.zbYe4YcZKBj4sEFo/zxQ3WhzoLBValrMKAK', 'operador')
-ON CONFLICT (email) DO NOTHING;
+VALUES
+  ('Administrador Quokka', 'admin@quokka.com', '$2b$10$k3UlTkzRWOhhwo4G9OBMYe5I6IzfV3z1J1QhAeeKhFaiiakso4X1q', 'administrador'),
+  ('Operador Quokka', 'operador@quokka.com', '$2b$10$fe.pNsBRTaBCL9zep3mGtOrdq9yWO7wVKmPkTtXx6FdIq4KkjZJLe', 'operador')
+ON CONFLICT (email) DO UPDATE
+  SET password_hash = EXCLUDED.password_hash
+  WHERE usuarios.password_hash IN (
+    '/ZADtQjih5Si7MsQcvF7.09ZQvyvW',
+    '/GG.m3wOz.zbYe4YcZKBj4sEFo/zxQ3WhzoLBValrMKAK'
+  );
