@@ -8,6 +8,9 @@
 @keyframes field-error-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
 .quokka-field-control { position: relative; z-index: 1; display: block; width: 100%; min-width: 0; min-height: 4.4rem; padding: 1.3rem 1.2rem; border: 0; border-radius: inherit; background: transparent; color: var(--s-fg); font-family: var(--font-body); font-size: 1.125rem; font-weight: 400; line-height: 1.5; caret-color: var(--s-action); }
 .quokka-field[data-has-icon="true"] .quokka-field-control { padding-right: 3.5rem; }
+.quokka-field[data-has-action="true"] .quokka-field-control { padding-right: 3.75rem; }
+.quokka-field-control::-ms-reveal,
+.quokka-field-control::-ms-clear { display: none; }
 textarea.quokka-field-control { min-height: 7rem; max-height: 15rem; overflow-y: auto; resize: vertical; }
 .quokka-field-control:focus { outline: none; }
 /* Select: trigger Aire, menú con GSAP y semántica de lista de opciones. */
@@ -61,11 +64,18 @@ textarea.quokka-field-control { min-height: 7rem; max-height: 15rem; overflow-y:
 .quokka-field-control:focus::placeholder { opacity: .6; }
 .quokka-field-caption { position: absolute; z-index: 2; left: .85rem; top: 1.4rem; margin: 0; padding-inline: .35rem; width: max-content; max-width: calc(100% - 2rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform-origin: left center; font-size: 1rem; font-weight: 600; background: var(--s-bg); color: var(--s-fg); cursor: text; transition: color .3s, top var(--motion-change) var(--motion-ease-out), transform var(--motion-change) var(--motion-ease-out); }
 .quokka-field[data-has-icon="true"] .quokka-field-caption { max-width: calc(100% - 4rem); }
+.quokka-field[data-has-action="true"] .quokka-field-caption { max-width: calc(100% - 4.25rem); }
 .quokka-field-frame:is(:focus-within, :has(.quokka-field-control:not(:placeholder-shown)), :has(.quokka-field-control:autofill)) .quokka-field-caption { top: -1px; transform: translateY(-50%) scale(.82); max-width: calc(100% - 2rem); }
 .quokka-field[data-focused="true"] .quokka-field-frame { color: var(--s-focus); }
 .quokka-field[data-focused="true"] .quokka-field-caption { color: var(--s-action); }
 .quokka-field-icon { position: absolute; z-index: 1; top: 1.4rem; right: 1rem; pointer-events: none; color: var(--s-action); transition: color .3s; }
-.quokka-field[data-error="true"] .quokka-field-frame, .quokka-field[data-error="true"] .quokka-field-caption, .quokka-field[data-error="true"] .quokka-field-icon { color: var(--status-error); }
+.quokka-field-action { position: absolute; z-index: 2; top: 50%; right: .55rem; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; }
+.quokka-password-toggle { display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; border-radius: .75rem; background: transparent; color: var(--s-action); cursor: pointer; transition: color .25s, background-color .25s, transform .2s var(--motion-ease-out); }
+.quokka-password-toggle:hover:not(:disabled) { background: color-mix(in srgb, var(--s-action) 12%, transparent); }
+.quokka-password-toggle:active:not(:disabled) { transform: scale(.94); }
+.quokka-password-toggle:focus-visible { outline: 2px solid var(--s-focus); outline-offset: 2px; }
+.quokka-password-toggle:disabled { cursor: not-allowed; }
+.quokka-field[data-error="true"] .quokka-field-frame, .quokka-field[data-error="true"] .quokka-field-caption, .quokka-field[data-error="true"] .quokka-field-icon, .quokka-field[data-error="true"] .quokka-password-toggle { color: var(--status-error); }
 .quokka-field[data-error="true"] .quokka-field-caption { top: -1px; transform: translateY(-50%) scale(.82); max-width: calc(100% - 2rem); }
 .quokka-field-frame:has([readonly]) .quokka-field-border { border-style: dashed; }
 .quokka-field-frame:has(:disabled) { opacity: .5; }
@@ -75,10 +85,13 @@ textarea.quokka-field-control { min-height: 7rem; max-height: 15rem; overflow-y:
   .quokka-field-border { display: none; }
   .quokka-field-frame { border-color: CanvasText; }
   .quokka-field-control:focus-visible { outline: 2px solid Highlight; outline-offset: 4px; }
+  .quokka-password-toggle { color: ButtonText; }
+  .quokka-password-toggle:focus-visible { outline: 2px solid Highlight; }
   .quokka-field-caption { background: Canvas; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .quokka-field-caption, .quokka-field-frame, .quokka-field-icon, .quokka-field-control::placeholder { transition: none; }
+  .quokka-field-caption, .quokka-field-frame, .quokka-field-icon, .quokka-password-toggle, .quokka-field-control::placeholder { transition: none; }
+  .quokka-password-toggle:active:not(:disabled) { transform: none; }
 }
 
 .field-symbol-content, .field-symbol-error, .field-symbol-detail, .field-symbol-head, .field-symbol-bottom { transform-box: fill-box; transform-origin: center; transition: transform .24s var(--motion-ease-out), opacity .18s var(--motion-ease-out); }

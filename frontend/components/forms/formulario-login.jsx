@@ -21,6 +21,7 @@ export default function LoginForm({ onSignIn }) {
   const { mounted, user, roleLabel, canAccessPanel, logout } = useAuth();
   const { mode } = useAppearance();
   const [authMode, setAuthMode] = useState("login"); // "login" | "registro"
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -49,6 +50,7 @@ export default function LoginForm({ onSignIn }) {
 
   function toggleMode() {
     setAuthMode(prev => (prev === "login" ? "registro" : "login"));
+    setShowPassword(false);
     setErrors({});
     setStatus("idle");
     setMessage("");
@@ -228,6 +230,8 @@ export default function LoginForm({ onSignIn }) {
             type="password"
             label={isRegister ? "Contraseña (mín. 6 caracteres)" : "Contraseña"}
             autoComplete={isRegister ? "new-password" : "current-password"}
+            passwordVisible={showPassword}
+            onPasswordVisibleChange={setShowPassword}
             required
             minLength={isRegister ? 6 : undefined}
             error={errors.password}
