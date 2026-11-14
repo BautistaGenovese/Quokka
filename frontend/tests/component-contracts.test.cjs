@@ -437,8 +437,50 @@ test("el footer compacto conserva navegación y el login ofrece campos conectabl
   assert.match(form, /name="email"/);
   assert.match(form, /type="password"/);
   assert.match(form, /autoComplete="current-password"/);
+  assert.match(form, /aria-label="Mostrar contraseña"/);
   assert.match(form, /Iniciar sesión/);
   assert.match(form, /Registrate manualmente/);
+});
+
+test("el campo de contraseña ofrece alternar visibilidad de forma accesible sin filtrar props", () => {
+  const Input = load("components/ui/input.jsx").default;
+  const hidden = renderToStaticMarkup(h(Input, {
+    id: "pwd-field",
+    name: "password",
+    type: "password",
+    label: "Contraseña",
+    passwordVisible: false,
+    onPasswordVisibleChange() {},
+  }));
+  assert.match(hidden, /<input[^>]*type="password"/);
+  assert.match(hidden, /<input[^>]*id="pwd-field"/);
+  assert.match(hidden, /class="quokka-password-toggle"/);
+  assert.match(hidden, /type="button"/);
+  assert.match(hidden, /aria-controls="pwd-field"/);
+  assert.match(hidden, /aria-pressed="false"/);
+  assert.match(hidden, /aria-label="Mostrar contraseña"/);
+  assert.doesNotMatch(hidden, /passwordVisible=|onPasswordVisibleChange=|endAction=|quokka-field-icon/);
+
+  const visible = renderToStaticMarkup(h(Input, {
+    id: "pwd-field",
+    name: "password",
+    type: "password",
+    label: "Contraseña",
+    passwordVisible: true,
+    onPasswordVisibleChange() {},
+  }));
+  assert.match(visible, /<input[^>]*type="text"/);
+  assert.match(visible, /<input[^>]*id="pwd-field"/);
+  assert.match(visible, /aria-pressed="true"/);
+  assert.match(visible, /aria-label="Ocultar contraseña"/);
+
+  const disabled = renderToStaticMarkup(h(Input, {
+    name: "password",
+    type: "password",
+    label: "Contraseña",
+    passwordToggle: false,
+  }));
+  assert.doesNotMatch(disabled, /quokka-password-toggle|passwordToggle=/);
 });
 
 test("SwipeToast conserva anuncio y controles; Sling separa mascota del enlace de marca", () => {

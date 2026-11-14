@@ -10,7 +10,7 @@ import FieldBorder from "./field-border";
  */
 const FormField = forwardRef(function FormField({
   as: Control, controlKind = Control, id, label, labelAccessory, description, error, required, icon,
-  onFocus, onBlur, focusActive, placeholder = " ",
+  endAction, onFocus, onBlur, focusActive, placeholder = " ",
   className = "", wrapperClassName = "", "aria-describedby": describedBy,
   "aria-invalid": invalid, ...rest
 }, ref) {
@@ -21,13 +21,14 @@ const FormField = forwardRef(function FormField({
   // al trigger al cerrar para conservar la navegación por teclado.
   const visuallyFocused = focusActive ?? focused;
   const hasError = Boolean(error) || invalid === true || invalid === "true";
-  const iconKind = icon === false ? null : icon ?? (Control === "textarea" ? "message" : rest.type === "email" ? "mail" : "text");
+  const hasEndAction = Boolean(endAction);
+  const iconKind = hasEndAction || icon === false ? null : icon ?? (Control === "textarea" ? "message" : rest.type === "email" ? "mail" : "text");
   const fieldId = id || generatedId;
   const helpId = `${fieldId}-help`;
   const errorId = `${fieldId}-error`;
   const descriptions = [describedBy, description && helpId, error && errorId].filter(Boolean).join(" ");
   return (
-    <div className={`quokka-field min-w-0 space-y-2 ${wrapperClassName}`} data-control={controlKind} data-focused={visuallyFocused} data-error={hasError} data-has-icon={Boolean(iconKind)}>
+    <div className={`quokka-field min-w-0 space-y-2 ${wrapperClassName}`} data-control={controlKind} data-focused={visuallyFocused} data-error={hasError} data-has-icon={Boolean(iconKind)} data-has-action={hasEndAction}>
       <div className="quokka-field-frame">
         <Control {...rest} ref={ref} id={fieldId} required={required} placeholder={placeholder || " "}
           onFocus={event => { setFocused(true); onFocus?.(event); }}
@@ -36,6 +37,11 @@ const FormField = forwardRef(function FormField({
           className={`quokka-field-control font-body text-lg font-normal ${className}`} />
         <label htmlFor={fieldId} className="quokka-field-caption">{label}{required && <span aria-hidden="true"> *</span>}</label>
         {iconKind && <span className="quokka-field-icon" aria-hidden="true"><FieldIcon kind={iconKind} state={hasError ? "error" : focused ? "focus" : "idle"} /></span>}
+        {hasEndAction && (
+          <div className="quokka-field-action">
+            {typeof endAction === "function" ? endAction({ fieldId, hasError, focused }) : endAction}
+          </div>
+        )}
         <FieldBorder invalid={hasError} focused={visuallyFocused} />
       </div>
       {labelAccessory && <div className="flex items-center gap-2">{labelAccessory}</div>}

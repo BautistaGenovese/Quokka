@@ -11,6 +11,11 @@ import { safeNextPath } from "@/lib/redireccion-segura";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
+// GIS exige una única llamada a initialize() por carga de página; guardamos el estado
+// en window para sobrevivir a StrictMode, cambios de tema/modo y Fast Refresh en dev.
+const GSI_INIT_KEY = "__quokkaGsiInitializedClientId";
+const GSI_CALLBACK_KEY = "__quokkaGsiCallback";
+
 /** Lee ?next= al momento de redirigir (sin useSearchParams) y solo acepta rutas internas. */
 function redirectAfterLogin() {
   return safeNextPath(new URLSearchParams(window.location.search).get("next"));
@@ -21,6 +26,7 @@ export default function LoginForm({ onSignIn }) {
   const { mounted, user, roleLabel, canAccessPanel, logout } = useAuth();
   const { mode } = useAppearance();
   const [authMode, setAuthMode] = useState("login"); // "login" | "registro"
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -49,6 +55,7 @@ export default function LoginForm({ onSignIn }) {
 
   function toggleMode() {
     setAuthMode(prev => (prev === "login" ? "registro" : "login"));
+    setShowPassword(false);
     setErrors({});
     setStatus("idle");
     setMessage("");
@@ -85,26 +92,37 @@ export default function LoginForm({ onSignIn }) {
   }, []);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || !googleReady || (mounted && user)) return;
-    if (window.google?.accounts?.id && googleBtnRef.current) {
+    window[GSI_CALLBACK_KEY] = handleGoogleCredential;
+    return () => {
+      if (window[GSI_CALLBACK_KEY] === handleGoogleCredential) {
+        window[GSI_CALLBACK_KEY] = null;
+      }
+    };
+  }, [handleGoogleCredential]);
 
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGoogleCredential,
-        });
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || !mounted || user) return;
+    const googleId = window.google?.accounts?.id;
+    if (!googleId || !googleBtnRef.current) return;
 
-        googleBtnRef.current.innerHTML = "";
-
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          theme: googleButtonTheme,
-          size: "large",
-          shape: "pill",
-          text: isRegister ? "signup_with" : "continue_with",
-          width: 360,
-          logo_alignment: "left",
-        });
+    if (window[GSI_INIT_KEY] !== GOOGLE_CLIENT_ID) {
+      googleId.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: response => window[GSI_CALLBACK_KEY]?.(response),
+      });
+      window[GSI_INIT_KEY] = GOOGLE_CLIENT_ID;
     }
-  }, [googleReady, isRegister, mounted, user, handleGoogleCredential, googleButtonTheme]);
+
+    googleBtnRef.current.innerHTML = "";
+    googleId.renderButton(googleBtnRef.current, {
+      theme: googleButtonTheme,
+      size: "large",
+      shape: "pill",
+      text: isRegister ? "signup_with" : "continue_with",
+      width: 360,
+      logo_alignment: "left",
+    });
+  }, [googleReady, isRegister, mounted, user, googleButtonTheme]);
 
   async function submit(event) {
     event.preventDefault();
@@ -228,6 +246,8 @@ export default function LoginForm({ onSignIn }) {
             type="password"
             label={isRegister ? "Contraseña (mín. 6 caracteres)" : "Contraseña"}
             autoComplete={isRegister ? "new-password" : "current-password"}
+            passwordVisible={showPassword}
+            onPasswordVisibleChange={setShowPassword}
             required
             minLength={isRegister ? 6 : undefined}
             error={errors.password}
